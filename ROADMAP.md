@@ -7,7 +7,7 @@ Documento técnico de seguimiento para desarrollo y agentes de IA. Contiene el e
 ## 1. Stack Tecnológico
 - **Backend:** Laravel 11 (API REST)
 - **Frontend:** Vue 3 (SPA) + Tailwind CSS
-- **Base de Datos:** PostgreSQL en Neon
+- **Base de Datos:** PostgreSQL en Supabase
 - **Metodología:** Scrumban (Trello)
 
 ---
@@ -15,7 +15,7 @@ Documento técnico de seguimiento para desarrollo y agentes de IA. Contiene el e
 ## 2. Estado Actual del Desarrollo
 
 ### ✅ Completado
-- **Configuración de Entorno:** Repositorio Laravel + Vue inicializado y conexión a PostgreSQL (Neon) configurada vía `.env`.
+- **Configuración de Entorno:** Repositorio Laravel + Vue inicializado y conexión a PostgreSQL (Supabase) configurada vía `.env`.
 - **Tokens de Diseño:** Tailwind CSS configurado con la paleta y tipografías oficiales.
 
 ### 🟡 En Curso (Paso Inmediato)
@@ -101,7 +101,7 @@ Documento técnico de seguimiento para desarrollo y agentes de IA. Contiene el e
 ---
 
 ### Fase 1: Persistencia y Datos Semilla
-- [ ] Ejecutar migraciones en Neon respetando el orden relacional:
+- [ ] Ejecutar migraciones en Supabase respetando el orden relacional:
   1. `users`, `puntos_entrega`, `medicamentos_habilitados`
   2. `medicamentos`
   3. `solicitudes`
@@ -112,7 +112,7 @@ Documento técnico de seguimiento para desarrollo y agentes de IA. Contiene el e
   - 5 registros de prueba en `medicamentos` con `estado = 'disponible'`.
 
 ### Fase 2: Feature Inicial (First-Feature)
-*Objetivo: Comprobar el flujo Neon -> Laravel -> Vue sin dependencia de Auth.*
+*Objetivo: Comprobar el flujo Supabase -> Laravel -> Vue sin dependencia de Auth.*
 - [ ] Backend: `GET /api/medicamentos` (filtrar `estado = 'disponible'` y `fecha_vencimiento >= now()`).
 - [ ] Frontend: Vista de catálogo/marketplace con barra de búsqueda reactiva por nombre comercial y principio activo.
 
