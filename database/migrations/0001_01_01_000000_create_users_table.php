@@ -15,8 +15,16 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('dni')->unique();
+            $table->string('telefono');
+            $table->string('direccion');
+            $table->string('localidad');
+            $table->enum('rol', ['user', 'admin'])->default('user');
+            $table->boolean('is_validado')->default(true);
+            $table->boolean('acepto_ddjj')->default(false);
+            $table->timestamp('fecha_aceptacion_ddjj')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
