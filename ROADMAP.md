@@ -22,7 +22,7 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Migración de stack: se retiraron Laravel, PHP y sus dependencias; el frontend quedó como SPA de Vite.
 - [ ] Base de datos limpia: eliminar las tablas que habían creado las migraciones de Laravel.
 - [ ] Inicializar `supabase/` con Supabase CLI (`supabase init` + `supabase link`).
-- [ ] Migraciones SQL de las 6 tablas del dominio (0 de 6).
+- [ ] Migraciones SQL de las 5 tablas del dominio (0 de 5).
 
 ### Decisiones de modelo
 
@@ -30,18 +30,20 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - Sin puntos de entrega fijos: donante y receptor coordinan día, hora y lugar por el chat de la solicitud.
 - `profiles.is_validado` arranca en `true`; el admin lo pasa a `false` para suspender una cuenta.
 - `profiles.rol` e `is_validado` solo los modifica un admin (RLS / Edge Function), nunca el propio usuario.
-- `medicamentos.lote` da trazabilidad sanitaria; `motivo_rechazo` se comunica al donante.
+- `profiles.rol` y los `estado` de `medicamentos` y `solicitudes` son VARCHAR con un conjunto cerrado de valores, no tipos ENUM de Postgres.
+- `medicamentos`, `solicitudes` y `profiles` usan UUID como PK; `medicamentos_habilitados` y `solicitud_mensajes` usan BIGINT identity.
+- `medicamentos.lote` da trazabilidad sanitaria; `motivo_rechazo` se comunica al donante por alerta o mail durante la moderación.
 - `solicitudes.medicamento_id` usa `ON DELETE RESTRICT` para no perder el historial de intercambios.
-- `alertas_moderacion.referencia_id` apunta al registro asociado sin FK polimórfica.
-- Fotos de envases y recetas se guardan en Supabase Storage; las tablas guardan solo las rutas.
+- No hay tabla de alertas de moderación: la moderación se basa en el `estado` de `medicamentos` (`pendiente_revision`, `rechazado`) y en `motivo_rechazo`.
+- Fotos de envases y recetas se guardan en Supabase Storage; las tablas guardan solo sus URLs.
 
 ---
 
 ## 3. Esquema de Base de Datos
 
 Migraciones en SQL dentro de `supabase/migrations/` (`supabase migrations new <nombre>`), con RLS habilitado en todas las tablas.
-Salvo aclaración, cada tabla tiene `id` (BIGINT identity, PK) y `created_at` / `updated_at` (TIMESTAMPTZ, default `now()`).
-Orden de creación: `profiles`, `medicamentos_habilitados` → `medicamentos` → `solicitudes` → `solicitud_mensajes`, `alertas_moderacion`.
+Salvo aclaración, cada tabla tiene `created_at` / `updated_at` (TIMESTAMPTZ, default `now()`). El tipo de `id` se indica en cada tabla.
+Orden de creación: `profiles`, `medicamentos_habilitados` → `medicamentos` → `solicitudes` → `solicitud_mensajes`.
 
 | # | Tabla | Estado |
 |---|---|---|
@@ -50,74 +52,77 @@ Orden de creación: `profiles`, `medicamentos_habilitados` → `medicamentos` �
 | 3 | `medicamentos` | Pendiente |
 | 4 | `solicitudes` | Pendiente |
 | 5 | `solicitud_mensajes` | Pendiente |
-| 6 | `alertas_moderacion` | Pendiente |
 
-### 1. `profiles`
+### 1. `profiles` (Perfiles y Datos Legales)
 
-Datos de contacto, rol y Declaración Jurada de cada usuario. Reemplaza a la tabla `users` de Laravel. Se crea automáticamente al registrarse mediante un trigger sobre `auth.users`.
+Extensión pública vinculada al usuario autenticado de Supabase (`auth.users`). Se crea automáticamente al registrarse mediante un trigger sobre `auth.users`.
 
-- `id`: UUID, PK, FK → `auth.users.id`, ON DELETE CASCADE
-- `name`, `dni` (UNIQUE), `telefono`, `direccion`, `localidad`: VARCHAR
-- `rol`: ENUM `user` | `admin`, default `user`
-- `is_validado`: BOOLEAN, default `true`
+- `id`: UUID, PK, REFERENCES `auth.users(id)` ON DELETE CASCADE
+- `name`: VARCHAR
+- `dni`: VARCHAR, UNIQUE
+- `telefono`, `direccion`, `localidad`: VARCHAR
+- `rol`: VARCHAR, default `'user'` — `user` | `admin`
+- `is_validado`: BOOLEAN, default `true` (alta automática)
 - `acepto_ddjj`: BOOLEAN, default `false`
 - `fecha_aceptacion_ddjj`: TIMESTAMPTZ, NULLABLE
+- `created_at` / `updated_at`: TIMESTAMPTZ, default `now()`
 
 Email, contraseña y verificación de email los gestiona Supabase Auth.
 
-### 2. `medicamentos_habilitados`
+### 2. `medicamentos_habilitados` (Catálogo Oficial de Referencia / Vademécum)
 
-Vademécum de referencia para aprobar en automático o retener publicaciones fuera de catálogo.
+Dataset de control sanitario para validar altas automáticamente desde una Edge Function (Deno) o retenerlas a revisión.
 
+- `id`: BIGINT, PK, GENERATED ALWAYS AS IDENTITY
 - `nombre_comercial`, `principio_activo`: VARCHAR
 - `concentracion`, `forma_farmaceutica`, `presentacion`: VARCHAR, NULLABLE
 - `requiere_receta`: BOOLEAN, default `false`
+- `created_at` / `updated_at`: TIMESTAMPTZ, default `now()`
 
-### 3. `medicamentos`
+### 3. `medicamentos` (Publicaciones de Donaciones)
 
-Publicaciones de donación cargadas por los donantes.
+Unidades físicas subidas por los donantes para el catálogo comunitario.
 
-- `user_id`: UUID, FK → `profiles.id`, ON DELETE CASCADE
+- `id`: UUID, PK, default `gen_random_uuid()`
+- `user_id`: UUID, FK → `profiles(id)`, ON DELETE CASCADE
 - `nombre_comercial`, `principio_activo`: VARCHAR
-- `concentracion`, `forma_farmaceutica`, `lote`: VARCHAR, NULLABLE
+- `concentracion`, `forma_farmaceutica`: VARCHAR, NULLABLE
 - `cantidad_disponible`: INTEGER
+- `lote`: VARCHAR, NULLABLE — trazabilidad sanitaria declarada
 - `fecha_vencimiento`: DATE
-- `fotos_envase`: JSONB (hasta 3 rutas de Storage)
-- `descripcion`, `motivo_rechazo`: TEXT, NULLABLE
-- `estado`: ENUM `disponible` | `pendiente_revision` | `reservado` | `entregado` | `rechazado`, default `disponible`
+- `fotos_envase`: JSONB — hasta 3 URLs de imágenes
+- `descripcion`: TEXT, NULLABLE
+- `estado`: VARCHAR, default `'disponible'` — `disponible` | `pendiente_revision` | `reservado` | `entregado` | `rechazado`
+- `motivo_rechazo`: TEXT, NULLABLE — para alertas/mails en moderación
+- `created_at` / `updated_at`: TIMESTAMPTZ, default `now()`
 - Índice: `(nombre_comercial, principio_activo, estado)`
 
-### 4. `solicitudes`
+### 4. `solicitudes` (Intercambios y Trazabilidad)
 
-Reserva, destinatario, receta y código de cierre de la entrega.
+Control de la reserva, receta médica y código numérico para la entrega en persona.
 
-- `medicamento_id`: FK → `medicamentos.id`, ON DELETE RESTRICT
-- `receptor_id`: UUID, FK → `profiles.id`, ON DELETE CASCADE
+- `id`: UUID, PK, default `gen_random_uuid()`
+- `medicamento_id`: UUID, FK → `medicamentos(id)`, ON DELETE RESTRICT
+- `receptor_id`: UUID, FK → `profiles(id)`, ON DELETE CASCADE
 - `es_para_tercero`: BOOLEAN, default `false`
-- `nombre_destinatario_final`, `receta_medica_url`: VARCHAR, NULLABLE
-- `codigo_confirmacion`: VARCHAR(6)
+- `nombre_destinatario_final`: VARCHAR, NULLABLE
+- `receta_medica_url`: VARCHAR, NULLABLE
+- `codigo_confirmacion`: VARCHAR(6) — código de 6 dígitos para retiro presencial
 - `acepto_ddjj_receptor`: BOOLEAN, default `false`
-- `fecha_aceptacion_ddjj`, `fecha_entrega`: TIMESTAMPTZ, NULLABLE
-- `estado`: ENUM `pendiente_coordinacion` | `en_camino` | `completado` | `cancelado`, default `pendiente_coordinacion`
+- `fecha_aceptacion_ddjj`: TIMESTAMPTZ, NULLABLE
+- `estado`: VARCHAR, default `'pendiente_coordinacion'` — `pendiente_coordinacion` | `en_camino` | `completado` | `cancelado`
+- `fecha_entrega`: TIMESTAMPTZ, NULLABLE
+- `created_at` / `updated_at`: TIMESTAMPTZ, default `now()`
 
-### 5. `solicitud_mensajes`
+### 5. `solicitud_mensajes` (Chat Realtime entre Donante y Receptor)
 
-Chat Realtime de la solicitud, con RLS: solo leen y escriben el donante y el receptor. Sin `updated_at`.
+Mensajería de coordinación del punto de encuentro en tiempo real, con RLS: solo leen y escriben el donante y el receptor. Sin `updated_at`.
 
-- `solicitud_id`: FK → `solicitudes.id`, ON DELETE CASCADE
-- `user_id`: UUID, FK → `profiles.id`, ON DELETE CASCADE
+- `id`: BIGINT, PK, GENERATED ALWAYS AS IDENTITY
+- `solicitud_id`: UUID, FK → `solicitudes(id)`, ON DELETE CASCADE
+- `user_id`: UUID, FK → `profiles(id)`, ON DELETE CASCADE
 - `mensaje`: TEXT
 - `created_at`: TIMESTAMPTZ, default `now()`
-
-### 6. `alertas_moderacion`
-
-Reportes de chat, publicaciones fuera de catálogo, entregas fallidas y posibles fraudes.
-
-- `user_id`: UUID, FK → `profiles.id`, ON DELETE SET NULL, NULLABLE
-- `tipo`: ENUM `medicamento_fuera_catalogo` | `reporte_chat` | `entrega_fallida` | `posible_fraude`
-- `referencia_id`: BIGINT
-- `motivo`: TEXT
-- `resuelto`: BOOLEAN, default `false`
 
 ---
 
@@ -148,19 +153,18 @@ Comprobar el flujo Supabase → Vue sin Auth.
 ### Fase 4: Quiero Donar
 
 - [ ] Bucket de Storage para fotos de envases (hasta 3 por publicación).
-- [ ] Edge Function `publicar-medicamento`: valida contra `medicamentos_habilitados`; si coincide queda `disponible`, si no `pendiente_revision` con alerta `medicamento_fuera_catalogo`.
-- [ ] Rechazo con `motivo_rechazo` y aviso al donante.
+- [ ] Edge Function `publicar-medicamento`: valida contra `medicamentos_habilitados`; si coincide queda `disponible`, si no queda en `pendiente_revision` para moderación.
+- [ ] Rechazo (`estado = 'rechazado'`) con `motivo_rechazo` y aviso al donante por mail.
 
 ### Fase 5: Quiero Recibir y Coordinación
 
 - [ ] Edge Function `crear-solicitud`: reserva el medicamento, genera el código de 6 dígitos y exige receta (si `requiere_receta`), destinatario (si `es_para_tercero`) y DDJJ del receptor.
 - [ ] Chat de la solicitud con suscripción Realtime en Vue.
 - [ ] Edge Function `confirmar-entrega`: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
-- [ ] Alerta `entrega_fallida` ante cancelaciones o entregas fallidas.
+- [ ] Cancelación de la solicitud (`cancelado`) que devuelve el medicamento a `disponible`.
 
 ### Fase 6: Panel de Administración
 
-- [ ] Moderar donaciones en `pendiente_revision`.
+- [ ] Moderar donaciones en `pendiente_revision`: aprobar (`disponible`) o rechazar (`rechazado` + `motivo_rechazo`).
 - [ ] Alta en `medicamentos_habilitados`.
 - [ ] Suspender o rehabilitar usuarios (`is_validado`).
-- [ ] Bandeja de `alertas_moderacion` (filtro por `tipo`, marcar `resuelto`).
