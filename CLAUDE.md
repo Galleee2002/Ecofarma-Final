@@ -1,47 +1,46 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# EcoFARMA — Guía para agentes
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+## Stack
 
-## Prerequisites
+- Frontend: Vue 3 (SPA, Composition API) + Tailwind CSS 4, con Vite. Gestor de paquetes: pnpm.
+- Backend: Supabase (PostgreSQL, Auth, Storage, Realtime).
+- Lógica de servidor: Supabase Edge Functions en TypeScript sobre Deno.
+- El proyecto no usa Laravel ni PHP. No agregar dependencias de PHP/Composer ni de Laravel.
 
-Verify that PHP and Composer are available:
+El estado del proyecto, el esquema de base de datos y las fases están en `ROADMAP.md`. Mantenerlo actualizado al completar tareas.
 
-```sh
-php -v
-composer -V
-```
+## Estructura
 
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
+- `index.html`: punto de entrada de Vite.
+- `src/main.js`, `src/App.vue`: arranque de la app.
+- `src/style.css`: Tailwind y tokens de diseño (`@theme`).
+- `src/lib/supabase.js`: cliente único de Supabase. Importarlo desde ahí; no crear otros clientes en el frontend.
+- `supabase/migrations/`: migraciones SQL del esquema (se crean con `supabase migrations new <nombre>`).
+- `supabase/functions/<nombre>/index.ts`: Edge Functions.
+- `supabase/seed.sql`: datos semilla.
 
-macOS:
+## Base de datos
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
-```
+- Todo cambio de esquema va en una migración SQL nueva; no editar migraciones ya aplicadas.
+- RLS habilitado en todas las tablas, con políticas explícitas por operación.
+- Los usuarios viven en `auth.users`; los datos de dominio en `public.profiles` (`id` UUID FK a `auth.users.id`).
+- Nombres de tablas y columnas en español y `snake_case`, como en `ROADMAP.md`.
 
-Windows PowerShell:
+## Edge Functions (Deno)
 
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
-```
+- TypeScript con `Deno.serve`.
+- Imports con especificadores `npm:` o `jsr:` (por ejemplo `npm:@supabase/supabase-js@2`); no usar `node_modules` del frontend.
+- Leer secretos con `Deno.env.get(...)`. La `service_role` key solo se usa dentro de Edge Functions.
+- Validar el JWT del usuario y responder con CORS para que el frontend pueda invocarlas con `supabase.functions.invoke`.
+- Las reglas de negocio sensibles (validación contra `medicamentos_habilitados`, código de confirmación, cierre de entregas, acciones de admin) van en Edge Functions, no en el frontend.
 
-Linux:
+## Frontend
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
-```
+- Variables de entorno con prefijo `VITE_` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`), definidas en `.env.local`.
+- Nunca exponer la `service_role` key ni otros secretos en el código del frontend.
+- Estilos con clases de Tailwind y los tokens definidos en `src/style.css`.
 
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
+## Comandos
 
-## Agent Setup
-
-Install Laravel Boost from the application root before making application changes:
-
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
-
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+- `pnpm dev`, `pnpm build`, `pnpm preview`.
+- `supabase functions serve`, `supabase functions deploy <nombre>`, `supabase db push`.

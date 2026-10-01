@@ -6,53 +6,64 @@ Seguimiento técnico del proyecto: estado, esquema de base de datos y fases de i
 
 ## 1. Stack
 
-- **Backend:** Laravel 13 (API REST)
-- **Frontend:** Vue 3 (SPA) + Tailwind CSS
-- **Base de Datos:** PostgreSQL en Supabase, con Realtime para el chat
+- **Frontend:** Vue 3 (SPA) + Tailwind CSS, con Vite
+- **Backend:** Supabase: PostgreSQL, Auth, Storage y Realtime (chat)
+- **Lógica de servidor:** Supabase Edge Functions en Deno (TypeScript)
 - **Metodología:** Scrumban (Trello)
+
+Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y RLS, y la lógica sensible vive en Edge Functions.
 
 ---
 
 ## 2. Estado
 
-- [x] Entorno: Laravel + Vue inicializado y conexión a Supabase vía `.env`.
+- [x] Entorno inicial con Vue + Tailwind y conexión a Supabase vía variables `VITE_SUPABASE_*`.
 - [x] Tokens de diseño en Tailwind (paleta y tipografías).
-- [ ] Migraciones de las 6 tablas del dominio (en curso: 1 de 6).
+- [x] Migración de stack: se retiraron Laravel, PHP y sus dependencias; el frontend quedó como SPA de Vite.
+- [ ] Base de datos limpia: eliminar las tablas que habían creado las migraciones de Laravel.
+- [ ] Inicializar `supabase/` con Supabase CLI (`supabase init` + `supabase link`).
+- [ ] Migraciones SQL de las 6 tablas del dominio (0 de 6).
 
 ### Decisiones de modelo
 
+- Autenticación con Supabase Auth: credenciales y email viven en `auth.users`; los datos de dominio en `profiles`.
 - Sin puntos de entrega fijos: donante y receptor coordinan día, hora y lugar por el chat de la solicitud.
-- `users.is_validado` arranca en `true`; el admin lo pasa a `false` para suspender una cuenta.
+- `profiles.is_validado` arranca en `true`; el admin lo pasa a `false` para suspender una cuenta.
+- `profiles.rol` e `is_validado` solo los modifica un admin (RLS / Edge Function), nunca el propio usuario.
 - `medicamentos.lote` da trazabilidad sanitaria; `motivo_rechazo` se comunica al donante.
 - `solicitudes.medicamento_id` usa `ON DELETE RESTRICT` para no perder el historial de intercambios.
 - `alertas_moderacion.referencia_id` apunta al registro asociado sin FK polimórfica.
+- Fotos de envases y recetas se guardan en Supabase Storage; las tablas guardan solo las rutas.
 
 ---
 
 ## 3. Esquema de Base de Datos
 
-Todas las tablas tienen `id` (BIGINT, PK autoincremental) y `created_at` / `updated_at`, salvo aclaración.
-Orden de creación: `users`, `medicamentos_habilitados` → `medicamentos` → `solicitudes` → `solicitud_mensajes`, `alertas_moderacion`.
+Migraciones en SQL dentro de `supabase/migrations/` (`supabase migrations new <nombre>`), con RLS habilitado en todas las tablas.
+Salvo aclaración, cada tabla tiene `id` (BIGINT identity, PK) y `created_at` / `updated_at` (TIMESTAMPTZ, default `now()`).
+Orden de creación: `profiles`, `medicamentos_habilitados` → `medicamentos` → `solicitudes` → `solicitud_mensajes`, `alertas_moderacion`.
 
 | # | Tabla | Estado |
 |---|---|---|
-| 1 | `users` | Finalizada |
+| 1 | `profiles` | Pendiente |
 | 2 | `medicamentos_habilitados` | Pendiente |
 | 3 | `medicamentos` | Pendiente |
 | 4 | `solicitudes` | Pendiente |
 | 5 | `solicitud_mensajes` | Pendiente |
 | 6 | `alertas_moderacion` | Pendiente |
 
-### 1. `users` — Finalizada
+### 1. `profiles`
 
-Usuarios, contacto, rol y Declaración Jurada. Migración, modelo `User` y `UserFactory` actualizados.
+Datos de contacto, rol y Declaración Jurada de cada usuario. Reemplaza a la tabla `users` de Laravel. Se crea automáticamente al registrarse mediante un trigger sobre `auth.users`.
 
-- `name`, `email` (UNIQUE), `password`, `dni` (UNIQUE), `telefono`, `direccion`, `localidad`: VARCHAR
+- `id`: UUID, PK, FK → `auth.users.id`, ON DELETE CASCADE
+- `name`, `dni` (UNIQUE), `telefono`, `direccion`, `localidad`: VARCHAR
 - `rol`: ENUM `user` | `admin`, default `user`
 - `is_validado`: BOOLEAN, default `true`
 - `acepto_ddjj`: BOOLEAN, default `false`
-- `fecha_aceptacion_ddjj`, `email_verified_at`: TIMESTAMP, NULLABLE
-- `remember_token`: VARCHAR, NULLABLE
+- `fecha_aceptacion_ddjj`: TIMESTAMPTZ, NULLABLE
+
+Email, contraseña y verificación de email los gestiona Supabase Auth.
 
 ### 2. `medicamentos_habilitados`
 
@@ -66,35 +77,35 @@ Vademécum de referencia para aprobar en automático o retener publicaciones fue
 
 Publicaciones de donación cargadas por los donantes.
 
-- `user_id`: FK → `users.id`, ON DELETE CASCADE
+- `user_id`: UUID, FK → `profiles.id`, ON DELETE CASCADE
 - `nombre_comercial`, `principio_activo`: VARCHAR
 - `concentracion`, `forma_farmaceutica`, `lote`: VARCHAR, NULLABLE
 - `cantidad_disponible`: INTEGER
 - `fecha_vencimiento`: DATE
-- `fotos_envase`: JSON (hasta 3 URLs)
+- `fotos_envase`: JSONB (hasta 3 rutas de Storage)
 - `descripcion`, `motivo_rechazo`: TEXT, NULLABLE
 - `estado`: ENUM `disponible` | `pendiente_revision` | `reservado` | `entregado` | `rechazado`, default `disponible`
-- Índice: `['nombre_comercial', 'principio_activo', 'estado']`
+- Índice: `(nombre_comercial, principio_activo, estado)`
 
 ### 4. `solicitudes`
 
 Reserva, destinatario, receta y código de cierre de la entrega.
 
 - `medicamento_id`: FK → `medicamentos.id`, ON DELETE RESTRICT
-- `receptor_id`: FK → `users.id`, ON DELETE CASCADE
+- `receptor_id`: UUID, FK → `profiles.id`, ON DELETE CASCADE
 - `es_para_tercero`: BOOLEAN, default `false`
 - `nombre_destinatario_final`, `receta_medica_url`: VARCHAR, NULLABLE
 - `codigo_confirmacion`: VARCHAR(6)
 - `acepto_ddjj_receptor`: BOOLEAN, default `false`
-- `fecha_aceptacion_ddjj`, `fecha_entrega`: TIMESTAMP, NULLABLE
+- `fecha_aceptacion_ddjj`, `fecha_entrega`: TIMESTAMPTZ, NULLABLE
 - `estado`: ENUM `pendiente_coordinacion` | `en_camino` | `completado` | `cancelado`, default `pendiente_coordinacion`
 
 ### 5. `solicitud_mensajes`
 
-Chat Realtime de la solicitud, con RLS: solo escriben el donante y el receptor. Sin `updated_at`.
+Chat Realtime de la solicitud, con RLS: solo leen y escriben el donante y el receptor. Sin `updated_at`.
 
 - `solicitud_id`: FK → `solicitudes.id`, ON DELETE CASCADE
-- `user_id`: FK → `users.id`, ON DELETE CASCADE
+- `user_id`: UUID, FK → `profiles.id`, ON DELETE CASCADE
 - `mensaje`: TEXT
 - `created_at`: TIMESTAMPTZ, default `now()`
 
@@ -102,7 +113,7 @@ Chat Realtime de la solicitud, con RLS: solo escriben el donante y el receptor. 
 
 Reportes de chat, publicaciones fuera de catálogo, entregas fallidas y posibles fraudes.
 
-- `user_id`: FK → `users.id`, ON DELETE SET NULL, NULLABLE
+- `user_id`: UUID, FK → `profiles.id`, ON DELETE SET NULL, NULLABLE
 - `tipo`: ENUM `medicamento_fuera_catalogo` | `reporte_chat` | `entrega_fallida` | `posible_fraude`
 - `referencia_id`: BIGINT
 - `motivo`: TEXT
@@ -114,37 +125,37 @@ Reportes de chat, publicaciones fuera de catálogo, entregas fallidas y posibles
 
 ### Fase 1: Persistencia y Datos Semilla
 
-- [x] Tabla `users` (migración, modelo y factory).
-- [ ] Migraciones restantes, en el orden del esquema.
-- [ ] Ejecutar las migraciones en Supabase.
-- [ ] Realtime y RLS sobre `solicitud_mensajes`.
-- [ ] `DatabaseSeeder`: 10-15 fármacos habilitados, 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible`.
+- [ ] `supabase init` y `supabase link` al proyecto.
+- [ ] Migraciones SQL en el orden del esquema, con trigger de creación de `profiles`.
+- [ ] Políticas RLS en todas las tablas.
+- [ ] Realtime sobre `solicitud_mensajes`.
+- [ ] `supabase/seed.sql`: 10-15 fármacos habilitados, 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible`.
 
 ### Fase 2: Feature Inicial
 
-Comprobar el flujo Supabase → Laravel → Vue sin Auth.
+Comprobar el flujo Supabase → Vue sin Auth.
 
-- [ ] `GET /api/medicamentos` (`estado = 'disponible'` y `fecha_vencimiento >= now()`).
-- [ ] Catálogo en Vue con búsqueda por nombre comercial y principio activo.
+- [ ] Política RLS de lectura pública de medicamentos `disponible` con `fecha_vencimiento >= now()`.
+- [ ] Catálogo en Vue con `supabase-js` y búsqueda por nombre comercial y principio activo.
 
 ### Fase 3: Autenticación y Cuentas
 
-- [ ] Laravel Sanctum: `/api/register`, `/api/login`, `/api/logout`.
-- [ ] Registro con checkbox de Declaración Jurada y `is_validado = true`.
-- [ ] Middleware que bloquee donar y solicitar si `is_validado == false`.
+- [ ] Registro, login y logout con Supabase Auth.
+- [ ] Registro con checkbox de Declaración Jurada y `is_validado = true` en `profiles`.
+- [ ] RLS que bloquee donar y solicitar si `is_validado = false`.
 - [ ] Vistas de Login, Registro y Perfil (datos e historial).
 
 ### Fase 4: Quiero Donar
 
-- [ ] `POST /api/medicamentos` con `lote` opcional y hasta 3 fotos.
-- [ ] Validación contra `medicamentos_habilitados`: si coincide queda `disponible`; si no, `pendiente_revision` con alerta `medicamento_fuera_catalogo`.
+- [ ] Bucket de Storage para fotos de envases (hasta 3 por publicación).
+- [ ] Edge Function `publicar-medicamento`: valida contra `medicamentos_habilitados`; si coincide queda `disponible`, si no `pendiente_revision` con alerta `medicamento_fuera_catalogo`.
 - [ ] Rechazo con `motivo_rechazo` y aviso al donante.
 
 ### Fase 5: Quiero Recibir y Coordinación
 
-- [ ] `POST /api/solicitudes`: reserva el medicamento, genera el código de 6 dígitos y pide receta (si `requiere_receta`), destinatario (si `es_para_tercero`) y DDJJ del receptor.
+- [ ] Edge Function `crear-solicitud`: reserva el medicamento, genera el código de 6 dígitos y exige receta (si `requiere_receta`), destinatario (si `es_para_tercero`) y DDJJ del receptor.
 - [ ] Chat de la solicitud con suscripción Realtime en Vue.
-- [ ] Cierre: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
+- [ ] Edge Function `confirmar-entrega`: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
 - [ ] Alerta `entrega_fallida` ante cancelaciones o entregas fallidas.
 
 ### Fase 6: Panel de Administración
