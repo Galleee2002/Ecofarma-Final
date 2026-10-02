@@ -19,10 +19,10 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 
 - [x] Entorno inicial con Vue + Tailwind y conexión a Supabase vía variables `VITE_SUPABASE_*`.
 - [x] Tokens de diseño en Tailwind (paleta y tipografías).
-- [ ] Migración de stack: se retiraron Laravel, PHP y sus dependencias; el frontend quedó como SPA de Vite.
 - [ ] Base de datos limpia: eliminar las tablas que habían creado las migraciones de Laravel.
-- [ ] Inicializar `supabase/` con Supabase CLI (`supabase init` + `supabase link`).
-- [ ] Migraciones SQL de las 5 tablas del dominio (0 de 5).
+- [x] Inicializar `supabase/` con Supabase CLI (`supabase init` + `supabase link`).
+- [ ] Migraciones SQL de las 5 tablas del dominio (0 de 5). **Sprint actual.**
+- [ ] Logo de EcoFARMA: boceto y retoques listos, falta la entrega final.
 
 ### Decisiones de modelo
 
@@ -144,43 +144,54 @@ Mensajería de coordinación del punto de encuentro en tiempo real, con RLS: sol
 
 ## 4. Fases de Implementación
 
-### Fase 1: Persistencia y Datos Semilla
+Tareas tomadas del tablero de Trello (Sprint Backlog, To Do y Backlog), adaptadas de Laravel a Supabase.
 
-- [ ] `supabase init` y `supabase link` al proyecto.
+### Fase 1: Persistencia y Datos Semilla (Sprint Backlog)
+
+- [x] `supabase init` y `supabase link` al proyecto.
 - [ ] Migraciones SQL en el orden del esquema, con trigger de creación de `profiles`.
 - [ ] Políticas RLS en todas las tablas.
 - [ ] Realtime sobre `solicitud_mensajes`.
 - [ ] `supabase/seed.sql`: 10-15 fármacos habilitados, 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible`.
 
-### Fase 2: Feature Inicial
+### Fase 2: Landing y Catálogo Público (To Do)
 
 Comprobar el flujo Supabase → Vue sin Auth.
 
+- [ ] Vue Router con las secciones de la arquitectura de información: Inicio, Información/Ayuda, Donar, Recibir, Sobre nosotros, Contacto y Legales.
+- [ ] Landing responsive: propuesta de valor, cómo funciona donar y recibir, y canales de contacto.
 - [ ] Política RLS de lectura pública de medicamentos `disponible` con `fecha_vencimiento >= now()`.
-- [ ] Catálogo en Vue con `supabase-js` y búsqueda por nombre comercial y principio activo.
+- [ ] Catálogo tipo vidriera (sin checkout) con `supabase-js`: cards y búsqueda reactiva por nombre comercial y principio activo.
+- [ ] Detalle del medicamento.
 
 ### Fase 3: Autenticación y Cuentas
 
 - [ ] Registro, login y logout con Supabase Auth.
-- [ ] Registro con checkbox de Declaración Jurada y `is_validado = true` en `profiles`.
+- [ ] Registro con datos de contacto, DNI validado y aceptación obligatoria de Términos y DDJJ (`acepto_ddjj`, `fecha_aceptacion_ddjj`); `is_validado = true`.
+- [ ] Guards de Vue Router: donar y solicitar requieren sesión.
 - [ ] RLS que bloquee donar y solicitar si `is_validado = false`.
-- [ ] Vistas de Login, Registro y Perfil (datos e historial).
+- [ ] Vista Perfil con pestañas:
+  - Datos: solo se editan `telefono`, `direccion` y `localidad` (DNI y email fijos).
+  - Mis donaciones: estado de cada publicación con badges.
+  - Mis solicitudes: estado, código de 6 dígitos y acceso al chat.
 
 ### Fase 4: Quiero Donar
 
-- [ ] Bucket de Storage para fotos de envases (hasta 3 por publicación).
+- [ ] Formulario de publicación en Vue (datos del fármaco, lote, vencimiento y hasta 3 fotos).
+- [ ] Bucket de Storage para fotos de envases.
 - [ ] Edge Function `publicar-medicamento`: valida contra `medicamentos_habilitados`; si coincide queda `disponible`, si no queda en `pendiente_revision` para moderación.
-- [ ] Rechazo (`estado = 'rechazado'`) con `motivo_rechazo` y aviso al donante por mail.
 
 ### Fase 5: Quiero Recibir y Coordinación
 
+- [ ] Botón "Solicitar" en el detalle: exige sesión, `is_validado` y DDJJ del receptor.
 - [ ] Edge Function `crear-solicitud`: reserva el medicamento, genera el código de 6 dígitos y exige receta (si `requiere_receta`), destinatario (si `es_para_tercero`) y DDJJ del receptor.
-- [ ] Chat de la solicitud con suscripción Realtime en Vue.
+- [ ] Chat de la solicitud con suscripción Realtime, scroll automático y aviso de normas de convivencia al abrirlo.
 - [ ] Edge Function `confirmar-entrega`: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
 - [ ] Cancelación de la solicitud (`cancelado`) que devuelve el medicamento a `disponible`.
 
 ### Fase 6: Panel de Administración
 
-- [ ] Moderar donaciones en `pendiente_revision`: aprobar (`disponible`) o rechazar (`rechazado` + `motivo_rechazo`).
+- [ ] Rutas `/admin/*` restringidas a `rol = 'admin'` (guard en Vue + verificación en RLS y Edge Functions).
+- [ ] Moderación con pestañas Pendientes (con contador), Disponibles y Rechazados: ver fotos, corregir datos y aprobar (`disponible`) o rechazar (`rechazado` + motivo predefinido en `motivo_rechazo`), con aviso al donante por mail.
 - [ ] Alta en `medicamentos_habilitados`.
-- [ ] Suspender o rehabilitar usuarios (`is_validado`).
+- [ ] Gestión de usuarios: padrón con búsqueda por nombre, email o DNI y filtros por estado y rol; suspender o rehabilitar (`is_validado`) y promover o revocar admin. Va en una Edge Function porque el email vive en `auth.users`.
