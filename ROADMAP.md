@@ -19,10 +19,9 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 
 - [x] Entorno inicial con Vue + Tailwind y conexión a Supabase vía variables `VITE_SUPABASE_*`.
 - [x] Tokens de diseño en Tailwind (paleta y tipografías).
-- [ ] Base de datos limpia: eliminar las tablas que habían creado las migraciones de Laravel.
+- [x] Base de datos limpia: eliminar las tablas que habían creado las migraciones de Laravel.
 - [x] Inicializar `supabase/` con Supabase CLI (`supabase init` + `supabase link`).
 - [ ] Migraciones SQL de las 5 tablas del dominio (0 de 5). **Sprint actual.**
-- [ ] Logo de EcoFARMA: boceto y retoques listos, falta la entrega final.
 
 ### Decisiones de modelo
 
@@ -36,6 +35,12 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - `solicitudes.medicamento_id` usa `ON DELETE RESTRICT` para no perder el historial de intercambios.
 - No hay tabla de alertas de moderación: la moderación se basa en el `estado` de `medicamentos` (`pendiente_revision`, `rechazado`) y en `motivo_rechazo`.
 - Fotos de envases y recetas se guardan en Supabase Storage; las tablas guardan solo sus URLs.
+- El vademécum (`medicamentos_habilitados`) se carga con el listado de medicamentos esenciales del Programa Remediar. Usa nombres genéricos, por eso su `nombre_comercial` es opcional; la marca la carga el donante en `medicamentos`.
+- La coincidencia con el vademécum se busca por `principio_activo` + `concentracion` + `forma_farmaceutica`, no por nombre comercial, para que cualquier marca del mismo genérico coincida.
+- `medicamentos.medicamento_habilitado_id` guarda la fila del vademécum con la que coincidió la donación. Es opcional: queda en `NULL` si no hubo coincidencia y la donación va a `pendiente_revision`.
+- `requiere_receta = true` para antibióticos y psicofármacos. Si la donación no está vinculada al vademécum, se exige receta por defecto; al aprobarla, el admin la vincula a una fila del vademécum.
+- La app solo verifica que se haya subido la foto de la receta, no su autenticidad; la responsabilidad queda cubierta por la DDJJ del receptor.
+- `solicitudes` no tiene política RLS de `insert` para el frontend: solo se crean desde la Edge Function `crear-solicitud`, para que no se pueda saltear la validación de receta.
 
 ### Sistema de diseño
 
@@ -59,7 +64,7 @@ Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fo
 
 Migraciones en SQL dentro de `supabase/migrations/` (`supabase migrations new <nombre>`), con RLS habilitado en todas las tablas.
 Salvo aclaración, cada tabla tiene `created_at` / `updated_at` (TIMESTAMPTZ, default `now()`). El tipo de `id` se indica en cada tabla.
-Orden de creación: `profiles`, `medicamentos_habilitados` → `medicamentos` → `solicitudes` → `solicitud_mensajes`.
+Orden de creación: `profiles`, `medicamentos_habilitados` → `medicamentos` → `solicitudes` → `solicitud_mensajes`. Una migración por tabla.
 
 | # | Tabla | Estado |
 |---|---|---|
@@ -87,12 +92,13 @@ Email, contraseña y verificación de email los gestiona Supabase Auth.
 
 ### 2. `medicamentos_habilitados` (Catálogo Oficial de Referencia / Vademécum)
 
-Dataset de control sanitario para validar altas automáticamente desde una Edge Function (Deno) o retenerlas a revisión.
+Dataset de control sanitario para validar altas automáticamente desde una Edge Function (Deno) o retenerlas a revisión. Se carga con el listado de medicamentos esenciales del Programa Remediar.
 
 - `id`: BIGINT, PK, GENERATED ALWAYS AS IDENTITY
-- `nombre_comercial`, `principio_activo`: VARCHAR
+- `nombre_comercial`: VARCHAR, NULLABLE — Remediar usa nombres genéricos
+- `principio_activo`: VARCHAR
 - `concentracion`, `forma_farmaceutica`, `presentacion`: VARCHAR, NULLABLE
-- `requiere_receta`: BOOLEAN, default `false`
+- `requiere_receta`: BOOLEAN, default `false` — `true` en antibióticos y psicofármacos
 - `created_at` / `updated_at`: TIMESTAMPTZ, default `now()`
 
 ### 3. `medicamentos` (Publicaciones de Donaciones)
@@ -101,6 +107,7 @@ Unidades físicas subidas por los donantes para el catálogo comunitario.
 
 - `id`: UUID, PK, default `gen_random_uuid()`
 - `user_id`: UUID, FK → `profiles(id)`, ON DELETE CASCADE
+- `medicamento_habilitado_id`: BIGINT, FK → `medicamentos_habilitados(id)`, ON DELETE SET NULL, NULLABLE — fila del vademécum con la que coincidió
 - `nombre_comercial`, `principio_activo`: VARCHAR
 - `concentracion`, `forma_farmaceutica`: VARCHAR, NULLABLE
 - `cantidad_disponible`: INTEGER
@@ -111,7 +118,7 @@ Unidades físicas subidas por los donantes para el catálogo comunitario.
 - `estado`: VARCHAR, default `'disponible'` — `disponible` | `pendiente_revision` | `reservado` | `entregado` | `rechazado`
 - `motivo_rechazo`: TEXT, NULLABLE — para alertas/mails en moderación
 - `created_at` / `updated_at`: TIMESTAMPTZ, default `now()`
-- Índice: `(nombre_comercial, principio_activo, estado)`
+- Índices: `(nombre_comercial, principio_activo, estado)`, `user_id` y `medicamento_habilitado_id`
 
 ### 4. `solicitudes` (Intercambios y Trazabilidad)
 
@@ -150,9 +157,9 @@ Tareas tomadas del tablero de Trello (Sprint Backlog, To Do y Backlog), adaptada
 
 - [x] `supabase init` y `supabase link` al proyecto.
 - [ ] Migraciones SQL en el orden del esquema, con trigger de creación de `profiles`.
-- [ ] Políticas RLS en todas las tablas.
+- [ ] Políticas RLS en todas las tablas (sin `insert` en `solicitudes` desde el frontend).
 - [ ] Realtime sobre `solicitud_mensajes`.
-- [ ] `supabase/seed.sql`: 10-15 fármacos habilitados, 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible`.
+- [ ] `supabase/seed.sql`: listado Remediar en `medicamentos_habilitados` (`requiere_receta = true` en antibióticos y psicofármacos), 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible` vinculados al vademécum.
 
 ### Fase 2: Landing y Catálogo Público (To Do)
 
@@ -179,12 +186,12 @@ Comprobar el flujo Supabase → Vue sin Auth.
 
 - [ ] Formulario de publicación en Vue (datos del fármaco, lote, vencimiento y hasta 3 fotos).
 - [ ] Bucket de Storage para fotos de envases.
-- [ ] Edge Function `publicar-medicamento`: valida contra `medicamentos_habilitados`; si coincide queda `disponible`, si no queda en `pendiente_revision` para moderación.
+- [ ] Edge Function `publicar-medicamento`: busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`; si coincide guarda `medicamento_habilitado_id` y queda `disponible`, si no queda en `pendiente_revision` con el vínculo en `NULL`.
 
 ### Fase 5: Quiero Recibir y Coordinación
 
 - [ ] Botón "Solicitar" en el detalle: exige sesión, `is_validado` y DDJJ del receptor.
-- [ ] Edge Function `crear-solicitud`: reserva el medicamento, genera el código de 6 dígitos y exige receta (si `requiere_receta`), destinatario (si `es_para_tercero`) y DDJJ del receptor.
+- [ ] Edge Function `crear-solicitud` (única vía para crear solicitudes): reserva el medicamento, genera el código de 6 dígitos y exige receta (si `requiere_receta` del vademécum vinculado, o si no hay vínculo), destinatario (si `es_para_tercero`) y DDJJ del receptor.
 - [ ] Chat de la solicitud con suscripción Realtime, scroll automático y aviso de normas de convivencia al abrirlo.
 - [ ] Edge Function `confirmar-entrega`: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
 - [ ] Cancelación de la solicitud (`cancelado`) que devuelve el medicamento a `disponible`.
@@ -192,6 +199,6 @@ Comprobar el flujo Supabase → Vue sin Auth.
 ### Fase 6: Panel de Administración
 
 - [ ] Rutas `/admin/*` restringidas a `rol = 'admin'` (guard en Vue + verificación en RLS y Edge Functions).
-- [ ] Moderación con pestañas Pendientes (con contador), Disponibles y Rechazados: ver fotos, corregir datos y aprobar (`disponible`) o rechazar (`rechazado` + motivo predefinido en `motivo_rechazo`), con aviso al donante por mail.
+- [ ] Moderación con pestañas Pendientes (con contador), Disponibles y Rechazados: ver fotos, corregir datos y aprobar (`disponible`, vinculando `medicamento_habilitado_id`) o rechazar (`rechazado` + motivo predefinido en `motivo_rechazo`), con aviso al donante por mail.
 - [ ] Alta en `medicamentos_habilitados`.
 - [ ] Gestión de usuarios: padrón con búsqueda por nombre, email o DNI y filtros por estado y rol; suspender o rehabilitar (`is_validado`) y promover o revocar admin. Va en una Edge Function porque el email vive en `auth.users`.
