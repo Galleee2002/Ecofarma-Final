@@ -1,6 +1,30 @@
 @import 'tailwindcss';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Source Sans Pro', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-heading: 'Noto Sans', ui-sans-serif, system-ui, sans-serif;
+
+    --color-primary: #215b8d;
+    --color-secondary: #309ae6;
+    --color-icon: #52806c;
+    --color-success: #43b75d;
+    --color-danger: #ff383c;
+    --color-warning: #ffaa00;
+}
+
+@layer base {
+    body {
+        font-family: var(--font-sans);
+        font-weight: 400;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+        font-family: var(--font-heading);
+        font-weight: 600;
+    }
 }

@@ -19,7 +19,7 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 
 - [x] Entorno inicial con Vue + Tailwind y conexión a Supabase vía variables `VITE_SUPABASE_*`.
 - [x] Tokens de diseño en Tailwind (paleta y tipografías).
-- [x] Migración de stack: se retiraron Laravel, PHP y sus dependencias; el frontend quedó como SPA de Vite.
+- [ ] Migración de stack: se retiraron Laravel, PHP y sus dependencias; el frontend quedó como SPA de Vite.
 - [ ] Base de datos limpia: eliminar las tablas que habían creado las migraciones de Laravel.
 - [ ] Inicializar `supabase/` con Supabase CLI (`supabase init` + `supabase link`).
 - [ ] Migraciones SQL de las 5 tablas del dominio (0 de 5).
@@ -36,6 +36,22 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - `solicitudes.medicamento_id` usa `ON DELETE RESTRICT` para no perder el historial de intercambios.
 - No hay tabla de alertas de moderación: la moderación se basa en el `estado` de `medicamentos` (`pendiente_revision`, `rechazado`) y en `motivo_rechazo`.
 - Fotos de envases y recetas se guardan en Supabase Storage; las tablas guardan solo sus URLs.
+
+### Sistema de diseño
+
+Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fonts en `index.html`.
+
+- **Títulos (`h1`–`h5`):** Noto Sans 600 (`font-heading`), aplicado por defecto en la capa `base`.
+- **Body:** Source Sans Pro 400 (`font-sans`).
+
+| Token | Hex | Uso |
+|---|---|---|
+| `primary` | `#215B8D` | Color principal |
+| `secondary` | `#309AE6` | Color secundario |
+| `icon` | `#52806C` | Íconos |
+| `success` | `#43B75D` | Éxito |
+| `danger` | `#FF383C` | Error / acciones destructivas |
+| `warning` | `#FFAA00` | Advertencia |
 
 ---
 

@@ -39,6 +39,7 @@ El estado del proyecto, el esquema de base de datos y las fases están en `ROADM
 - Variables de entorno con prefijo `VITE_` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`), definidas en `.env.local`.
 - Nunca exponer la `service_role` key ni otros secretos en el código del frontend.
 - Estilos con clases de Tailwind y los tokens definidos en `src/style.css`.
+- Colores solo a través de los tokens (`bg-primary`, `text-icon`, `text-danger`, etc.), nunca con hex sueltos. Los títulos ya usan `font-heading` por defecto; el body usa `font-sans`.
 
 ## Comandos
 
