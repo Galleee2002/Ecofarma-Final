@@ -22,7 +22,9 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Base de datos limpia: eliminar las tablas que habían creado las migraciones de Laravel.
 - [x] Inicializar `supabase/` con Supabase CLI (`supabase init` + `supabase link`).
 - [x] Migraciones SQL de las 5 tablas del dominio (5 de 5), aplicadas al proyecto remoto.
-- [ ] Políticas RLS aplicadas; falta aplicar la migración `table_grants` con los permisos de tabla para los roles de la API.
+- [x] Políticas RLS de las 5 tablas y funciones auxiliares (`es_admin`, `es_participante`, `solicito_medicamento`, `participantes_solicitud`, `obtener_codigo_confirmacion`), aplicadas al proyecto remoto.
+- [x] Migración `table_grants` con los permisos de tabla para los roles de la API, aplicada al proyecto remoto.
+- [x] Documentación académica de la base de datos, RLS y grants en `docs/base-de-datos.md`.
 
 ### Decisiones de modelo
 
@@ -163,7 +165,8 @@ Tareas tomadas del tablero de Trello (Sprint Backlog, To Do y Backlog), adaptada
 
 - [x] `supabase init` y `supabase link` al proyecto.
 - [x] Migraciones SQL en el orden del esquema, con trigger de creación de `profiles`.
-- [ ] Políticas RLS en todas las tablas (sin `insert` en `solicitudes` desde el frontend).
+- [x] Políticas RLS en todas las tablas (sin `insert` en `solicitudes` desde el frontend), aplicadas al proyecto remoto.
+- [x] Permisos de tabla para los roles de la API (migración `table_grants`).
 - [ ] Realtime sobre `solicitud_mensajes`.
 - [ ] `supabase/seed.sql`: listado Remediar en `medicamentos_habilitados` (`requiere_receta = true` en antibióticos y psicofármacos), 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible` vinculados al vademécum.
 
@@ -173,7 +176,7 @@ Comprobar el flujo Supabase → Vue sin Auth.
 
 - [ ] Vue Router con las secciones de la arquitectura de información: Inicio, Información/Ayuda, Donar, Recibir, Sobre nosotros, Contacto y Legales.
 - [ ] Landing responsive: propuesta de valor, cómo funciona donar y recibir, y canales de contacto.
-- [ ] Política RLS de lectura pública de medicamentos `disponible` con `fecha_vencimiento >= now()`.
+- [x] Política RLS de lectura pública de medicamentos `disponible` con `fecha_vencimiento >= current_date` (incluida en la migración `rls_policies`).
 - [ ] Catálogo tipo vidriera (sin checkout) con `supabase-js`: cards y búsqueda reactiva por nombre comercial y principio activo.
 - [ ] Detalle del medicamento.
 
