@@ -21,7 +21,8 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Tokens de diseño en Tailwind (paleta y tipografías).
 - [x] Base de datos limpia: eliminar las tablas que habían creado las migraciones de Laravel.
 - [x] Inicializar `supabase/` con Supabase CLI (`supabase init` + `supabase link`).
-- [ ] Migraciones SQL de las 5 tablas del dominio (0 de 5). **Sprint actual.**
+- [x] Migraciones SQL de las 5 tablas del dominio (5 de 5), aplicadas al proyecto remoto.
+- [ ] Políticas RLS aplicadas; falta aplicar la migración `table_grants` con los permisos de tabla para los roles de la API.
 
 ### Decisiones de modelo
 
@@ -41,6 +42,11 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - `requiere_receta = true` para antibióticos y psicofármacos. Si la donación no está vinculada al vademécum, se exige receta por defecto; al aprobarla, el admin la vincula a una fila del vademécum.
 - La app solo verifica que se haya subido la foto de la receta, no su autenticidad; la responsabilidad queda cubierta por la DDJJ del receptor.
 - `solicitudes` no tiene política RLS de `insert` para el frontend: solo se crean desde la Edge Function `crear-solicitud`, para que no se pueda saltear la validación de receta.
+- El proyecto no otorga permisos por defecto a los roles de la API: cada tabla nueva necesita `GRANT` explícito para `anon` / `authenticated`, además de sus políticas RLS. `service_role` los recibe por default privileges.
+- Las comprobaciones de las políticas viven en funciones `security definer` (`es_admin`, `es_participante`, `solicito_medicamento`) para evitar recursión entre las políticas de `medicamentos` y `solicitudes`.
+- `solicitudes.codigo_confirmacion` no se expone al frontend (permisos por columna): el receptor lo obtiene con `rpc('obtener_codigo_confirmacion')`, así el donante no puede confirmar la entrega sin él. Por eso en `solicitudes` las consultas listan columnas en vez de `select('*')`.
+- Los participantes de una solicitud solo ven el nombre del otro, con `rpc('participantes_solicitud')`; DNI, teléfono y dirección quedan ocultos.
+- El usuario solo edita `telefono`, `direccion` y `localidad` de su perfil (permisos por columna).
 
 ### Sistema de diseño
 
@@ -68,11 +74,11 @@ Orden de creación: `profiles`, `medicamentos_habilitados` → `medicamentos` �
 
 | # | Tabla | Estado |
 |---|---|---|
-| 1 | `profiles` | Pendiente |
-| 2 | `medicamentos_habilitados` | Pendiente |
-| 3 | `medicamentos` | Pendiente |
-| 4 | `solicitudes` | Pendiente |
-| 5 | `solicitud_mensajes` | Pendiente |
+| 1 | `profiles` | Creada |
+| 2 | `medicamentos_habilitados` | Creada |
+| 3 | `medicamentos` | Creada |
+| 4 | `solicitudes` | Creada |
+| 5 | `solicitud_mensajes` | Creada |
 
 ### 1. `profiles` (Perfiles y Datos Legales)
 
@@ -156,7 +162,7 @@ Tareas tomadas del tablero de Trello (Sprint Backlog, To Do y Backlog), adaptada
 ### Fase 1: Persistencia y Datos Semilla (Sprint Backlog)
 
 - [x] `supabase init` y `supabase link` al proyecto.
-- [ ] Migraciones SQL en el orden del esquema, con trigger de creación de `profiles`.
+- [x] Migraciones SQL en el orden del esquema, con trigger de creación de `profiles`.
 - [ ] Políticas RLS en todas las tablas (sin `insert` en `solicitudes` desde el frontend).
 - [ ] Realtime sobre `solicitud_mensajes`.
 - [ ] `supabase/seed.sql`: listado Remediar en `medicamentos_habilitados` (`requiere_receta = true` en antibióticos y psicofármacos), 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible` vinculados al vademécum.
