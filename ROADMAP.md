@@ -165,9 +165,13 @@ Mensajería de coordinación del punto de encuentro en tiempo real, con RLS: sol
 
 ## 4. Fases de Implementación
 
-Tareas tomadas del tablero de Trello (Sprint Backlog, To Do y Backlog), adaptadas de Laravel a Supabase.
+El orden sigue el Trello: primero lo que ya está hecho, después el Sprint Backlog y luego el Backlog en el orden de las tarjetas. En el tablero, #27 y #24 tienen el título cruzado con el contenido; cada fase de abajo usa el «Qué hacer» de la tarjeta.
 
-### Fase 1: Persistencia y Datos Semilla (Sprint Backlog)
+Confirmar la entrega, cancelar una solicitud, dar de alta el vademécum y avisar al donante por mail no están en ninguna tarjeta. Quedan en la fase del flujo que cierran.
+
+### Fase 1: Persistencia y Datos Semilla
+
+Hecha. Es la base del resto y no tiene tarjeta propia en el backlog actual.
 
 - [x] `supabase init` y `supabase link` al proyecto.
 - [x] Migraciones SQL en el orden del esquema, con trigger de creación de `profiles`.
@@ -176,44 +180,71 @@ Tareas tomadas del tablero de Trello (Sprint Backlog, To Do y Backlog), adaptada
 - [x] Realtime sobre `solicitud_mensajes` (migración `realtime_solicitud_mensajes`, aplicada al proyecto remoto).
 - [x] `supabase/seed.sql`: listado Remediar en `medicamentos_habilitados` (`requiere_receta = true` en antibióticos y psicofármacos), 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible` vinculados al vademécum.
 
-### Fase 2: Landing y Catálogo Público (To Do)
+### Fase 2: Catálogo público (Trello #20, Sprint Backlog)
 
-Comprobar el flujo Supabase → Vue sin Auth.
+Consulta directa a `medicamentos` desde Vue, sin login. Falta el clic a la ficha, que depende de la Fase 6.
 
-- [ ] Vue Router con las secciones de la arquitectura de información: Inicio, Información/Ayuda, Donar, Recibir, Sobre nosotros, Contacto y Legales.
-- [ ] Landing responsive: propuesta de valor, cómo funciona donar y recibir, y canales de contacto.
 - [x] Política RLS de lectura pública de medicamentos `disponible` con `fecha_vencimiento >= current_date` (incluida en la migración `rls_policies`).
-- [x] Catálogo tipo vidriera (sin checkout) con `supabase-js`: cards y búsqueda reactiva por nombre comercial y principio activo (en `/catalogo`, con router mínimo y estilos mínimos).
-- [ ] Detalle del medicamento.
+- [x] Traer solo `estado = 'disponible'` y `fecha_vencimiento >= hoy`.
+- [x] Buscador reactivo (`v-model`) por `nombre_comercial` o `principio_activo`.
+- [x] Grilla con cards: primera foto del envase, nombre, principio activo, concentración y fecha de vencimiento (en `/catalogo`, router y estilos mínimos).
+- [ ] Al hacer clic en una tarjeta, ir a `/medicamento/:id`. La vista de destino es la Fase 6.
 
-### Fase 3: Autenticación y Cuentas
+### Fase 3: Autenticación y validación de usuario (Trello #19, Sprint Backlog)
 
+Siguiente. El trigger de `profiles` ya existe (Fase 1).
+
+- [x] Trigger PostgreSQL que inserta el usuario en `profiles` al registrarse.
 - [ ] Registro, login y logout con Supabase Auth.
-- [ ] Registro con datos de contacto, DNI validado y aceptación obligatoria de Términos y DDJJ (`acepto_ddjj`, `fecha_aceptacion_ddjj`); `is_validado = true`.
-- [ ] Guards de Vue Router: donar y solicitar requieren sesión.
+- [ ] Registro con DNI, teléfono, dirección y localidad; `is_validado = true`; aceptación obligatoria de Términos y DDJJ (`acepto_ddjj`, `fecha_aceptacion_ddjj`).
+- [ ] Persistir la sesión en Vue.
+- [ ] Proteger las rutas privadas: donar y solicitar requieren sesión.
 - [ ] RLS que bloquee donar y solicitar si `is_validado = false`.
-- [ ] Vista Perfil con pestañas:
-  - Datos: solo se editan `telefono`, `direccion` y `localidad` (DNI y email fijos).
-  - Mis donaciones: estado de cada publicación con badges.
-  - Mis solicitudes: estado, código de 6 dígitos y acceso al chat.
 
-### Fase 4: Quiero Donar
+### Fase 4: Perfil de usuario (Trello #23)
 
-- [ ] Formulario de publicación en Vue (datos del fármaco, lote, vencimiento y hasta 3 fotos).
-- [ ] Bucket de Storage para fotos de envases.
-- [ ] Edge Function `publicar-medicamento`: busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`; si coincide guarda `medicamento_habilitado_id` y queda `disponible`, si no queda en `pendiente_revision` con el vínculo en `NULL`.
+- [ ] Vista `/perfil` para editar solo `telefono`, `direccion` y `localidad` (DNI y email fijos).
+- [ ] Pestaña «Mis donaciones», con el estado de cada publicación.
+- [ ] Pestaña «Mis solicitudes», con el estado, el código de retiro de 6 dígitos y el acceso al chat.
 
-### Fase 5: Quiero Recibir y Coordinación
+### Fase 5: Publicar una donación (Trello #27)
 
-- [ ] Botón "Solicitar" en el detalle: exige sesión, `is_validado` y DDJJ del receptor.
-- [ ] Edge Function `crear-solicitud` (única vía para crear solicitudes): reserva el medicamento, genera el código de 6 dígitos y exige receta (si `requiere_receta` del vademécum vinculado, o si no hay vínculo), destinatario (si `es_para_tercero`) y DDJJ del receptor.
-- [ ] Chat de la solicitud con suscripción Realtime, scroll automático y aviso de normas de convivencia al abrirlo.
+En el tablero esta tarjeta se llama «Gestión de Usuarios, Roles y Bloqueos». El contenido es el alta de una donación.
+
+- [ ] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos.
+- [ ] Bucket de Storage para las fotos de envases.
+- [ ] Edge Function `publicar-medicamento`: busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`. Si coincide, guarda `medicamento_habilitado_id` y queda `disponible`. Si no, queda en `pendiente_revision` con el vínculo en `NULL`.
+
+### Fase 6: Detalle del medicamento y solicitud (Trello #25)
+
+- [ ] Vista `/medicamento/:id` con especificaciones y fotos, y el enlace desde la tarjeta del catálogo (Fase 2).
+- [ ] Botón «Solicitar»: exige sesión, `is_validado` y DDJJ del receptor.
+- [ ] Edge Function `crear-solicitud` (única vía para crear solicitudes): pasa el medicamento a `reservado`, genera el código de 6 dígitos y exige receta (si `requiere_receta` del vademécum vinculado, o si no hay vínculo), destinatario (si `es_para_tercero`) y DDJJ del receptor.
+
+### Fase 7: Chat de coordinación (Trello #29)
+
+- [ ] Suscripción Realtime a `solicitud_mensajes`, envío de mensajes y scroll automático.
+- [ ] Coordinar día, hora y lugar por el chat.
+- [ ] Aviso de normas de convivencia al abrir el chat.
 - [ ] Edge Function `confirmar-entrega`: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
 - [ ] Cancelación de la solicitud (`cancelado`) que devuelve el medicamento a `disponible`.
 
-### Fase 6: Panel de Administración
+### Fase 8: Moderación de donaciones (Trello #26)
 
-- [ ] Rutas `/admin/*` restringidas a `rol = 'admin'` (guard en Vue + verificación en RLS y Edge Functions).
-- [ ] Moderación con pestañas Pendientes (con contador), Disponibles y Rechazados: ver fotos, corregir datos y aprobar (`disponible`, vinculando `medicamento_habilitado_id`) o rechazar (`rechazado` + motivo predefinido en `motivo_rechazo`), con aviso al donante por mail.
+- [ ] Rutas `/admin/*` restringidas a `rol = 'admin'` (guard en Vue y verificación en RLS y Edge Functions).
+- [ ] Pestañas Pendientes (con contador), Disponibles y Rechazados: ver fotos y vencimiento, corregir datos, aprobar (`disponible`, vinculando `medicamento_habilitado_id`) o rechazar (`rechazado` + motivo en `motivo_rechazo`), con aviso al donante por mail.
 - [ ] Alta en `medicamentos_habilitados`.
-- [ ] Gestión de usuarios: padrón con búsqueda por nombre, email o DNI y filtros por estado y rol; suspender o rehabilitar (`is_validado`) y promover o revocar admin. Va en una Edge Function porque el email vive en `auth.users`.
+
+### Fase 9: Gestión de usuarios, roles y bloqueos (Trello #24)
+
+En el tablero esta tarjeta se llama «Formulario de publicación (Donación)». El contenido es la gestión de cuentas.
+
+- [ ] Vista para consultar `profiles`, con búsqueda por nombre, email o DNI y filtros por estado y rol.
+- [ ] Suspender o rehabilitar (`is_validado`) y promover o revocar admin. Va en una Edge Function porque el email vive en `auth.users`.
+
+### Fase 10: Landing (Trello #18)
+
+Última del tablero. Estilos mínimos hasta esta fase.
+
+- [ ] Vue Router con las secciones de la arquitectura de información: Inicio, Información/Ayuda, Donar, Recibir, Sobre nosotros, Contacto y Legales.
+- [ ] Home responsive con los colores y tipografías del UI Kit: propósito social y ambiental, cómo donar y cómo recibir, canales de contacto y enlaces al catálogo.
