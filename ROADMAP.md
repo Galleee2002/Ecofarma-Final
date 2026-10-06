@@ -25,6 +25,8 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Políticas RLS de las 5 tablas y funciones auxiliares (`es_admin`, `es_participante`, `solicito_medicamento`, `participantes_solicitud`, `obtener_codigo_confirmacion`), aplicadas al proyecto remoto.
 - [x] Migración `table_grants` con los permisos de tabla para los roles de la API, aplicada al proyecto remoto.
 - [x] Documentación académica de la base de datos, RLS y grants en `docs/base-de-datos.md`.
+- [x] Migración `realtime_solicitud_mensajes`: `solicitud_mensajes` en la publicación `supabase_realtime` (Postgres Changes), aplicada al proyecto remoto.
+- [x] `supabase/seed.sql` con el vademécum Remediar, 2 usuarios de prueba y 5 donaciones `disponible`, aplicado al proyecto remoto.
 
 ### Decisiones de modelo
 
@@ -32,6 +34,8 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - Sin puntos de entrega fijos: donante y receptor coordinan día, hora y lugar por el chat de la solicitud.
 - `profiles.is_validado` arranca en `true`; el admin lo pasa a `false` para suspender una cuenta.
 - `profiles.rol` e `is_validado` solo los modifica un admin (RLS / Edge Function), nunca el propio usuario.
+- El chat usa Realtime Postgres Changes sobre `solicitud_mensajes`: cada suscriptor recibe solo los mensajes que su política de `select` le permite leer. Si el chat superara ~3.000 suscriptores concurrentes, conviene pasar a Broadcast.
+- El seed es solo para desarrollo (contraseñas públicas): usuarios `admin@ecofarma.test` y `donante@ecofarma.test`, contraseña `EcoFarma2026!`. Los vencimientos de las donaciones se calculan desde `current_date` para que nunca queden vencidas.
 - `profiles.rol` y los `estado` de `medicamentos` y `solicitudes` son VARCHAR con un conjunto cerrado de valores, no tipos ENUM de Postgres.
 - `medicamentos`, `solicitudes` y `profiles` usan UUID como PK; `medicamentos_habilitados` y `solicitud_mensajes` usan BIGINT identity.
 - `medicamentos.lote` da trazabilidad sanitaria; `motivo_rechazo` se comunica al donante por alerta o mail durante la moderación.
@@ -167,8 +171,8 @@ Tareas tomadas del tablero de Trello (Sprint Backlog, To Do y Backlog), adaptada
 - [x] Migraciones SQL en el orden del esquema, con trigger de creación de `profiles`.
 - [x] Políticas RLS en todas las tablas (sin `insert` en `solicitudes` desde el frontend), aplicadas al proyecto remoto.
 - [x] Permisos de tabla para los roles de la API (migración `table_grants`).
-- [ ] Realtime sobre `solicitud_mensajes`.
-- [ ] `supabase/seed.sql`: listado Remediar en `medicamentos_habilitados` (`requiere_receta = true` en antibióticos y psicofármacos), 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible` vinculados al vademécum.
+- [x] Realtime sobre `solicitud_mensajes` (migración `realtime_solicitud_mensajes`, aplicada al proyecto remoto).
+- [x] `supabase/seed.sql`: listado Remediar en `medicamentos_habilitados` (`requiere_receta = true` en antibióticos y psicofármacos), 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible` vinculados al vademécum.
 
 ### Fase 2: Landing y Catálogo Público (To Do)
 
