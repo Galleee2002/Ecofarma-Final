@@ -141,6 +141,8 @@ Cada fila es un mensaje del chat de una solicitud. Solo participan el donante y 
 | `mensaje` | El texto (no puede estar vacío) |
 | `created_at` | Cuándo se envió |
 
+**¿Cómo llegan los mensajes en tiempo real?** La tabla está conectada a **Supabase Realtime**: cada vez que se guarda un mensaje nuevo, Supabase se lo avisa al instante a quienes tienen el chat abierto, sin que tengan que recargar la página. Antes de enviar el aviso, Realtime aplica las mismas políticas RLS de lectura (ver sección 5), así que solo lo reciben el donante y el receptor de esa solicitud.
+
 ### Columnas que tienen todas las tablas
 
 - `id`: identificador único de cada fila.
@@ -302,6 +304,33 @@ Los cambios en la base de datos se escriben en archivos SQL llamados **migracion
 | `create_solicitud_mensajes` | Crea la tabla del chat |
 | `rls_policies` | Crea las funciones auxiliares, las políticas RLS y los permisos por columna |
 | `table_grants` | Da los permisos de tabla a los roles (primer candado) |
+| `realtime_solicitud_mensajes` | Activa los avisos en tiempo real del chat |
+
+---
+
+## 9. Datos semilla (seed)
+
+El archivo `supabase/seed.sql` carga datos de ejemplo para poder probar la aplicación sin cargar todo a mano. En una base local se ejecuta automáticamente al reiniciarla (`pnpm supabase db reset`), después de las migraciones. En este proyecto se aplicó al proyecto remoto con `pnpm supabase db push --include-seed`.
+
+Carga cuatro cosas:
+
+1. **El vademécum:** unos 60 medicamentos del listado del Programa Remediar. Los antibióticos y los psicofármacos quedan marcados con `requiere_receta = true`.
+2. **Dos usuarios de prueba:**
+
+   | Email | Rol | Contraseña |
+   |---|---|---|
+   | `admin@ecofarma.test` | Administrador | `EcoFarma2026!` |
+   | `donante@ecofarma.test` | Usuario (donante) | `EcoFarma2026!` |
+
+   Se crean como usuarios de Supabase Auth, así el trigger les arma el perfil igual que a cualquier persona que se registra. Después, el seed le asigna el rol `admin` al primero.
+3. **Cinco donaciones disponibles** del donante, cada una vinculada a su medicamento del vademécum. Una de ellas (amoxicilina) es un antibiótico, para poder probar el pedido con receta.
+4. **Dos medicamentos de control**, que nunca deben aparecer en el catálogo público:
+   - Uno en estado `pendiente_revision` y sin vínculo al vademécum, como una donación que espera la revisión del administrador.
+   - Uno `disponible` pero vencido hace 30 días, para comprobar que el catálogo oculta los medicamentos vencidos.
+
+Las fechas de vencimiento se calculan a partir del día en que se carga el seed, para que las donaciones disponibles nunca aparezcan vencidas. El seed se puede correr más de una vez sin duplicar datos.
+
+**Importante:** como las contraseñas están escritas en el archivo, este seed es solo para desarrollo. No debe cargarse en la base de producción.
 
 ---
 
