@@ -9,12 +9,22 @@
 
 El estado del proyecto, el esquema de base de datos y las fases están en `ROADMAP.md`. Mantenerlo actualizado al completar tareas.
 
+## Prioridades
+
+- Primero la funcionalidad: datos, backend (Supabase, RLS, consultas, Edge Functions) y la lógica de cada fase de `ROADMAP.md`.
+- Los estilos y la landing page son lo último del tablero de Trello. Hasta esa etapa, la interfaz lleva solo las clases de Tailwind mínimas para que se pueda usar y probar, sin pulido visual, animaciones ni diseño responsive detallado.
+- Esto no exime de la sección "Mensajes al usuario y manejo de errores": los mensajes personalizados y sus colores de token siguen siendo obligatorios.
+
 ## Estructura
 
 - `index.html`: punto de entrada de Vite.
 - `src/main.js`, `src/App.vue`: arranque de la app.
 - `src/style.css`: Tailwind y tokens de diseño (`@theme`).
 - `src/lib/supabase.js`: cliente único de Supabase. Importarlo desde ahí; no crear otros clientes en el frontend.
+- `src/router/`: rutas de Vue Router.
+- `src/views/`: páginas, una por ruta (por ejemplo `CatalogoView.vue`).
+- `src/components/`: componentes reutilizables, agrupados por dominio (por ejemplo `components/medicamentos/`).
+- `src/composables/`: lógica reutilizable y acceso a Supabase (por ejemplo `useMedicamentos.js`). Las vistas llaman al composable y pasan los datos a los componentes por props.
 - `supabase/migrations/`: migraciones SQL del esquema (se crean con `pnpm supabase migrations new <nombre>`).
 - `supabase/functions/<nombre>/index.ts`: Edge Functions.
 - `supabase/seed.sql`: datos semilla.
@@ -40,6 +50,23 @@ El estado del proyecto, el esquema de base de datos y las fases están en `ROADM
 - Nunca exponer la `service_role` key ni otros secretos en el código del frontend.
 - Estilos con clases de Tailwind y los tokens definidos en `src/style.css`.
 - Colores solo a través de los tokens (`bg-primary`, `text-icon`, `text-danger`, etc.), nunca con hex sueltos. Los títulos ya usan `font-heading` por defecto; el body usa `font-sans`.
+
+### Mensajes al usuario y manejo de errores
+
+Al implementar cualquier fase de `ROADMAP.md` que maneje errores o devuelva mensajes al usuario (formularios, llamadas a Supabase, Edge Functions, confirmaciones de acciones, estados vacíos, etc.):
+
+- Mostrar siempre un mensaje personalizado, claro y en español, pensado para el usuario final. Nunca mostrar el error crudo de Supabase, de la Edge Function o de JavaScript (`error.message`, códigos de Postgres, stack traces); traducirlo a un texto comprensible y registrar el detalle técnico solo en consola.
+- Usar el color del token de `src/style.css` que corresponda al tipo de mensaje, nunca hex sueltos ni colores por defecto de Tailwind:
+  - Error: `danger` (`text-danger`, `border-danger`, `bg-danger/10`).
+  - Éxito: `success` (`text-success`, `border-success`, `bg-success/10`).
+  - Advertencia: `warning` (`text-warning`, `border-warning`, `bg-warning/10`).
+  - Informativo: `secondary` (`text-secondary`, `border-secondary`, `bg-secondary/10`).
+- Las Edge Functions deben responder errores con un cuerpo JSON consistente (por ejemplo `{ "error": "<mensaje para el usuario>" }`) y el código HTTP adecuado, para que el frontend pueda mostrar el mensaje personalizado.
+
+## Estilo de código
+
+- No escribir comentarios en el código, salvo que el usuario lo pida.
+- Es un proyecto académico: usar sintaxis básica y legible en todos los lenguajes (JavaScript, Vue, SQL, TypeScript), sin funcionalidades avanzadas, librerías innecesarias ni abstracciones de más, para que cualquiera del equipo entienda el código al leerlo.
 
 ## Verificación de cambios
 
