@@ -184,3 +184,24 @@ join public.medicamentos_habilitados mh
  and mh.concentracion = m.concentracion
  and mh.forma_farmaceutica = m.forma_farmaceutica
 on conflict (id) do nothing;
+
+insert into public.medicamentos (
+  id, user_id, medicamento_habilitado_id, nombre_comercial, principio_activo,
+  concentracion, forma_farmaceutica, cantidad_disponible, lote, fecha_vencimiento, descripcion, estado
+)
+values
+  (
+    'b0000000-0000-4000-8000-000000000006',
+    'a0000000-0000-4000-8000-000000000002',
+    null,
+    'Rivotril', 'Clonazepam', '1 mg', 'Comprimido',
+    1, 'R24C090', current_date + 300, 'Sin coincidencia en el vademécum.', 'pendiente_revision'
+  ),
+  (
+    'b0000000-0000-4000-8000-000000000007',
+    'a0000000-0000-4000-8000-000000000002',
+    null,
+    'Tafirol', 'Paracetamol', '500 mg', 'Comprimido',
+    1, 'T23J015', current_date - 30, 'Caja vencida.', 'disponible'
+  )
+on conflict (id) do nothing;
