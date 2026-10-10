@@ -28,6 +28,8 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Migración `realtime_solicitud_mensajes`: `solicitud_mensajes` en la publicación `supabase_realtime` (Postgres Changes), aplicada al proyecto remoto.
 - [x] `supabase/seed.sql` con el vademécum Remediar, 2 usuarios de prueba y 5 donaciones `disponible`, aplicado al proyecto remoto.
 - [x] Catálogo público en `/catalogo` (router mínimo, estilos mínimos): composable `useMedicamentos` con la consulta a Supabase, búsqueda y manejo de errores, y los componentes de búsqueda, grilla y card.
+- [x] Registro, login y logout en `/registro` y `/login` (estilos mínimos): composable `useAuth`, formularios en `components/auth/` y `BarraNavegacion` con el usuario y «Cerrar sesión».
+- [x] Migración `validar_registro`: `handle_new_user` rechaza el alta sin DDJJ aceptada o sin datos obligatorios, aplicada al proyecto remoto.
 
 ### Decisiones de modelo
 
@@ -194,10 +196,22 @@ Consulta directa a `medicamentos` desde Vue, sin login. El clic a la ficha ya es
 
 Siguiente. El trigger de `profiles` ya existe (Fase 1).
 
+Decisiones tomadas:
+
+- La confirmación de email está desactivada en el proyecto remoto: `signUp` devuelve la sesión y el usuario queda logueado al registrarse, sin mail de confirmación ni redirect URLs.
+- DNI repetido: el error del trigger llega genérico («Database error saving new user»), así que se muestra un mensaje general («No pudimos crear la cuenta. Verificá que el DNI no esté registrado.»). No se agrega una RPC pública para consultar DNIs, porque permitiría averiguar qué DNIs están registrados.
+- La DDJJ y los datos obligatorios también se validan en la base, no solo en el formulario: como `signUp` se puede llamar directo contra la API, una migración nueva reemplaza `handle_new_user` para cancelar el registro si `acepto_ddjj` no es `true` o falta `name`, `dni`, `telefono`, `direccion` o `localidad`. Los usuarios del seed ya traen esos metadatos.
+- Rama de trabajo: `feature03/autenticacion`, creada desde `dev`.
+- `useAuth` comparte entre vistas la sesión, el perfil y el último mensaje (`mensajeExito` + `tipoMensaje`); `cargando` y `error` son propios de cada vista, para que el error de una pantalla no aparezca en otra.
+- La sesión se escucha solo con `onAuthStateChange`: el evento `INITIAL_SESSION` trae la sesión guardada al recargar, sin llamar a `getSession`. El perfil se carga con `setTimeout` fuera del callback (recomendación de Supabase para no trabar el cliente) y solo cuando cambia el usuario, no en cada renovación del token.
+- El perfil se consulta con todas sus columnas de dominio aunque hoy solo se muestra `name`: `dni`, `telefono`, `direccion` y `localidad` se usan en la Fase 4 y `rol` / `is_validado` en los guards y el admin.
+- Los mensajes de registro e ingreso usan `success`; el de cierre de sesión usa `danger` por decisión del equipo.
+- Email rechazado por Supabase (`email_address_invalid`): Supabase Auth bloquea direcciones que considera falsas o no entregables aunque el formato sea correcto (por ejemplo, `holamundo@gmail.com`). Para probar el registro usar emails reales.
+
 - [x] Trigger PostgreSQL que inserta el usuario en `profiles` al registrarse.
-- [ ] Registro, login y logout con Supabase Auth.
-- [ ] Registro con DNI, teléfono, dirección y localidad; `is_validado = true`; aceptación obligatoria de Términos y DDJJ (`acepto_ddjj`, `fecha_aceptacion_ddjj`).
-- [ ] Persistir la sesión en Vue.
+- [x] Registro, login y logout con Supabase Auth.
+- [x] Registro con DNI, teléfono, dirección y localidad; `is_validado = true`; aceptación obligatoria de Términos y DDJJ (`acepto_ddjj`, `fecha_aceptacion_ddjj`), validada en el formulario y en el trigger (migración `validar_registro`).
+- [ ] Persistir la sesión en Vue. La base ya está: `supabase-js` guarda la sesión en `localStorage` y `useAuth` la escucha con `onAuthStateChange` (el evento `INITIAL_SESSION` cubre la sesión al recargar). Falta usarla en los guards de rutas.
 - [ ] Proteger las rutas privadas: donar y solicitar requieren sesión.
 - [ ] RLS que bloquee donar y solicitar si `is_validado = false`.
 
