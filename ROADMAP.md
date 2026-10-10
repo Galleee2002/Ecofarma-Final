@@ -194,7 +194,7 @@ Consulta directa a `medicamentos` desde Vue, sin login. El clic a la ficha ya es
 
 ### Fase 3: Autenticación y validación de usuario (Trello #19, Sprint Backlog)
 
-Siguiente. El trigger de `profiles` ya existe (Fase 1).
+Hecha. Los guards de rutas pasaron a la Fase 4.
 
 Decisiones tomadas:
 
@@ -208,16 +208,20 @@ Decisiones tomadas:
 - Los mensajes de registro e ingreso usan `success`; el de cierre de sesión usa `danger` por decisión del equipo.
 - `is_validado` para donar y solicitar: no se agrega una política RLS nueva. Donar y solicitar solo se hacen con las Edge Functions `publicar-medicamento` y `crear-solicitud`, que usan la `service_role` key y no pasan por RLS; por eso cada Edge Function lee el perfil del usuario del JWT y responde 403 con `{ "error": "..." }` si `is_validado = false`. RLS ya cubre la otra vía: sin políticas de `INSERT` en `medicamentos` ni en `solicitudes`, nadie puede insertar directo con la `anon` key.
 - Email rechazado por Supabase (`email_address_invalid`): Supabase Auth bloquea direcciones que considera falsas o no entregables aunque el formato sea correcto (por ejemplo, `holamundo@gmail.com`). Para probar el registro usar emails reales.
+- Persistir la sesión en los guards y proteger las rutas privadas pasan a la Fase 4: todavía no existe ninguna ruta privada, y `/perfil` es la primera. Se hacen en la misma rama que el perfil, para probar el guard con una ruta real en lugar de una vista de prueba.
 
 - [x] Trigger PostgreSQL que inserta el usuario en `profiles` al registrarse.
 - [x] Registro, login y logout con Supabase Auth.
 - [x] Registro con DNI, teléfono, dirección y localidad; `is_validado = true`; aceptación obligatoria de Términos y DDJJ (`acepto_ddjj`, `fecha_aceptacion_ddjj`), validada en el formulario y en el trigger (migración `validar_registro`).
-- [ ] Persistir la sesión en Vue. La base ya está: `supabase-js` guarda la sesión en `localStorage` y `useAuth` la escucha con `onAuthStateChange` (el evento `INITIAL_SESSION` cubre la sesión al recargar). Falta usarla en los guards de rutas.
-- [ ] Proteger las rutas privadas: donar y solicitar requieren sesión.
 - [x] Donar y solicitar bloqueados para usuarios con `is_validado = false`: RLS ya impide los inserts directos desde el frontend, porque `medicamentos` y `solicitudes` no tienen políticas de `INSERT`. La validación de `is_validado` se hace en las Edge Functions `publicar-medicamento` (Fase 5) y `crear-solicitud` (Fase 6).
 
 ### Fase 4: Perfil de usuario (Trello #23)
 
+Siguiente. Incluye los guards de rutas que venían de la Fase 3. Rama de trabajo: `feature04/<nombre>`, creada desde `dev`.
+
+- [ ] Persistir la sesión en Vue. La base ya está: `supabase-js` guarda la sesión en `localStorage` y `useAuth` la escucha con `onAuthStateChange`. Falta que `useAuth` avise cuándo llegó el evento `INITIAL_SESSION` y que el guard lo espere antes de decidir; si no, al recargar una ruta privada el guard ve la sesión vacía y manda a `/login` aunque el usuario esté logueado.
+- [ ] Guard de rutas (`router.beforeEach`): una ruta con `meta.requiereSesion` sin sesión redirige a `/login`. `/perfil` es la primera ruta protegida; las de donar (Fase 5) y solicitar (Fase 6) solo agregan ese `meta`.
+- [ ] `/login` y `/registro` redirigen al catálogo si ya hay sesión.
 - [ ] Vista `/perfil` para editar solo `telefono`, `direccion` y `localidad` (DNI y email fijos).
 - [ ] Pestaña «Mis donaciones», con el estado de cada publicación.
 - [ ] Pestaña «Mis solicitudes», con el estado, el código de retiro de 6 dígitos y el acceso al chat.
