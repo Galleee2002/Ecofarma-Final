@@ -206,6 +206,7 @@ Decisiones tomadas:
 - La sesión se escucha solo con `onAuthStateChange`: el evento `INITIAL_SESSION` trae la sesión guardada al recargar, sin llamar a `getSession`. El perfil se carga con `setTimeout` fuera del callback (recomendación de Supabase para no trabar el cliente) y solo cuando cambia el usuario, no en cada renovación del token.
 - El perfil se consulta con todas sus columnas de dominio aunque hoy solo se muestra `name`: `dni`, `telefono`, `direccion` y `localidad` se usan en la Fase 4 y `rol` / `is_validado` en los guards y el admin.
 - Los mensajes de registro e ingreso usan `success`; el de cierre de sesión usa `danger` por decisión del equipo.
+- `is_validado` para donar y solicitar: no se agrega una política RLS nueva. Donar y solicitar solo se hacen con las Edge Functions `publicar-medicamento` y `crear-solicitud`, que usan la `service_role` key y no pasan por RLS; por eso cada Edge Function lee el perfil del usuario del JWT y responde 403 con `{ "error": "..." }` si `is_validado = false`. RLS ya cubre la otra vía: sin políticas de `INSERT` en `medicamentos` ni en `solicitudes`, nadie puede insertar directo con la `anon` key.
 - Email rechazado por Supabase (`email_address_invalid`): Supabase Auth bloquea direcciones que considera falsas o no entregables aunque el formato sea correcto (por ejemplo, `holamundo@gmail.com`). Para probar el registro usar emails reales.
 
 - [x] Trigger PostgreSQL que inserta el usuario en `profiles` al registrarse.
@@ -213,7 +214,7 @@ Decisiones tomadas:
 - [x] Registro con DNI, teléfono, dirección y localidad; `is_validado = true`; aceptación obligatoria de Términos y DDJJ (`acepto_ddjj`, `fecha_aceptacion_ddjj`), validada en el formulario y en el trigger (migración `validar_registro`).
 - [ ] Persistir la sesión en Vue. La base ya está: `supabase-js` guarda la sesión en `localStorage` y `useAuth` la escucha con `onAuthStateChange` (el evento `INITIAL_SESSION` cubre la sesión al recargar). Falta usarla en los guards de rutas.
 - [ ] Proteger las rutas privadas: donar y solicitar requieren sesión.
-- [ ] RLS que bloquee donar y solicitar si `is_validado = false`.
+- [x] Donar y solicitar bloqueados para usuarios con `is_validado = false`: RLS ya impide los inserts directos desde el frontend, porque `medicamentos` y `solicitudes` no tienen políticas de `INSERT`. La validación de `is_validado` se hace en las Edge Functions `publicar-medicamento` (Fase 5) y `crear-solicitud` (Fase 6).
 
 ### Fase 4: Perfil de usuario (Trello #23)
 
@@ -227,13 +228,13 @@ En el tablero esta tarjeta se llama «Gestión de Usuarios, Roles y Bloqueos». 
 
 - [ ] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos.
 - [ ] Bucket de Storage para las fotos de envases.
-- [ ] Edge Function `publicar-medicamento`: busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`. Si coincide, guarda `medicamento_habilitado_id` y queda `disponible`. Si no, queda en `pendiente_revision` con el vínculo en `NULL`.
+- [ ] Edge Function `publicar-medicamento`: rechaza la publicación si el donante tiene `is_validado = false` (decisión de la Fase 3). Busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`. Si coincide, guarda `medicamento_habilitado_id` y queda `disponible`. Si no, queda en `pendiente_revision` con el vínculo en `NULL`.
 
 ### Fase 6: Detalle del medicamento y solicitud (Trello #25)
 
 - [ ] Vista `/medicamento/:id` con especificaciones y fotos, y su ruta en `src/router/index.js` (el enlace desde la tarjeta del catálogo ya existe, Fase 2).
 - [ ] Botón «Solicitar»: exige sesión, `is_validado` y DDJJ del receptor.
-- [ ] Edge Function `crear-solicitud` (única vía para crear solicitudes): pasa el medicamento a `reservado`, genera el código de 6 dígitos y exige receta (si `requiere_receta` del vademécum vinculado, o si no hay vínculo), destinatario (si `es_para_tercero`) y DDJJ del receptor.
+- [ ] Edge Function `crear-solicitud` (única vía para crear solicitudes): rechaza la solicitud si el receptor tiene `is_validado = false` (decisión de la Fase 3), pasa el medicamento a `reservado`, genera el código de 6 dígitos y exige receta (si `requiere_receta` del vademécum vinculado, o si no hay vínculo), destinatario (si `es_para_tercero`) y DDJJ del receptor.
 
 ### Fase 7: Chat de coordinación (Trello #29)
 
