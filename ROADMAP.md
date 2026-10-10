@@ -182,13 +182,13 @@ Hecha. Es la base del resto y no tiene tarjeta propia en el backlog actual.
 
 ### Fase 2: Catálogo público (Trello #20, Sprint Backlog)
 
-Consulta directa a `medicamentos` desde Vue, sin login. Falta el clic a la ficha, que depende de la Fase 6.
+Consulta directa a `medicamentos` desde Vue, sin login. El clic a la ficha ya está; la vista de destino se crea en la Fase 6.
 
 - [x] Política RLS de lectura pública de medicamentos `disponible` con `fecha_vencimiento >= current_date` (incluida en la migración `rls_policies`).
 - [x] Traer solo `estado = 'disponible'` y `fecha_vencimiento >= hoy`.
 - [x] Buscador reactivo (`v-model`) por `nombre_comercial` o `principio_activo`.
 - [x] Grilla con cards: primera foto del envase, nombre, principio activo, concentración y fecha de vencimiento (en `/catalogo`, router y estilos mínimos).
-- [ ] Al hacer clic en una tarjeta, ir a `/medicamento/:id`. La vista de destino es la Fase 6.
+- [x] Al hacer clic en una tarjeta, ir a `/medicamento/:id` (`RouterLink` en `MedicamentoCard.vue`). La vista de destino es la Fase 6.
 
 ### Fase 3: Autenticación y validación de usuario (Trello #19, Sprint Backlog)
 
@@ -217,7 +217,7 @@ En el tablero esta tarjeta se llama «Gestión de Usuarios, Roles y Bloqueos». 
 
 ### Fase 6: Detalle del medicamento y solicitud (Trello #25)
 
-- [ ] Vista `/medicamento/:id` con especificaciones y fotos, y el enlace desde la tarjeta del catálogo (Fase 2).
+- [ ] Vista `/medicamento/:id` con especificaciones y fotos, y su ruta en `src/router/index.js` (el enlace desde la tarjeta del catálogo ya existe, Fase 2).
 - [ ] Botón «Solicitar»: exige sesión, `is_validado` y DDJJ del receptor.
 - [ ] Edge Function `crear-solicitud` (única vía para crear solicitudes): pasa el medicamento a `reservado`, genera el código de 6 dígitos y exige receta (si `requiere_receta` del vademécum vinculado, o si no hay vínculo), destinatario (si `es_para_tercero`) y DDJJ del receptor.
 
