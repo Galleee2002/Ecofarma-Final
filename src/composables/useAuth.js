@@ -3,9 +3,15 @@ import { supabase } from '../lib/supabase';
 
 const sesion = ref(null);
 const perfil = ref(null);
+const errorPerfil = ref('');
 const mensajeExito = ref('');
 const tipoMensaje = ref('exito');
 let authIniciado = false;
+
+let resolverSesionInicial;
+const sesionInicial = new Promise(function (resolver) {
+    resolverSesionInicial = resolver;
+});
 
 function traducirError(errorAuth, mensajePorDefecto) {
     console.error(errorAuth);
@@ -36,6 +42,8 @@ function traducirError(errorAuth, mensajePorDefecto) {
 }
 
 async function cargarPerfil() {
+    errorPerfil.value = '';
+
     if (sesion.value === null) {
         perfil.value = null;
         return;
@@ -50,6 +58,7 @@ async function cargarPerfil() {
     if (errorConsulta) {
         console.error(errorConsulta);
         perfil.value = null;
+        errorPerfil.value = 'No pudimos cargar tus datos. Recargá la página para intentar de nuevo.';
     } else {
         perfil.value = data;
     }
@@ -65,6 +74,7 @@ function actualizarSesion(nuevaSesion) {
 
     if (nuevaSesion === null) {
         perfil.value = null;
+        errorPerfil.value = '';
     } else if (nuevaSesion.user.id !== idAnterior) {
         setTimeout(cargarPerfil, 0);
     }
@@ -78,7 +88,16 @@ function iniciarAuth() {
 
     supabase.auth.onAuthStateChange(function (evento, nuevaSesion) {
         actualizarSesion(nuevaSesion);
+
+        if (evento === 'INITIAL_SESSION') {
+            resolverSesionInicial();
+        }
     });
+}
+
+function esperarSesionInicial() {
+    iniciarAuth();
+    return sesionInicial;
 }
 
 function validarRegistro(datos) {
@@ -206,11 +225,12 @@ export function useAuth() {
     return {
         sesion,
         perfil,
+        errorPerfil,
         mensajeExito,
         tipoMensaje,
         cargando,
         error,
-        iniciarAuth,
+        esperarSesionInicial,
         registrarse,
         iniciarSesion,
         cerrarSesion,

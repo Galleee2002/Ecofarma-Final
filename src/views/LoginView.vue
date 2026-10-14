@@ -1,14 +1,22 @@
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
 import FormularioLogin from '../components/auth/FormularioLogin.vue';
 
+const route = useRoute();
 const router = useRouter();
 const { cargando, error, iniciarSesion } = useAuth();
 
 async function ingresar(email, password) {
     const ingreso = await iniciarSesion(email, password);
-    if (ingreso) {
+    if (!ingreso) {
+        return;
+    }
+
+    const destino = route.query.redirect;
+    if (typeof destino === 'string' && destino.startsWith('/')) {
+        router.push(destino);
+    } else {
         router.push({ name: 'catalogo' });
     }
 }

@@ -31,6 +31,7 @@ async function salir() {
             </template>
 
             <template v-else>
+                <RouterLink :to="{ name: 'perfil' }" class="text-primary">Mi perfil</RouterLink>
                 <span>Hola, {{ nombreUsuario() }}</span>
                 <button type="button" class="rounded border px-3 py-1" :disabled="cargando" @click="salir">
                     {{ cargando ? 'Cerrando sesión...' : 'Cerrar sesión' }}

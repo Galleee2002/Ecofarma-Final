@@ -30,6 +30,8 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Catálogo público en `/catalogo` (router mínimo, estilos mínimos): composable `useMedicamentos` con la consulta a Supabase, búsqueda y manejo de errores, y los componentes de búsqueda, grilla y card.
 - [x] Registro, login y logout en `/registro` y `/login` (estilos mínimos): composable `useAuth`, formularios en `components/auth/` y `BarraNavegacion` con el usuario y «Cerrar sesión».
 - [x] Migración `validar_registro`: `handle_new_user` rechaza el alta sin DDJJ aceptada o sin datos obligatorios, aplicada al proyecto remoto.
+- [x] Fase 4 (estilos mínimos): sesión persistida en el guard, rutas protegidas con `meta.requiereSesion` / `meta.soloInvitados`, y `/perfil` con edición de datos y pestañas «Mis donaciones» y «Mis solicitudes» (composables `usePerfil`, `useDonaciones`, `useSolicitudes`).
+- [ ] Frontend de las funcionalidades actuales: decidir la estructura de carpetas con el equipo y empezar. Inventario y endpoints en la sección 5.
 
 ### Decisiones de modelo
 
@@ -217,14 +219,28 @@ Decisiones tomadas:
 
 ### Fase 4: Perfil de usuario (Trello #23)
 
-Siguiente. Incluye los guards de rutas que venían de la Fase 3. Rama de trabajo: `feature04/<nombre>`, creada desde `dev`.
+Hecha. Incluye los guards de rutas que venían de la Fase 3. Rama de trabajo: `feature04/<nombre>`, creada desde `dev`. El acceso al chat desde «Mis solicitudes» pasó a la Fase 7.
 
-- [ ] Persistir la sesión en Vue. La base ya está: `supabase-js` guarda la sesión en `localStorage` y `useAuth` la escucha con `onAuthStateChange`. Falta que `useAuth` avise cuándo llegó el evento `INITIAL_SESSION` y que el guard lo espere antes de decidir; si no, al recargar una ruta privada el guard ve la sesión vacía y manda a `/login` aunque el usuario esté logueado.
-- [ ] Guard de rutas (`router.beforeEach`): una ruta con `meta.requiereSesion` sin sesión redirige a `/login`. `/perfil` es la primera ruta protegida; las de donar (Fase 5) y solicitar (Fase 6) solo agregan ese `meta`.
-- [ ] `/login` y `/registro` redirigen al catálogo si ya hay sesión.
-- [ ] Vista `/perfil` para editar solo `telefono`, `direccion` y `localidad` (DNI y email fijos).
-- [ ] Pestaña «Mis donaciones», con el estado de cada publicación.
-- [ ] Pestaña «Mis solicitudes», con el estado, el código de retiro de 6 dígitos y el acceso al chat.
+Decisiones tomadas:
+
+- El router espera la sesión guardada antes de cada navegación: `useAuth` expone `esperarSesionInicial()`, que devuelve una promesa resuelta al llegar el evento `INITIAL_SESSION` de `onAuthStateChange` (sin llamar a `getSession`). Si no hay sesión guardada, el evento llega igual con `null`, así que la navegación nunca queda trabada.
+- La escucha de la sesión se inicia desde el `router.beforeEach` y no desde `App.vue`, porque la primera navegación arranca con `app.use(router)`, antes de que se monte `App.vue`.
+- El guard usa dos `meta` en las rutas: `requiereSesion` (sin sesión redirige a `/login`) y `soloInvitados` (`/login` y `/registro`; con sesión redirige al catálogo). Es una ayuda de navegación: la protección real de los datos sigue en RLS y en las Edge Functions.
+- Al mandar a `/login`, el guard guarda la ruta pedida en `?redirect=`. Después de ingresar, `LoginView` vuelve a esa ruta si empieza con `/`; si no hay `redirect`, va al catálogo. El registro siempre va al catálogo.
+- `useAuth` expone `errorPerfil` para distinguir "cargando" de "falló la consulta del perfil" y mostrar un mensaje con `danger` en vez de quedarse cargando.
+- `/perfil` tiene tres pestañas («Mis datos», «Mis donaciones», «Mis solicitudes») manejadas con un `ref` en `PerfilView`. Las listas se cargan la primera vez que se abre su pestaña.
+- Un composable por dominio: `usePerfil` (editar datos), `useDonaciones` (en la Fase 5 suma publicar) y `useSolicitudes` (en la Fase 6 suma crear). Los componentes de la vista viven en `components/perfil/`.
+- La edición de datos hace `update` directo sobre `profiles`, sin Edge Function: RLS limita al propio perfil y los permisos por columna solo dejan tocar `telefono`, `direccion` y `localidad`. El `update` devuelve la fila y reemplaza el `perfil` compartido de `useAuth`, así la barra y la vista se actualizan solas.
+- «Mis donaciones» filtra por `user_id` y «Mis solicitudes» por `receptor_id` aunque RLS ya limite las filas, porque las políticas se suman y un admin vería todo.
+- El código de retiro se pide con `rpc('obtener_codigo_confirmacion')` solo para las solicitudes en `pendiente_coordinacion` o `en_camino`, una llamada por solicitud. Si falla el código de una, esa solicitud muestra un aviso con `warning` y el resto de la lista se ve igual.
+- «Mis solicitudes» muestra solo las solicitudes donde el usuario es receptor. Las solicitudes que recibe como donante se ven por el estado `reservado` de sus donaciones; su gestión llega con el chat (Fase 7).
+
+- [x] Persistir la sesión en Vue: `supabase-js` guarda la sesión en `localStorage`, `useAuth` la escucha con `onAuthStateChange` y el `router.beforeEach` espera `esperarSesionInicial()` antes de decidir, para que al recargar una ruta privada el guard no vea la sesión vacía.
+- [x] Guard de rutas (`router.beforeEach`): una ruta con `meta.requiereSesion` sin sesión redirige a `/login?redirect=<ruta>`. `/perfil` es la primera ruta protegida; las de donar (Fase 5) y solicitar (Fase 6) solo agregan ese `meta`.
+- [x] `/login` y `/registro` (`meta.soloInvitados`) redirigen al catálogo si ya hay sesión.
+- [x] Vista `/perfil` para editar solo `telefono`, `direccion` y `localidad` (DNI y email fijos).
+- [x] Pestaña «Mis donaciones», con el estado de cada publicación y el motivo si fue rechazada.
+- [x] Pestaña «Mis solicitudes», con el estado y el código de retiro de 6 dígitos. El acceso al chat se agrega en la Fase 7.
 
 ### Fase 5: Publicar una donación (Trello #27)
 
@@ -243,6 +259,7 @@ En el tablero esta tarjeta se llama «Gestión de Usuarios, Roles y Bloqueos». 
 ### Fase 7: Chat de coordinación (Trello #29)
 
 - [ ] Suscripción Realtime a `solicitud_mensajes`, envío de mensajes y scroll automático.
+- [ ] Botón de acceso al chat desde «Mis solicitudes» (`components/perfil/ListaMisSolicitudes.vue`) y desde las donaciones `reservado` del donante.
 - [ ] Coordinar día, hora y lugar por el chat.
 - [ ] Aviso de normas de convivencia al abrir el chat.
 - [ ] Edge Function `confirmar-entrega`: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
@@ -267,3 +284,56 @@ En el tablero esta tarjeta se llama «Formulario de publicación (Donación)». 
 
 - [ ] Vue Router con las secciones de la arquitectura de información: Inicio, Información/Ayuda, Donar, Recibir, Sobre nosotros, Contacto y Legales.
 - [ ] Home responsive con los colores y tipografías del UI Kit: propósito social y ambiental, cómo donar y cómo recibir, canales de contacto y enlaces al catálogo.
+
+---
+
+## 5. Pendiente: frontend de las funcionalidades actuales
+
+To-do sin fecha. Con la Fase 4 cerrada, las funcionalidades de las Fases 2 a 4 ya andan con estilos mínimos; falta construir su frontend definitivo. Esta sección junta lo que hace falta saber para empezar.
+
+- [ ] Definir con el equipo dónde vive el frontend (decisión pendiente).
+- [ ] Construir el frontend de las funcionalidades del inventario de abajo.
+
+### Decisión pendiente: estructura de carpetas
+
+- **Opción A, la actual:** un solo proyecto con `src/` (Vue) en la raíz y `supabase/` al lado. No hay que mover nada.
+- **Opción B:** separar en `/frontend` (Vue + Vite + Tailwind, con su `package.json`) y `/backend` (carpeta `supabase/` con migraciones, seed y Edge Functions).
+- Si se elige la B, antes de empezar:
+  - Mover los archivos y actualizar la sección «Estructura» y los «Comandos» de `AGENTS.md`.
+  - Definir desde qué carpeta se corre `pnpm supabase` (la CLI es dependencia del proyecto).
+  - Mover `.env.local` a `/frontend`.
+  - Revisar los imports relativos.
+
+### Inventario de lo que ya existe
+
+Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/src/`). Todo consume Supabase con el cliente único de `src/lib/supabase.js` y la `anon` key; RLS decide qué filas ve cada usuario.
+
+| Funcionalidad | Ruta | Vista y componentes | Composable | Qué consume de Supabase |
+|---|---|---|---|---|
+| Catálogo público | `/catalogo` | `CatalogoView`, `components/medicamentos/` (`MedicamentoSearch`, `MedicamentoGrid`, `MedicamentoCard`) | `useMedicamentos` | `select` de `medicamentos` con `estado = 'disponible'` y `fecha_vencimiento >= hoy` |
+| Registro | `/registro` | `RegistroView`, `components/auth/FormularioRegistro` | `useAuth` | `auth.signUp` con metadatos (`name`, `dni`, `telefono`, `direccion`, `localidad`, `acepto_ddjj`); el trigger `handle_new_user` crea el perfil |
+| Login | `/login` | `LoginView`, `components/auth/FormularioLogin` | `useAuth` | `auth.signInWithPassword`; acepta `?redirect=` |
+| Sesión y logout | todas | `components/layout/BarraNavegacion` | `useAuth` | `auth.onAuthStateChange` (`INITIAL_SESSION`), `auth.signOut`, `select` del propio perfil en `profiles` |
+| Mis datos | `/perfil` | `PerfilView`, `components/perfil/FormularioPerfil` | `usePerfil` | `update` de `profiles` (solo `telefono`, `direccion`, `localidad`) |
+| Mis donaciones | `/perfil` | `components/perfil/ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id` |
+| Mis solicitudes | `/perfil` | `components/perfil/ListaMisSolicitudes` | `useSolicitudes` | `select` de `solicitudes` por `receptor_id` (columnas explícitas) y `rpc('obtener_codigo_confirmacion')` |
+| Guard de rutas | todas | `src/router/index.js` | `useAuth` | `meta.requiereSesion` → `/login?redirect=`; `meta.soloInvitados` → catálogo |
+
+### Endpoints que todavía no existen
+
+El frontend los va a consumir cuando se hagan sus fases:
+
+- Edge Function `publicar-medicamento` (Fase 5), con `supabase.functions.invoke`, y Storage para las fotos de envases.
+- Edge Function `crear-solicitud` (Fase 6) y Storage para la receta.
+- Realtime sobre `solicitud_mensajes`, `insert` de mensajes y `rpc('participantes_solicitud')` (Fase 7).
+- Edge Function `confirmar-entrega` y la cancelación de solicitudes (Fase 7).
+- Moderación y gestión de usuarios para el admin (Fases 8 y 9).
+
+### Reglas a mantener
+
+Siguen valiendo las de `AGENTS.md`:
+
+- La lógica de datos queda en los composables; las vistas pasan los datos por props.
+- Colores solo con tokens de `src/style.css`.
+- Mensajes personalizados en español con su color (`danger`, `success`, `warning`, `secondary`), sin mostrar errores crudos.
+- No exponer la `service_role` key.
