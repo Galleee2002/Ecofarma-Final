@@ -67,6 +67,8 @@ El email y la contraseña los guarda Supabase Auth en una tabla interna (`auth.u
 
 **Dato importante:** el perfil se crea solo. Cuando alguien se registra, un **trigger** (una acción automática de la base de datos) crea su fila en `profiles` con los datos del formulario. El rol siempre arranca como `user`: nadie puede registrarse como administrador.
 
+El trigger también controla el registro: si la persona no aceptó los Términos y la DDJJ, o le falta el nombre, DNI, teléfono, dirección o localidad, cancela el alta y la cuenta no se crea. Así la regla se cumple aunque alguien intente registrarse sin pasar por el formulario de la aplicación.
+
 ### 2.2 `medicamentos_habilitados` — Vademécum
 
 Es el listado oficial de medicamentos esenciales del **Programa Remediar**. Sirve para comprobar si un medicamento donado está permitido.
@@ -270,6 +272,14 @@ Y dos funciones que el frontend puede llamar directamente:
 
 Estas funciones son *security definer*: se ejecutan con permisos elevados para poder consultar las tablas sin chocar con las propias políticas, pero cada una controla adentro quién está preguntando.
 
+### Archivos en Storage
+
+Las fotos no se guardan en las tablas: se suben a **Storage** y la tabla `medicamentos` guarda solo sus URLs en `fotos_envase`.
+
+- **Bucket `fotos-envases`:** es **público**, porque el catálogo muestra las fotos sin iniciar sesión y la foto de un envase no es un dato sensible. Acepta solo imágenes JPG, PNG o WEBP de hasta 5 MB.
+- Cada usuario guarda sus fotos en una carpeta con su id (`<user_id>/foto.jpg`). Las políticas sobre `storage.objects` solo le permiten **subir**, **ver** y **borrar** archivos dentro de su propia carpeta. No hay política para **reemplazar** fotos.
+- Las recetas médicas (Fase 6) van a ir en otro bucket **privado**, porque son datos de salud.
+
 ---
 
 ## 7. ¿Qué puede cambiar el frontend y qué no?
@@ -305,6 +315,8 @@ Los cambios en la base de datos se escriben en archivos SQL llamados **migracion
 | `rls_policies` | Crea las funciones auxiliares, las políticas RLS y los permisos por columna |
 | `table_grants` | Da los permisos de tabla a los roles (primer candado) |
 | `realtime_solicitud_mensajes` | Activa los avisos en tiempo real del chat |
+| `validar_registro` | Hace que el trigger de registro rechace altas sin DDJJ aceptada o sin datos obligatorios |
+| `bucket_fotos_envases` | Crea el bucket de Storage `fotos-envases` y sus políticas |
 
 ---
 

@@ -8,7 +8,7 @@ Seguimiento técnico del proyecto: estado, esquema de base de datos y fases de i
 
 - **Frontend:** Vue 3 (SPA) + Tailwind CSS, con Vite
 - **Backend:** Supabase: PostgreSQL, Auth, Storage y Realtime (chat)
-- **Lógica de servidor:** Supabase Edge Functions en Deno (TypeScript)
+- **Lógica de servidor:** Supabase Edge Functions en Deno (JavaScript)
 - **Metodología:** Scrumban (Trello)
 
 Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y RLS, y la lógica sensible vive en Edge Functions.
@@ -28,6 +28,11 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Migración `realtime_solicitud_mensajes`: `solicitud_mensajes` en la publicación `supabase_realtime` (Postgres Changes), aplicada al proyecto remoto.
 - [x] `supabase/seed.sql` con el vademécum Remediar, 2 usuarios de prueba y 5 donaciones `disponible`, aplicado al proyecto remoto.
 - [x] Catálogo público en `/catalogo` (router mínimo, estilos mínimos): composable `useMedicamentos` con la consulta a Supabase, búsqueda y manejo de errores, y los componentes de búsqueda, grilla y card.
+- [x] Registro, login y logout en `/registro` y `/login` (estilos mínimos): composable `useAuth`, formularios en `components/auth/` y `BarraNavegacion` con el usuario y «Cerrar sesión».
+- [x] Migración `validar_registro`: `handle_new_user` rechaza el alta sin DDJJ aceptada o sin datos obligatorios, aplicada al proyecto remoto.
+- [x] Fase 4 (estilos mínimos): sesión persistida en el guard, rutas protegidas con `meta.requiereSesion` / `meta.soloInvitados`, y `/perfil` con edición de datos y pestañas «Mis donaciones» y «Mis solicitudes» (composables `usePerfil`, `useDonaciones`, `useSolicitudes`).
+- [x] Fase 5 (estilos mínimos): formulario de donación en `/donar` con sugerencias del vademécum (`useVademecum`), bucket `fotos-envases` (migración `bucket_fotos_envases`) y Edge Function `publicar-medicamento` en JavaScript. Pendiente aplicarlas al proyecto remoto (`db push` y `functions deploy`).
+- [ ] Frontend de las funcionalidades actuales: decidir la estructura de carpetas con el equipo y empezar. Inventario y endpoints en la sección 5.
 
 ### Decisiones de modelo
 
@@ -192,38 +197,89 @@ Consulta directa a `medicamentos` desde Vue, sin login. El clic a la ficha ya es
 
 ### Fase 3: Autenticación y validación de usuario (Trello #19, Sprint Backlog)
 
-Siguiente. El trigger de `profiles` ya existe (Fase 1).
+Hecha. Los guards de rutas pasaron a la Fase 4.
+
+Decisiones tomadas:
+
+- La confirmación de email está desactivada en el proyecto remoto: `signUp` devuelve la sesión y el usuario queda logueado al registrarse, sin mail de confirmación ni redirect URLs.
+- DNI repetido: el error del trigger llega genérico («Database error saving new user»), así que se muestra un mensaje general («No pudimos crear la cuenta. Verificá que el DNI no esté registrado.»). No se agrega una RPC pública para consultar DNIs, porque permitiría averiguar qué DNIs están registrados.
+- La DDJJ y los datos obligatorios también se validan en la base, no solo en el formulario: como `signUp` se puede llamar directo contra la API, una migración nueva reemplaza `handle_new_user` para cancelar el registro si `acepto_ddjj` no es `true` o falta `name`, `dni`, `telefono`, `direccion` o `localidad`. Los usuarios del seed ya traen esos metadatos.
+- Rama de trabajo: `feature03/autenticacion`, creada desde `dev`.
+- `useAuth` comparte entre vistas la sesión, el perfil y el último mensaje (`mensajeExito` + `tipoMensaje`); `cargando` y `error` son propios de cada vista, para que el error de una pantalla no aparezca en otra.
+- La sesión se escucha solo con `onAuthStateChange`: el evento `INITIAL_SESSION` trae la sesión guardada al recargar, sin llamar a `getSession`. El perfil se carga con `setTimeout` fuera del callback (recomendación de Supabase para no trabar el cliente) y solo cuando cambia el usuario, no en cada renovación del token.
+- El perfil se consulta con todas sus columnas de dominio aunque hoy solo se muestra `name`: `dni`, `telefono`, `direccion` y `localidad` se usan en la Fase 4 y `rol` / `is_validado` en los guards y el admin.
+- Los mensajes de registro e ingreso usan `success`; el de cierre de sesión usa `danger` por decisión del equipo.
+- `is_validado` para donar y solicitar: no se agrega una política RLS nueva. Donar y solicitar solo se hacen con las Edge Functions `publicar-medicamento` y `crear-solicitud`, que usan la `service_role` key y no pasan por RLS; por eso cada Edge Function lee el perfil del usuario del JWT y responde 403 con `{ "error": "..." }` si `is_validado = false`. RLS ya cubre la otra vía: sin políticas de `INSERT` en `medicamentos` ni en `solicitudes`, nadie puede insertar directo con la `anon` key.
+- Email rechazado por Supabase (`email_address_invalid`): Supabase Auth bloquea direcciones que considera falsas o no entregables aunque el formato sea correcto (por ejemplo, `holamundo@gmail.com`). Para probar el registro usar emails reales.
+- Persistir la sesión en los guards y proteger las rutas privadas pasan a la Fase 4: todavía no existe ninguna ruta privada, y `/perfil` es la primera. Se hacen en la misma rama que el perfil, para probar el guard con una ruta real en lugar de una vista de prueba.
 
 - [x] Trigger PostgreSQL que inserta el usuario en `profiles` al registrarse.
-- [ ] Registro, login y logout con Supabase Auth.
-- [ ] Registro con DNI, teléfono, dirección y localidad; `is_validado = true`; aceptación obligatoria de Términos y DDJJ (`acepto_ddjj`, `fecha_aceptacion_ddjj`).
-- [ ] Persistir la sesión en Vue.
-- [ ] Proteger las rutas privadas: donar y solicitar requieren sesión.
-- [ ] RLS que bloquee donar y solicitar si `is_validado = false`.
+- [x] Registro, login y logout con Supabase Auth.
+- [x] Registro con DNI, teléfono, dirección y localidad; `is_validado = true`; aceptación obligatoria de Términos y DDJJ (`acepto_ddjj`, `fecha_aceptacion_ddjj`), validada en el formulario y en el trigger (migración `validar_registro`).
+- [x] Donar y solicitar bloqueados para usuarios con `is_validado = false`: RLS ya impide los inserts directos desde el frontend, porque `medicamentos` y `solicitudes` no tienen políticas de `INSERT`. La validación de `is_validado` se hace en las Edge Functions `publicar-medicamento` (Fase 5) y `crear-solicitud` (Fase 6).
 
 ### Fase 4: Perfil de usuario (Trello #23)
 
-- [ ] Vista `/perfil` para editar solo `telefono`, `direccion` y `localidad` (DNI y email fijos).
-- [ ] Pestaña «Mis donaciones», con el estado de cada publicación.
-- [ ] Pestaña «Mis solicitudes», con el estado, el código de retiro de 6 dígitos y el acceso al chat.
+Hecha. Incluye los guards de rutas que venían de la Fase 3. Rama de trabajo: `feature04/<nombre>`, creada desde `dev`. El acceso al chat desde «Mis solicitudes» pasó a la Fase 7.
+
+Decisiones tomadas:
+
+- El router espera la sesión guardada antes de cada navegación: `useAuth` expone `esperarSesionInicial()`, que devuelve una promesa resuelta al llegar el evento `INITIAL_SESSION` de `onAuthStateChange` (sin llamar a `getSession`). Si no hay sesión guardada, el evento llega igual con `null`, así que la navegación nunca queda trabada.
+- La escucha de la sesión se inicia desde el `router.beforeEach` y no desde `App.vue`, porque la primera navegación arranca con `app.use(router)`, antes de que se monte `App.vue`.
+- El guard usa dos `meta` en las rutas: `requiereSesion` (sin sesión redirige a `/login`) y `soloInvitados` (`/login` y `/registro`; con sesión redirige al catálogo). Es una ayuda de navegación: la protección real de los datos sigue en RLS y en las Edge Functions.
+- Al mandar a `/login`, el guard guarda la ruta pedida en `?redirect=`. Después de ingresar, `LoginView` vuelve a esa ruta si empieza con `/`; si no hay `redirect`, va al catálogo. El registro siempre va al catálogo.
+- `useAuth` expone `errorPerfil` para distinguir "cargando" de "falló la consulta del perfil" y mostrar un mensaje con `danger` en vez de quedarse cargando.
+- `/perfil` tiene tres pestañas («Mis datos», «Mis donaciones», «Mis solicitudes») manejadas con un `ref` en `PerfilView`. Las listas se cargan la primera vez que se abre su pestaña.
+- Un composable por dominio: `usePerfil` (editar datos), `useDonaciones` (en la Fase 5 suma publicar) y `useSolicitudes` (en la Fase 6 suma crear). Los componentes de la vista viven en `components/perfil/`.
+- La edición de datos hace `update` directo sobre `profiles`, sin Edge Function: RLS limita al propio perfil y los permisos por columna solo dejan tocar `telefono`, `direccion` y `localidad`. El `update` devuelve la fila y reemplaza el `perfil` compartido de `useAuth`, así la barra y la vista se actualizan solas.
+- «Mis donaciones» filtra por `user_id` y «Mis solicitudes» por `receptor_id` aunque RLS ya limite las filas, porque las políticas se suman y un admin vería todo.
+- El código de retiro se pide con `rpc('obtener_codigo_confirmacion')` solo para las solicitudes en `pendiente_coordinacion` o `en_camino`, una llamada por solicitud. Si falla el código de una, esa solicitud muestra un aviso con `warning` y el resto de la lista se ve igual.
+- «Mis solicitudes» muestra solo las solicitudes donde el usuario es receptor. Las solicitudes que recibe como donante se ven por el estado `reservado` de sus donaciones; su gestión llega con el chat (Fase 7).
+
+- [x] Persistir la sesión en Vue: `supabase-js` guarda la sesión en `localStorage`, `useAuth` la escucha con `onAuthStateChange` y el `router.beforeEach` espera `esperarSesionInicial()` antes de decidir, para que al recargar una ruta privada el guard no vea la sesión vacía.
+- [x] Guard de rutas (`router.beforeEach`): una ruta con `meta.requiereSesion` sin sesión redirige a `/login?redirect=<ruta>`. `/perfil` es la primera ruta protegida; las de donar (Fase 5) y solicitar (Fase 6) solo agregan ese `meta`.
+- [x] `/login` y `/registro` (`meta.soloInvitados`) redirigen al catálogo si ya hay sesión.
+- [x] Vista `/perfil` para editar solo `telefono`, `direccion` y `localidad` (DNI y email fijos).
+- [x] Pestaña «Mis donaciones», con el estado de cada publicación y el motivo si fue rechazada.
+- [x] Pestaña «Mis solicitudes», con el estado y el código de retiro de 6 dígitos. El acceso al chat se agrega en la Fase 7.
 
 ### Fase 5: Publicar una donación (Trello #27)
 
 En el tablero esta tarjeta se llama «Gestión de Usuarios, Roles y Bloqueos». El contenido es el alta de una donación.
 
-- [ ] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos.
-- [ ] Bucket de Storage para las fotos de envases.
-- [ ] Edge Function `publicar-medicamento`: busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`. Si coincide, guarda `medicamento_habilitado_id` y queda `disponible`. Si no, queda en `pendiente_revision` con el vínculo en `NULL`.
+Decisiones tomadas:
+
+- Rama de trabajo: `feature05/publicar-donacion`, creada desde `dev`. Cubre toda la fase.
+- El formulario vive en `/donar` (`meta.requiereSesion`), con `DonarView` y `components/donaciones/FormularioDonacion`. La barra de navegación muestra «Donar» solo con sesión.
+- Principio activo, concentración y forma farmacéutica son inputs de texto con sugerencias del vademécum (`<datalist>`), para que el donante use los mismos valores que `medicamentos_habilitados` y la Edge Function encuentre la coincidencia exacta. Puede escribir otro valor; en ese caso la donación irá a `pendiente_revision`. Las sugerencias de concentración y forma se filtran por el principio activo escrito.
+- Las sugerencias se cargan con el composable `useVademecum` (lo reutiliza el admin en la Fase 8). Si fallan, se avisa con `warning` y el formulario sigue usable.
+- Obligatorios: nombre comercial, principio activo, cantidad (entero mayor o igual a 1), fecha de vencimiento posterior a hoy y al menos 1 foto. Lote, concentración, forma farmacéutica y descripción son opcionales, como en la tabla.
+- Fotos: de 1 a 3, solo JPG, PNG o WEBP, hasta 5 MB cada una, con previsualización y botón para quitar.
+- La validación vive en `useDonaciones` (`validarDonacion`), igual que el registro en `useAuth`, y la Edge Function la repite del lado del servidor.
+- Si el perfil tiene `is_validado = false`, el formulario muestra un aviso con `warning` y deshabilita el botón. Es una ayuda visual: la validación real queda en la Edge Function.
+- Las Edge Functions se escriben en JavaScript simple (decisión del equipo, ver `AGENTS.md`). Cada una se registra en `supabase/config.toml` con `entrypoint` a su `index.js`, porque la CLI busca `index.ts` por defecto.
+- Bucket `fotos-envases` público (migración `bucket_fotos_envases`): la foto de un envase no es un dato sensible y el catálogo la muestra sin login. Límite de 5 MB y solo JPG, PNG o WEBP, también del lado del servidor. Las recetas de la Fase 6 van en otro bucket privado.
+- Cada usuario sube, ve y borra solo dentro de su carpeta (`<user_id>/<uuid>.<extensión>`), con políticas de `insert`, `select` y `delete` sobre `storage.objects`. No hay política de `update`: las fotos no se reemplazan.
+- El frontend sube las fotos y después invoca `publicar-medicamento` con sus URLs. La función solo acepta URLs públicas del bucket dentro de la carpeta del usuario del JWT. Si la función o una subida fallan, el frontend borra las fotos ya subidas.
+- `publicar-medicamento` tiene `verify_jwt = false`: el proyecto usa las claves nuevas (`sb_publishable_...`), que no son compatibles con la verificación automática del gateway. La función valida el JWT con `auth.getUser(token)` y responde 401 si no hay sesión.
+- La coincidencia con el vademécum es exacta (`.eq` sobre los tres campos), no con `ilike`, porque el `%` de valores como «2 %» actuaría de comodín. Sin concentración o sin forma farmacéutica no hay coincidencia y la donación va a `pendiente_revision`.
+- La fecha de hoy en la Edge Function se calcula con la zona horaria de Argentina, para no rechazar vencimientos válidos por la diferencia con UTC.
+- Al publicar, `disponible` se avisa con `success` y `pendiente_revision` con `secondary`. El formulario se vacía cambiando su `key`.
+
+- [x] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos (estilos mínimos).
+- [x] Bucket de Storage `fotos-envases` para las fotos de envases (migración `bucket_fotos_envases`).
+- [x] Edge Function `publicar-medicamento`: rechaza la publicación si el donante tiene `is_validado = false` (decisión de la Fase 3). Busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`. Si coincide, guarda `medicamento_habilitado_id` y queda `disponible`. Si no, queda en `pendiente_revision` con el vínculo en `NULL`.
 
 ### Fase 6: Detalle del medicamento y solicitud (Trello #25)
 
 - [ ] Vista `/medicamento/:id` con especificaciones y fotos, y su ruta en `src/router/index.js` (el enlace desde la tarjeta del catálogo ya existe, Fase 2).
 - [ ] Botón «Solicitar»: exige sesión, `is_validado` y DDJJ del receptor.
-- [ ] Edge Function `crear-solicitud` (única vía para crear solicitudes): pasa el medicamento a `reservado`, genera el código de 6 dígitos y exige receta (si `requiere_receta` del vademécum vinculado, o si no hay vínculo), destinatario (si `es_para_tercero`) y DDJJ del receptor.
+- [ ] Edge Function `crear-solicitud` (única vía para crear solicitudes): rechaza la solicitud si el receptor tiene `is_validado = false` (decisión de la Fase 3), pasa el medicamento a `reservado`, genera el código de 6 dígitos y exige receta (si `requiere_receta` del vademécum vinculado, o si no hay vínculo), destinatario (si `es_para_tercero`) y DDJJ del receptor.
 
 ### Fase 7: Chat de coordinación (Trello #29)
 
 - [ ] Suscripción Realtime a `solicitud_mensajes`, envío de mensajes y scroll automático.
+- [ ] Botón de acceso al chat desde «Mis solicitudes» (`components/perfil/ListaMisSolicitudes.vue`) y desde las donaciones `reservado` del donante.
 - [ ] Coordinar día, hora y lugar por el chat.
 - [ ] Aviso de normas de convivencia al abrir el chat.
 - [ ] Edge Function `confirmar-entrega`: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
@@ -248,3 +304,56 @@ En el tablero esta tarjeta se llama «Formulario de publicación (Donación)». 
 
 - [ ] Vue Router con las secciones de la arquitectura de información: Inicio, Información/Ayuda, Donar, Recibir, Sobre nosotros, Contacto y Legales.
 - [ ] Home responsive con los colores y tipografías del UI Kit: propósito social y ambiental, cómo donar y cómo recibir, canales de contacto y enlaces al catálogo.
+
+---
+
+## 5. Pendiente: frontend de las funcionalidades actuales
+
+To-do sin fecha. Con la Fase 4 cerrada, las funcionalidades de las Fases 2 a 4 ya andan con estilos mínimos; falta construir su frontend definitivo. Esta sección junta lo que hace falta saber para empezar.
+
+- [ ] Definir con el equipo dónde vive el frontend (decisión pendiente).
+- [ ] Construir el frontend de las funcionalidades del inventario de abajo.
+
+### Decisión pendiente: estructura de carpetas
+
+- **Opción A, la actual:** un solo proyecto con `src/` (Vue) en la raíz y `supabase/` al lado. No hay que mover nada.
+- **Opción B:** separar en `/frontend` (Vue + Vite + Tailwind, con su `package.json`) y `/backend` (carpeta `supabase/` con migraciones, seed y Edge Functions).
+- Si se elige la B, antes de empezar:
+  - Mover los archivos y actualizar la sección «Estructura» y los «Comandos» de `AGENTS.md`.
+  - Definir desde qué carpeta se corre `pnpm supabase` (la CLI es dependencia del proyecto).
+  - Mover `.env.local` a `/frontend`.
+  - Revisar los imports relativos.
+
+### Inventario de lo que ya existe
+
+Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/src/`). Todo consume Supabase con el cliente único de `src/lib/supabase.js` y la `anon` key; RLS decide qué filas ve cada usuario.
+
+| Funcionalidad | Ruta | Vista y componentes | Composable | Qué consume de Supabase |
+|---|---|---|---|---|
+| Catálogo público | `/catalogo` | `CatalogoView`, `components/medicamentos/` (`MedicamentoSearch`, `MedicamentoGrid`, `MedicamentoCard`) | `useMedicamentos` | `select` de `medicamentos` con `estado = 'disponible'` y `fecha_vencimiento >= hoy` |
+| Registro | `/registro` | `RegistroView`, `components/auth/FormularioRegistro` | `useAuth` | `auth.signUp` con metadatos (`name`, `dni`, `telefono`, `direccion`, `localidad`, `acepto_ddjj`); el trigger `handle_new_user` crea el perfil |
+| Login | `/login` | `LoginView`, `components/auth/FormularioLogin` | `useAuth` | `auth.signInWithPassword`; acepta `?redirect=` |
+| Sesión y logout | todas | `components/layout/BarraNavegacion` | `useAuth` | `auth.onAuthStateChange` (`INITIAL_SESSION`), `auth.signOut`, `select` del propio perfil en `profiles` |
+| Mis datos | `/perfil` | `PerfilView`, `components/perfil/FormularioPerfil` | `usePerfil` | `update` de `profiles` (solo `telefono`, `direccion`, `localidad`) |
+| Mis donaciones | `/perfil` | `components/perfil/ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id` |
+| Mis solicitudes | `/perfil` | `components/perfil/ListaMisSolicitudes` | `useSolicitudes` | `select` de `solicitudes` por `receptor_id` (columnas explícitas) y `rpc('obtener_codigo_confirmacion')` |
+| Publicar donación | `/donar` | `DonarView`, `components/donaciones/FormularioDonacion` | `useVademecum`, `useDonaciones` | `select` de `medicamentos_habilitados` para las sugerencias; `upload` y `remove` en el bucket `fotos-envases`; `functions.invoke('publicar-medicamento')` |
+| Guard de rutas | todas | `src/router/index.js` | `useAuth` | `meta.requiereSesion` → `/login?redirect=`; `meta.soloInvitados` → catálogo |
+
+### Endpoints que todavía no existen
+
+El frontend los va a consumir cuando se hagan sus fases:
+
+- Edge Function `crear-solicitud` (Fase 6) y Storage para la receta.
+- Realtime sobre `solicitud_mensajes`, `insert` de mensajes y `rpc('participantes_solicitud')` (Fase 7).
+- Edge Function `confirmar-entrega` y la cancelación de solicitudes (Fase 7).
+- Moderación y gestión de usuarios para el admin (Fases 8 y 9).
+
+### Reglas a mantener
+
+Siguen valiendo las de `AGENTS.md`:
+
+- La lógica de datos queda en los composables; las vistas pasan los datos por props.
+- Colores solo con tokens de `src/style.css`.
+- Mensajes personalizados en español con su color (`danger`, `success`, `warning`, `secondary`), sin mostrar errores crudos.
+- No exponer la `service_role` key.
