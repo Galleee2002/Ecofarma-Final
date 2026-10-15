@@ -8,7 +8,7 @@ Seguimiento técnico del proyecto: estado, esquema de base de datos y fases de i
 
 - **Frontend:** Vue 3 (SPA) + Tailwind CSS, con Vite
 - **Backend:** Supabase: PostgreSQL, Auth, Storage y Realtime (chat)
-- **Lógica de servidor:** Supabase Edge Functions en Deno (TypeScript)
+- **Lógica de servidor:** Supabase Edge Functions en Deno (JavaScript)
 - **Metodología:** Scrumban (Trello)
 
 Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y RLS, y la lógica sensible vive en Edge Functions.
@@ -31,7 +31,7 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Registro, login y logout en `/registro` y `/login` (estilos mínimos): composable `useAuth`, formularios en `components/auth/` y `BarraNavegacion` con el usuario y «Cerrar sesión».
 - [x] Migración `validar_registro`: `handle_new_user` rechaza el alta sin DDJJ aceptada o sin datos obligatorios, aplicada al proyecto remoto.
 - [x] Fase 4 (estilos mínimos): sesión persistida en el guard, rutas protegidas con `meta.requiereSesion` / `meta.soloInvitados`, y `/perfil` con edición de datos y pestañas «Mis donaciones» y «Mis solicitudes» (composables `usePerfil`, `useDonaciones`, `useSolicitudes`).
-- [x] Fase 5, formulario de donación en `/donar` (estilos mínimos): sugerencias del vademécum con `useVademecum`, validación en `useDonaciones` y hasta 3 fotos con previsualización. Falta conectar el envío (bucket de Storage y Edge Function `publicar-medicamento`).
+- [x] Fase 5 (estilos mínimos): formulario de donación en `/donar` con sugerencias del vademécum (`useVademecum`), bucket `fotos-envases` (migración `bucket_fotos_envases`) y Edge Function `publicar-medicamento` en JavaScript. Pendiente aplicarlas al proyecto remoto (`db push` y `functions deploy`).
 - [ ] Frontend de las funcionalidades actuales: decidir la estructura de carpetas con el equipo y empezar. Inventario y endpoints en la sección 5.
 
 ### Decisiones de modelo
@@ -255,12 +255,20 @@ Decisiones tomadas:
 - Las sugerencias se cargan con el composable `useVademecum` (lo reutiliza el admin en la Fase 8). Si fallan, se avisa con `warning` y el formulario sigue usable.
 - Obligatorios: nombre comercial, principio activo, cantidad (entero mayor o igual a 1), fecha de vencimiento posterior a hoy y al menos 1 foto. Lote, concentración, forma farmacéutica y descripción son opcionales, como en la tabla.
 - Fotos: de 1 a 3, solo JPG, PNG o WEBP, hasta 5 MB cada una, con previsualización y botón para quitar.
-- La validación vive en `useDonaciones` (`validarDonacion`), igual que el registro en `useAuth`. Por ahora `publicarDonacion` solo valida y muestra un mensaje informativo con `secondary`; la subida al bucket y la llamada a `publicar-medicamento` se agregan en los puntos siguientes.
+- La validación vive en `useDonaciones` (`validarDonacion`), igual que el registro en `useAuth`, y la Edge Function la repite del lado del servidor.
 - Si el perfil tiene `is_validado = false`, el formulario muestra un aviso con `warning` y deshabilita el botón. Es una ayuda visual: la validación real queda en la Edge Function.
+- Las Edge Functions se escriben en JavaScript simple (decisión del equipo, ver `AGENTS.md`). Cada una se registra en `supabase/config.toml` con `entrypoint` a su `index.js`, porque la CLI busca `index.ts` por defecto.
+- Bucket `fotos-envases` público (migración `bucket_fotos_envases`): la foto de un envase no es un dato sensible y el catálogo la muestra sin login. Límite de 5 MB y solo JPG, PNG o WEBP, también del lado del servidor. Las recetas de la Fase 6 van en otro bucket privado.
+- Cada usuario sube, ve y borra solo dentro de su carpeta (`<user_id>/<uuid>.<extensión>`), con políticas de `insert`, `select` y `delete` sobre `storage.objects`. No hay política de `update`: las fotos no se reemplazan.
+- El frontend sube las fotos y después invoca `publicar-medicamento` con sus URLs. La función solo acepta URLs públicas del bucket dentro de la carpeta del usuario del JWT. Si la función o una subida fallan, el frontend borra las fotos ya subidas.
+- `publicar-medicamento` tiene `verify_jwt = false`: el proyecto usa las claves nuevas (`sb_publishable_...`), que no son compatibles con la verificación automática del gateway. La función valida el JWT con `auth.getUser(token)` y responde 401 si no hay sesión.
+- La coincidencia con el vademécum es exacta (`.eq` sobre los tres campos), no con `ilike`, porque el `%` de valores como «2 %» actuaría de comodín. Sin concentración o sin forma farmacéutica no hay coincidencia y la donación va a `pendiente_revision`.
+- La fecha de hoy en la Edge Function se calcula con la zona horaria de Argentina, para no rechazar vencimientos válidos por la diferencia con UTC.
+- Al publicar, `disponible` se avisa con `success` y `pendiente_revision` con `secondary`. El formulario se vacía cambiando su `key`.
 
-- [x] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos (estilos mínimos; el envío se conecta con el bucket y la Edge Function).
-- [ ] Bucket de Storage para las fotos de envases.
-- [ ] Edge Function `publicar-medicamento`: rechaza la publicación si el donante tiene `is_validado = false` (decisión de la Fase 3). Busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`. Si coincide, guarda `medicamento_habilitado_id` y queda `disponible`. Si no, queda en `pendiente_revision` con el vínculo en `NULL`.
+- [x] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos (estilos mínimos).
+- [x] Bucket de Storage `fotos-envases` para las fotos de envases (migración `bucket_fotos_envases`).
+- [x] Edge Function `publicar-medicamento`: rechaza la publicación si el donante tiene `is_validado = false` (decisión de la Fase 3). Busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`. Si coincide, guarda `medicamento_habilitado_id` y queda `disponible`. Si no, queda en `pendiente_revision` con el vínculo en `NULL`.
 
 ### Fase 6: Detalle del medicamento y solicitud (Trello #25)
 
@@ -329,14 +337,13 @@ Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/
 | Mis datos | `/perfil` | `PerfilView`, `components/perfil/FormularioPerfil` | `usePerfil` | `update` de `profiles` (solo `telefono`, `direccion`, `localidad`) |
 | Mis donaciones | `/perfil` | `components/perfil/ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id` |
 | Mis solicitudes | `/perfil` | `components/perfil/ListaMisSolicitudes` | `useSolicitudes` | `select` de `solicitudes` por `receptor_id` (columnas explícitas) y `rpc('obtener_codigo_confirmacion')` |
-| Publicar donación | `/donar` | `DonarView`, `components/donaciones/FormularioDonacion` | `useVademecum`, `useDonaciones` | `select` de `medicamentos_habilitados` para las sugerencias; el envío (Storage y `publicar-medicamento`) todavía no está conectado |
+| Publicar donación | `/donar` | `DonarView`, `components/donaciones/FormularioDonacion` | `useVademecum`, `useDonaciones` | `select` de `medicamentos_habilitados` para las sugerencias; `upload` y `remove` en el bucket `fotos-envases`; `functions.invoke('publicar-medicamento')` |
 | Guard de rutas | todas | `src/router/index.js` | `useAuth` | `meta.requiereSesion` → `/login?redirect=`; `meta.soloInvitados` → catálogo |
 
 ### Endpoints que todavía no existen
 
 El frontend los va a consumir cuando se hagan sus fases:
 
-- Edge Function `publicar-medicamento` (Fase 5), con `supabase.functions.invoke`, y Storage para las fotos de envases.
 - Edge Function `crear-solicitud` (Fase 6) y Storage para la receta.
 - Realtime sobre `solicitud_mensajes`, `insert` de mensajes y `rpc('participantes_solicitud')` (Fase 7).
 - Edge Function `confirmar-entrega` y la cancelación de solicitudes (Fase 7).

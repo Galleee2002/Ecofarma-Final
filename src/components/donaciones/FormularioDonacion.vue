@@ -24,6 +24,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    tipoMensaje: {
+        type: String,
+        required: true,
+    },
     cuentaSuspendida: {
         type: Boolean,
         required: true,
@@ -209,7 +213,13 @@ function enviar() {
 
         <p v-if="error !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ error }}</p>
 
-        <p v-if="mensaje !== ''" class="rounded border border-secondary bg-secondary/10 p-4 text-secondary">{{ mensaje }}</p>
+        <p
+            v-if="mensaje !== ''"
+            class="rounded border p-4"
+            :class="tipoMensaje === 'exito' ? 'border-success bg-success/10 text-success' : 'border-secondary bg-secondary/10 text-secondary'"
+        >
+            {{ mensaje }}
+        </p>
 
         <button type="submit" class="rounded border border-primary px-3 py-2 text-primary" :disabled="cargando || cuentaSuspendida">
             {{ cargando ? 'Publicando...' : 'Publicar donación' }}

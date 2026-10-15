@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase';
 const MAXIMO_FOTOS = 3;
 const TAMANIO_MAXIMO_FOTO = 5 * 1024 * 1024;
 const TIPOS_DE_FOTO = ['image/jpeg', 'image/png', 'image/webp'];
+const BUCKET_FOTOS = 'fotos-envases';
+const MENSAJE_ERROR_PUBLICAR = 'No pudimos publicar la donación. Intentá de nuevo en unos minutos.';
 
 function obtenerFechaDeHoy() {
     const hoy = new Date();
@@ -56,6 +58,42 @@ function validarDonacion(datos, fotos) {
     return '';
 }
 
+function obtenerExtension(foto) {
+    if (foto.type === 'image/png') {
+        return 'png';
+    }
+    if (foto.type === 'image/webp') {
+        return 'webp';
+    }
+    return 'jpg';
+}
+
+async function borrarFotos(rutas) {
+    if (rutas.length === 0) {
+        return;
+    }
+
+    const { error: errorBorrar } = await supabase.storage.from(BUCKET_FOTOS).remove(rutas);
+    if (errorBorrar) {
+        console.error(errorBorrar);
+    }
+}
+
+async function leerMensajeDeError(errorFuncion) {
+    console.error(errorFuncion);
+
+    try {
+        const cuerpo = await errorFuncion.context.json();
+        if (cuerpo.error) {
+            return cuerpo.error;
+        }
+    } catch (errorLectura) {
+        console.error(errorLectura);
+    }
+
+    return MENSAJE_ERROR_PUBLICAR;
+}
+
 export function useDonaciones() {
     const donaciones = ref([]);
     const cargando = ref(false);
@@ -64,6 +102,7 @@ export function useDonaciones() {
     const publicando = ref(false);
     const errorPublicar = ref('');
     const mensajePublicar = ref('');
+    const tipoMensajePublicar = ref('exito');
 
     async function cargarMisDonaciones(userId) {
         cargando.value = true;
@@ -87,7 +126,7 @@ export function useDonaciones() {
         cargado.value = true;
     }
 
-    async function publicarDonacion(datos, fotos) {
+    async function publicarDonacion(userId, datos, fotos) {
         errorPublicar.value = '';
         mensajePublicar.value = '';
 
@@ -97,7 +136,58 @@ export function useDonaciones() {
             return false;
         }
 
-        mensajePublicar.value = 'Los datos están completos. La publicación se habilita en la próxima etapa.';
+        publicando.value = true;
+
+        const rutas = [];
+        const urls = [];
+
+        for (const foto of fotos) {
+            const ruta = userId + '/' + crypto.randomUUID() + '.' + obtenerExtension(foto);
+
+            const { error: errorSubida } = await supabase.storage.from(BUCKET_FOTOS).upload(ruta, foto);
+            if (errorSubida) {
+                console.error(errorSubida);
+                await borrarFotos(rutas);
+                errorPublicar.value = 'No pudimos subir las fotos del envase. Intentá de nuevo en unos minutos.';
+                publicando.value = false;
+                return false;
+            }
+
+            const { data: datosUrl } = supabase.storage.from(BUCKET_FOTOS).getPublicUrl(ruta);
+            rutas.push(ruta);
+            urls.push(datosUrl.publicUrl);
+        }
+
+        const { data: respuesta, error: errorFuncion } = await supabase.functions.invoke('publicar-medicamento', {
+            body: {
+                nombre_comercial: datos.nombre_comercial.trim(),
+                principio_activo: datos.principio_activo.trim(),
+                concentracion: datos.concentracion.trim(),
+                forma_farmaceutica: datos.forma_farmaceutica.trim(),
+                cantidad_disponible: Number(datos.cantidad_disponible),
+                lote: datos.lote.trim(),
+                fecha_vencimiento: datos.fecha_vencimiento,
+                descripcion: datos.descripcion.trim(),
+                fotos_envase: urls,
+            },
+        });
+
+        if (errorFuncion) {
+            errorPublicar.value = await leerMensajeDeError(errorFuncion);
+            await borrarFotos(rutas);
+            publicando.value = false;
+            return false;
+        }
+
+        if (respuesta.estado === 'disponible') {
+            tipoMensajePublicar.value = 'exito';
+            mensajePublicar.value = 'Tu donación ya está publicada en el catálogo.';
+        } else {
+            tipoMensajePublicar.value = 'informativo';
+            mensajePublicar.value = 'Recibimos tu donación. Un administrador la va a revisar antes de publicarla en el catálogo.';
+        }
+
+        publicando.value = false;
         return true;
     }
 
@@ -109,6 +199,7 @@ export function useDonaciones() {
         publicando,
         errorPublicar,
         mensajePublicar,
+        tipoMensajePublicar,
         cargarMisDonaciones,
         publicarDonacion,
     };

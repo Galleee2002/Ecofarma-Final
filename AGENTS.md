@@ -4,10 +4,15 @@
 
 - Frontend: Vue 3 (SPA, Composition API) + Tailwind CSS 4, con Vite. Gestor de paquetes: pnpm.
 - Backend: Supabase (PostgreSQL, Auth, Storage, Realtime).
-- Lógica de servidor: Supabase Edge Functions en TypeScript sobre Deno.
+- Lógica de servidor: Supabase Edge Functions en JavaScript sobre Deno.
 - El proyecto no usa Laravel ni PHP. No agregar dependencias de PHP/Composer ni de Laravel.
 
 El estado del proyecto, el esquema de base de datos y las fases están en `ROADMAP.md`. Mantenerlo actualizado al completar tareas.
+
+## Alcance de los cambios
+
+- Implementar solo lo que el usuario pide explícitamente, sin agregar archivos, configuraciones ni funcionalidades que no se pidieron. Si algo extra es necesario para que funcione, avisarlo y explicar por qué antes de hacerlo.
+- Usar solo los lenguajes del Stack: JavaScript, Vue y SQL. No introducir TypeScript ni otros lenguajes.
 
 ## Prioridades
 
@@ -26,7 +31,7 @@ El estado del proyecto, el esquema de base de datos y las fases están en `ROADM
 - `src/components/`: componentes reutilizables, agrupados por dominio (por ejemplo `components/medicamentos/`).
 - `src/composables/`: lógica reutilizable y acceso a Supabase (por ejemplo `useMedicamentos.js`). Las vistas llaman al composable y pasan los datos a los componentes por props.
 - `supabase/migrations/`: migraciones SQL del esquema (se crean con `pnpm supabase migrations new <nombre>`).
-- `supabase/functions/<nombre>/index.ts`: Edge Functions.
+- `supabase/functions/<nombre>/index.js`: Edge Functions.
 - `supabase/seed.sql`: datos semilla.
 
 ## Base de datos
@@ -38,7 +43,8 @@ El estado del proyecto, el esquema de base de datos y las fases están en `ROADM
 
 ## Edge Functions (Deno)
 
-- TypeScript con `Deno.serve`.
+- JavaScript con `Deno.serve`, con la sintaxis más simple posible, igual al JavaScript del frontend.
+- Cada función se registra en `supabase/config.toml` con `entrypoint` apuntando a su `index.js`, porque la CLI busca `index.ts` por defecto.
 - Imports con especificadores `npm:` o `jsr:` (por ejemplo `npm:@supabase/supabase-js@2`); no usar `node_modules` del frontend.
 - Leer secretos con `Deno.env.get(...)`. La `service_role` key solo se usa dentro de Edge Functions.
 - Validar el JWT del usuario y responder con CORS para que el frontend pueda invocarlas con `supabase.functions.invoke`.
@@ -66,7 +72,7 @@ Al implementar cualquier fase de `ROADMAP.md` que maneje errores o devuelva mens
 ## Estilo de código
 
 - No escribir comentarios en el código, salvo que el usuario lo pida.
-- Es un proyecto académico: usar sintaxis básica y legible en todos los lenguajes (JavaScript, Vue, SQL, TypeScript), sin funcionalidades avanzadas, librerías innecesarias ni abstracciones de más, para que cualquiera del equipo entienda el código al leerlo.
+- Es un proyecto académico: usar sintaxis básica y legible en todos los lenguajes (JavaScript, Vue, SQL), sin funcionalidades avanzadas, librerías innecesarias ni abstracciones de más, para que cualquiera del equipo entienda el código al leerlo.
 
 ## Verificación de cambios
 

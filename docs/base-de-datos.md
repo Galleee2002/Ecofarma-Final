@@ -272,6 +272,14 @@ Y dos funciones que el frontend puede llamar directamente:
 
 Estas funciones son *security definer*: se ejecutan con permisos elevados para poder consultar las tablas sin chocar con las propias políticas, pero cada una controla adentro quién está preguntando.
 
+### Archivos en Storage
+
+Las fotos no se guardan en las tablas: se suben a **Storage** y la tabla `medicamentos` guarda solo sus URLs en `fotos_envase`.
+
+- **Bucket `fotos-envases`:** es **público**, porque el catálogo muestra las fotos sin iniciar sesión y la foto de un envase no es un dato sensible. Acepta solo imágenes JPG, PNG o WEBP de hasta 5 MB.
+- Cada usuario guarda sus fotos en una carpeta con su id (`<user_id>/foto.jpg`). Las políticas sobre `storage.objects` solo le permiten **subir**, **ver** y **borrar** archivos dentro de su propia carpeta. No hay política para **reemplazar** fotos.
+- Las recetas médicas (Fase 6) van a ir en otro bucket **privado**, porque son datos de salud.
+
 ---
 
 ## 7. ¿Qué puede cambiar el frontend y qué no?
@@ -308,6 +316,7 @@ Los cambios en la base de datos se escriben en archivos SQL llamados **migracion
 | `table_grants` | Da los permisos de tabla a los roles (primer candado) |
 | `realtime_solicitud_mensajes` | Activa los avisos en tiempo real del chat |
 | `validar_registro` | Hace que el trigger de registro rechace altas sin DDJJ aceptada o sin datos obligatorios |
+| `bucket_fotos_envases` | Crea el bucket de Storage `fotos-envases` y sus políticas |
 
 ---
 
