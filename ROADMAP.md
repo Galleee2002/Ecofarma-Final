@@ -31,6 +31,7 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Registro, login y logout en `/registro` y `/login` (estilos mínimos): composable `useAuth`, formularios en `components/auth/` y `BarraNavegacion` con el usuario y «Cerrar sesión».
 - [x] Migración `validar_registro`: `handle_new_user` rechaza el alta sin DDJJ aceptada o sin datos obligatorios, aplicada al proyecto remoto.
 - [x] Fase 4 (estilos mínimos): sesión persistida en el guard, rutas protegidas con `meta.requiereSesion` / `meta.soloInvitados`, y `/perfil` con edición de datos y pestañas «Mis donaciones» y «Mis solicitudes» (composables `usePerfil`, `useDonaciones`, `useSolicitudes`).
+- [x] Fase 5, formulario de donación en `/donar` (estilos mínimos): sugerencias del vademécum con `useVademecum`, validación en `useDonaciones` y hasta 3 fotos con previsualización. Falta conectar el envío (bucket de Storage y Edge Function `publicar-medicamento`).
 - [ ] Frontend de las funcionalidades actuales: decidir la estructura de carpetas con el equipo y empezar. Inventario y endpoints en la sección 5.
 
 ### Decisiones de modelo
@@ -246,7 +247,18 @@ Decisiones tomadas:
 
 En el tablero esta tarjeta se llama «Gestión de Usuarios, Roles y Bloqueos». El contenido es el alta de una donación.
 
-- [ ] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos.
+Decisiones tomadas:
+
+- Rama de trabajo: `feature05/publicar-donacion`, creada desde `dev`. Cubre toda la fase.
+- El formulario vive en `/donar` (`meta.requiereSesion`), con `DonarView` y `components/donaciones/FormularioDonacion`. La barra de navegación muestra «Donar» solo con sesión.
+- Principio activo, concentración y forma farmacéutica son inputs de texto con sugerencias del vademécum (`<datalist>`), para que el donante use los mismos valores que `medicamentos_habilitados` y la Edge Function encuentre la coincidencia exacta. Puede escribir otro valor; en ese caso la donación irá a `pendiente_revision`. Las sugerencias de concentración y forma se filtran por el principio activo escrito.
+- Las sugerencias se cargan con el composable `useVademecum` (lo reutiliza el admin en la Fase 8). Si fallan, se avisa con `warning` y el formulario sigue usable.
+- Obligatorios: nombre comercial, principio activo, cantidad (entero mayor o igual a 1), fecha de vencimiento posterior a hoy y al menos 1 foto. Lote, concentración, forma farmacéutica y descripción son opcionales, como en la tabla.
+- Fotos: de 1 a 3, solo JPG, PNG o WEBP, hasta 5 MB cada una, con previsualización y botón para quitar.
+- La validación vive en `useDonaciones` (`validarDonacion`), igual que el registro en `useAuth`. Por ahora `publicarDonacion` solo valida y muestra un mensaje informativo con `secondary`; la subida al bucket y la llamada a `publicar-medicamento` se agregan en los puntos siguientes.
+- Si el perfil tiene `is_validado = false`, el formulario muestra un aviso con `warning` y deshabilita el botón. Es una ayuda visual: la validación real queda en la Edge Function.
+
+- [x] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos (estilos mínimos; el envío se conecta con el bucket y la Edge Function).
 - [ ] Bucket de Storage para las fotos de envases.
 - [ ] Edge Function `publicar-medicamento`: rechaza la publicación si el donante tiene `is_validado = false` (decisión de la Fase 3). Busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`. Si coincide, guarda `medicamento_habilitado_id` y queda `disponible`. Si no, queda en `pendiente_revision` con el vínculo en `NULL`.
 
@@ -317,6 +329,7 @@ Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/
 | Mis datos | `/perfil` | `PerfilView`, `components/perfil/FormularioPerfil` | `usePerfil` | `update` de `profiles` (solo `telefono`, `direccion`, `localidad`) |
 | Mis donaciones | `/perfil` | `components/perfil/ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id` |
 | Mis solicitudes | `/perfil` | `components/perfil/ListaMisSolicitudes` | `useSolicitudes` | `select` de `solicitudes` por `receptor_id` (columnas explícitas) y `rpc('obtener_codigo_confirmacion')` |
+| Publicar donación | `/donar` | `DonarView`, `components/donaciones/FormularioDonacion` | `useVademecum`, `useDonaciones` | `select` de `medicamentos_habilitados` para las sugerencias; el envío (Storage y `publicar-medicamento`) todavía no está conectado |
 | Guard de rutas | todas | `src/router/index.js` | `useAuth` | `meta.requiereSesion` → `/login?redirect=`; `meta.soloInvitados` → catálogo |
 
 ### Endpoints que todavía no existen

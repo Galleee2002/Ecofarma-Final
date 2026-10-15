@@ -29,6 +29,12 @@ const routes = [
         component: () => import('../views/PerfilView.vue'),
         meta: { requiereSesion: true },
     },
+    {
+        path: '/donar',
+        name: 'donar',
+        component: () => import('../views/DonarView.vue'),
+        meta: { requiereSesion: true },
+    },
 ];
 
 export const router = createRouter({
