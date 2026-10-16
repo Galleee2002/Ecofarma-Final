@@ -388,6 +388,10 @@ deno_version = 2
 entrypoint = "./functions/publicar-medicamento/index.js"
 verify_jwt = false
 
+[functions.crear-solicitud]
+entrypoint = "./functions/crear-solicitud/index.js"
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

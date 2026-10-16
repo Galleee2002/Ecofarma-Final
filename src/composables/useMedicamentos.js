@@ -11,6 +11,7 @@ function obtenerFechaDeHoy() {
 
 export function useMedicamentos() {
     const medicamentos = ref([]);
+    const medicamento = ref(null);
     const cargando = ref(false);
     const error = ref('');
     const busqueda = ref('');
@@ -22,9 +23,9 @@ export function useMedicamentos() {
             return medicamentos.value;
         }
 
-        return medicamentos.value.filter(function (medicamento) {
-            const nombre = medicamento.nombre_comercial.toLowerCase();
-            const principioActivo = medicamento.principio_activo.toLowerCase();
+        return medicamentos.value.filter(function (item) {
+            const nombre = item.nombre_comercial.toLowerCase();
+            const principioActivo = item.principio_activo.toLowerCase();
             return nombre.includes(texto) || principioActivo.includes(texto);
         });
     });
@@ -51,12 +52,41 @@ export function useMedicamentos() {
         cargando.value = false;
     }
 
+    async function cargarMedicamentoPorId(id) {
+        cargando.value = true;
+        error.value = '';
+        medicamento.value = null;
+
+        const { data, error: errorConsulta } = await supabase
+            .from('medicamentos')
+            .select('id, nombre_comercial, principio_activo, concentracion, forma_farmaceutica, cantidad_disponible, fecha_vencimiento, fotos_envase, lote, descripcion, medicamento_habilitado_id, medicamentos_habilitados(requiere_receta)')
+            .eq('id', id)
+            .eq('estado', 'disponible')
+            .gte('fecha_vencimiento', obtenerFechaDeHoy())
+            .maybeSingle();
+
+        if (errorConsulta) {
+            console.error(errorConsulta);
+            error.value = 'No pudimos cargar el medicamento. Intentá de nuevo en unos minutos.';
+            medicamento.value = null;
+        } else if (data === null) {
+            error.value = 'No encontramos ese medicamento o ya no está disponible.';
+            medicamento.value = null;
+        } else {
+            medicamento.value = data;
+        }
+
+        cargando.value = false;
+    }
+
     return {
         medicamentos,
+        medicamento,
         cargando,
         error,
         busqueda,
         medicamentosFiltrados,
         cargarMedicamentos,
+        cargarMedicamentoPorId,
     };
 }

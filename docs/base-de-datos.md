@@ -278,7 +278,7 @@ Las fotos no se guardan en las tablas: se suben a **Storage** y la tabla `medica
 
 - **Bucket `fotos-envases`:** es **público**, porque el catálogo muestra las fotos sin iniciar sesión y la foto de un envase no es un dato sensible. Acepta solo imágenes JPG, PNG o WEBP de hasta 5 MB.
 - Cada usuario guarda sus fotos en una carpeta con su id (`<user_id>/foto.jpg`). Las políticas sobre `storage.objects` solo le permiten **subir**, **ver** y **borrar** archivos dentro de su propia carpeta. No hay política para **reemplazar** fotos.
-- Las recetas médicas (Fase 6) van a ir en otro bucket **privado**, porque son datos de salud.
+- **Bucket `recetas-medicas`:** es **privado**, porque las recetas son datos de salud. Mismos límites de tamaño y tipos de imagen. Cada usuario solo sube, ve y borra archivos en su propia carpeta. La tabla `solicitudes` guarda la URL en `receta_medica_url`; la creación del pedido la hace la Edge Function `crear-solicitud`.
 
 ---
 
@@ -317,6 +317,7 @@ Los cambios en la base de datos se escriben en archivos SQL llamados **migracion
 | `realtime_solicitud_mensajes` | Activa los avisos en tiempo real del chat |
 | `validar_registro` | Hace que el trigger de registro rechace altas sin DDJJ aceptada o sin datos obligatorios |
 | `bucket_fotos_envases` | Crea el bucket de Storage `fotos-envases` y sus políticas |
+| `bucket_recetas_medicas` | Crea el bucket de Storage `recetas-medicas` (privado) y sus políticas |
 
 ---
 

@@ -32,6 +32,7 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Migración `validar_registro`: `handle_new_user` rechaza el alta sin DDJJ aceptada o sin datos obligatorios, aplicada al proyecto remoto.
 - [x] Fase 4 (estilos mínimos): sesión persistida en el guard, rutas protegidas con `meta.requiereSesion` / `meta.soloInvitados`, y `/perfil` con edición de datos y pestañas «Mis donaciones» y «Mis solicitudes» (composables `usePerfil`, `useDonaciones`, `useSolicitudes`).
 - [x] Fase 5 (estilos mínimos): formulario de donación en `/donar` con sugerencias del vademécum (`useVademecum`), bucket `fotos-envases` (migración `bucket_fotos_envases`) y Edge Function `publicar-medicamento` en JavaScript. Pendiente aplicarlas al proyecto remoto (`db push` y `functions deploy`).
+- [x] Fase 6 (estilos mínimos): vista pública `/medicamento/:id`, botón «Solicitar» con gates, bucket `recetas-medicas` (migración `bucket_recetas_medicas`) y Edge Function `crear-solicitud` en JavaScript. Pendiente aplicarlas al proyecto remoto (`db push` y `functions deploy crear-solicitud`).
 - [ ] Frontend de las funcionalidades actuales: decidir la estructura de carpetas con el equipo y empezar. Inventario y endpoints en la sección 5.
 
 ### Decisiones de modelo
@@ -272,9 +273,20 @@ Decisiones tomadas:
 
 ### Fase 6: Detalle del medicamento y solicitud (Trello #25)
 
-- [ ] Vista `/medicamento/:id` con especificaciones y fotos, y su ruta en `src/router/index.js` (el enlace desde la tarjeta del catálogo ya existe, Fase 2).
-- [ ] Botón «Solicitar»: exige sesión, `is_validado` y DDJJ del receptor.
-- [ ] Edge Function `crear-solicitud` (única vía para crear solicitudes): rechaza la solicitud si el receptor tiene `is_validado = false` (decisión de la Fase 3), pasa el medicamento a `reservado`, genera el código de 6 dígitos y exige receta (si `requiere_receta` del vademécum vinculado, o si no hay vínculo), destinatario (si `es_para_tercero`) y DDJJ del receptor.
+Decisiones tomadas:
+
+- Rama de trabajo: `feature06/detalle-solicitar`, creada desde `dev`. Cubre la vista de detalle, el botón «Solicitar» y la Edge Function `crear-solicitud`.
+- La ruta `/medicamento/:id` (`name: 'medicamento-detalle'`) es pública: no usa `meta.requiereSesion`. El login se exige solo al intentar solicitar, con `redirect` de vuelta al detalle.
+- La vista es `MedicamentoDetalleView`; los datos los carga `useMedicamentos.cargarMedicamentoPorId` con el mismo filtro del catálogo (`disponible` y no vencido), campos extra `lote` y `descripcion`, y el join a `medicamentos_habilitados(requiere_receta)` para mostrar el input de receta. Si no hay fila, el mensaje es personalizado (`danger`).
+- El detalle visual vive en `components/medicamentos/DetalleMedicamento`. El CTA vive en `PanelSolicitar` (tercero, receta si aplica, DDJJ) y llama a `useSolicitudes.crearSolicitud`.
+- Sin sesión: CTA «Iniciar sesión para solicitar» → `/login?redirect=<ruta>`. Con sesión y `is_validado = false`: aviso `warning` y botón deshabilitado (mismo patrón que donar). Con sesión validada: checkbox de DDJJ del receptor; el botón «Solicitar» solo se habilita si está marcado (y si aplica, con receta y destinatario).
+- Bucket `recetas-medicas` privado (migración `bucket_recetas_medicas`): 5 MB, solo JPG, PNG o WEBP. Cada usuario sube, ve y borra solo en su carpeta (`<user_id>/<uuid>.<extensión>`). El frontend sube la receta (si hace falta) y después invoca `crear-solicitud` con la URL de `getPublicUrl`; si la función falla, borra el archivo subido.
+- `crear-solicitud` tiene `verify_jwt = false` (mismo motivo que `publicar-medicamento`): valida el JWT con `auth.getUser(token)`. Rechaza si `is_validado = false`, si el receptor es el donante, si falta DDJJ, si falta destinatario con `es_para_tercero`, o si falta receta cuando no hay vínculo al vademécum o `requiere_receta = true`. Reserva el medicamento con `update … where estado = 'disponible'` (si 0 filas → 409). Genera el código de 6 dígitos y no lo devuelve en la respuesta: el receptor lo ve en «Mis solicitudes» con `rpc('obtener_codigo_confirmacion')`. Si el insert de la solicitud falla, revierte el medicamento a `disponible`.
+- Pendiente en remoto: `pnpm supabase db push` y `pnpm supabase functions deploy crear-solicitud`.
+
+- [x] Vista `/medicamento/:id` con especificaciones y fotos, y su ruta en `src/router/index.js` (el enlace desde la tarjeta del catálogo ya existe, Fase 2).
+- [x] Botón «Solicitar»: exige sesión, `is_validado` y DDJJ del receptor.
+- [x] Edge Function `crear-solicitud` (única vía para crear solicitudes): rechaza la solicitud si el receptor tiene `is_validado = false` (decisión de la Fase 3), pasa el medicamento a `reservado`, genera el código de 6 dígitos y exige receta (si `requiere_receta` del vademécum vinculado, o si no hay vínculo), destinatario (si `es_para_tercero`) y DDJJ del receptor.
 
 ### Fase 7: Chat de coordinación (Trello #29)
 
@@ -337,6 +349,7 @@ Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/
 | Mis datos | `/perfil` | `PerfilView`, `components/perfil/FormularioPerfil` | `usePerfil` | `update` de `profiles` (solo `telefono`, `direccion`, `localidad`) |
 | Mis donaciones | `/perfil` | `components/perfil/ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id` |
 | Mis solicitudes | `/perfil` | `components/perfil/ListaMisSolicitudes` | `useSolicitudes` | `select` de `solicitudes` por `receptor_id` (columnas explícitas) y `rpc('obtener_codigo_confirmacion')` |
+| Solicitar medicamento | `/medicamento/:id` | `components/medicamentos/PanelSolicitar` | `useSolicitudes.crearSolicitud` | Storage `recetas-medicas` + Edge Function `crear-solicitud` |
 | Publicar donación | `/donar` | `DonarView`, `components/donaciones/FormularioDonacion` | `useVademecum`, `useDonaciones` | `select` de `medicamentos_habilitados` para las sugerencias; `upload` y `remove` en el bucket `fotos-envases`; `functions.invoke('publicar-medicamento')` |
 | Guard de rutas | todas | `src/router/index.js` | `useAuth` | `meta.requiereSesion` → `/login?redirect=`; `meta.soloInvitados` → catálogo |
 
@@ -344,7 +357,6 @@ Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/
 
 El frontend los va a consumir cuando se hagan sus fases:
 
-- Edge Function `crear-solicitud` (Fase 6) y Storage para la receta.
 - Realtime sobre `solicitud_mensajes`, `insert` de mensajes y `rpc('participantes_solicitud')` (Fase 7).
 - Edge Function `confirmar-entrega` y la cancelación de solicitudes (Fase 7).
 - Moderación y gestión de usuarios para el admin (Fases 8 y 9).

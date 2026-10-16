@@ -12,6 +12,11 @@ const routes = [
         component: () => import('../views/CatalogoView.vue'),
     },
     {
+        path: '/medicamento/:id',
+        name: 'medicamento-detalle',
+        component: () => import('../views/MedicamentoDetalleView.vue'),
+    },
+    {
         path: '/login',
         name: 'login',
         component: () => import('../views/LoginView.vue'),
