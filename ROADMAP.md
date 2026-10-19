@@ -78,6 +78,18 @@ Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fo
 | `danger` | `#FF383C` | Error / acciones destructivas |
 | `warning` | `#FFAA00` | Advertencia |
 
+### Pendiente: componentes shadcn/vue
+
+No instalar ni usar [shadcn/vue](https://www.shadcn-vue.com/) hasta que se pida de forma explícita. Hasta entonces la interfaz sigue con clases de Tailwind mínimas y los tokens de esta sección.
+
+Cuando se pida, se puede sumar sin cambiar el stack (Vue 3, Vite, Tailwind CSS 4, JavaScript y pnpm):
+
+- El CLI copia cada componente al proyecto (por ejemplo `src/components/ui`). No es un paquete cerrado.
+- Los componentes se generan en JavaScript (`typescript: false` en `components.json`). El proyecto sigue sin TypeScript.
+- Se conservan `src/style.css`, los tokens de esta sección y las fuentes de `index.html`. El init no reemplaza ese archivo.
+- El alias `@` en Vite y un `jsconfig.json` alcanzan para los imports. Siguen siendo Vue, Vite y Tailwind.
+- Las dependencias de apoyo (`reka-ui`, `clsx`, `tailwind-merge`, `class-variance-authority`, `lucide-vue-next`) acompañan a los componentes. No reemplazan Vue, Vite ni Tailwind.
+
 ---
 
 ## 3. Esquema de Base de Datos
@@ -290,12 +302,22 @@ Decisiones tomadas:
 
 ### Fase 7: Chat de coordinación (Trello #29)
 
+Decisiones tomadas:
+
+- Rama de trabajo: `feature07/chat-coordinacion`, creada desde `dev`. Cubre el chat y el cierre de la solicitud.
+- Confirmar y cancelar no cambian el esquema: `authenticated` no puede hacer `UPDATE` de `solicitudes` ni de `medicamentos`, así que ambas acciones son Edge Functions con `service_role`, el mismo patrón que `crear-solicitud` (`verify_jwt = false` y validación del JWT con `auth.getUser`).
+- `confirmar-entrega` la usa solo el donante (`medicamentos.user_id`). Recibe el código de 6 dígitos, lo compara con `codigo_confirmacion` y no lo devuelve. Si coincide y la solicitud está en `pendiente_coordinacion` o `en_camino` con el medicamento `reservado`, la solicitud pasa a `completado` con `fecha_entrega` y el medicamento a `entregado`.
+- `cancelar-solicitud` la puede usar el donante o el receptor, desde el chat, en esos mismos estados. La solicitud pasa a `cancelado` y el medicamento vuelve a `disponible`.
+- Las dos actualizaciones son condicionales. Si el medicamento no cambia, la función vuelve la solicitud al estado anterior.
+- La cuenta con `is_validado = false` no puede confirmar ni cancelar. El paso a `en_camino` no se implementa en esta fase: confirmar y cancelar valen desde `pendiente_coordinacion`.
+- En el chat, el donante ve el formulario del código y las dos partes ven la cancelación, con una confirmación en la misma pantalla. Al terminar, el chat se recarga y deja de admitir mensajes.
+
 - [x] Suscripción Realtime a `solicitud_mensajes`, envío de mensajes y scroll automático.
 - [x] Botón de acceso al chat desde «Mis solicitudes» (`components/perfil/ListaMisSolicitudes.vue`) y desde las donaciones `reservado` del donante.
-- [ ] Coordinar día, hora y lugar por el chat.
-- [ ] Aviso de normas de convivencia al abrir el chat.
-- [ ] Edge Function `confirmar-entrega`: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
-- [ ] Cancelación de la solicitud (`cancelado`) que devuelve el medicamento a `disponible`.
+- [x] Coordinar día, hora y lugar por el chat.
+- [x] Aviso de normas de convivencia al abrir el chat.
+- [x] Edge Function `confirmar-entrega`: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
+- [x] Cancelación de la solicitud (`cancelado`) que devuelve el medicamento a `disponible`.
 
 ### Fase 8: Moderación de donaciones (Trello #26)
 
@@ -349,7 +371,7 @@ Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/
 | Mis datos | `/perfil` | `PerfilView`, `components/perfil/FormularioPerfil` | `usePerfil` | `update` de `profiles` (solo `telefono`, `direccion`, `localidad`) |
 | Mis donaciones | `/perfil` | `components/perfil/ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id`; si está `reservado`, `select` de la solicitud en `pendiente_coordinacion` o `en_camino` |
 | Mis solicitudes | `/perfil` | `components/perfil/ListaMisSolicitudes` | `useSolicitudes` | `select` de `solicitudes` por `receptor_id` (columnas explícitas) y `rpc('obtener_codigo_confirmacion')` |
-| Chat de una solicitud | `/solicitud/:solicitudId/chat` | `ChatView`, `components/chat/` (`ListaMensajes`, `FormularioMensaje`) | `useMensajes` | `select` de `solicitudes` y de `solicitud_mensajes`, `rpc('participantes_solicitud')`, `insert` de mensajes y Realtime `postgres_changes` |
+| Chat de una solicitud | `/solicitud/:solicitudId/chat` | `ChatView`, `components/chat/` (`ListaMensajes`, `FormularioMensaje`, `FormularioEncuentro`, `FormularioConfirmarEntrega`, `PanelCancelarSolicitud`) | `useMensajes`, `useSolicitudes` | `select` de `solicitudes` y de `solicitud_mensajes`, `rpc('participantes_solicitud')`, `insert` de mensajes (el encuentro se propone con un mensaje armado desde el formulario), Realtime `postgres_changes`, `functions.invoke('confirmar-entrega')` y `functions.invoke('cancelar-solicitud')` |
 | Solicitar medicamento | `/medicamento/:id` | `components/medicamentos/PanelSolicitar` | `useSolicitudes.crearSolicitud` | Storage `recetas-medicas` + Edge Function `crear-solicitud` |
 | Publicar donación | `/donar` | `DonarView`, `components/donaciones/FormularioDonacion` | `useVademecum`, `useDonaciones` | `select` de `medicamentos_habilitados` para las sugerencias; `upload` y `remove` en el bucket `fotos-envases`; `functions.invoke('publicar-medicamento')` |
 | Guard de rutas | todas | `src/router/index.js` | `useAuth` | `meta.requiereSesion` → `/login?redirect=`; `meta.soloInvitados` → catálogo |
@@ -358,7 +380,6 @@ Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/
 
 El frontend los va a consumir cuando se hagan sus fases:
 
-- Edge Function `confirmar-entrega` y la cancelación de solicitudes (Fase 7).
 - Moderación y gestión de usuarios para el admin (Fases 8 y 9).
 
 ### Reglas a mantener

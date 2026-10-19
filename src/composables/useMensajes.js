@@ -58,7 +58,7 @@ export function useMensajes() {
 
         const { data: fila, error: errorSolicitud } = await supabase
             .from('solicitudes')
-            .select('id, estado, medicamentos(nombre_comercial)')
+            .select('id, estado, receptor_id, medicamentos(nombre_comercial, user_id)')
             .eq('id', solicitudId)
             .maybeSingle();
 

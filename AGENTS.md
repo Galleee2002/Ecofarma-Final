@@ -18,6 +18,7 @@ El estado del proyecto, el esquema de base de datos y las fases están en `ROADM
 
 - Primero la funcionalidad: datos, backend (Supabase, RLS, consultas, Edge Functions) y la lógica de cada fase de `ROADMAP.md`.
 - Los estilos y la landing page son lo último del tablero de Trello. Hasta esa etapa, la interfaz lleva solo las clases de Tailwind mínimas para que se pueda usar y probar, sin pulido visual, animaciones ni diseño responsive detallado.
+- shadcn/vue queda pendiente y no se instala ni se usa hasta que el usuario lo pida de forma explícita. El detalle está en `ROADMAP.md`, sección «Pendiente: componentes shadcn/vue».
 - Esto no exime de la sección "Mensajes al usuario y manejo de errores": los mensajes personalizados y sus colores de token siguen siendo obligatorios.
 
 ## Estructura
@@ -56,6 +57,7 @@ El estado del proyecto, el esquema de base de datos y las fases están en `ROADM
 - Nunca exponer la `service_role` key ni otros secretos en el código del frontend.
 - Estilos con clases de Tailwind y los tokens definidos en `src/style.css`.
 - Colores solo a través de los tokens (`bg-primary`, `text-icon`, `text-danger`, etc.), nunca con hex sueltos. Los títulos ya usan `font-heading` por defecto; el body usa `font-sans`.
+- No agregar shadcn/vue, `components.json` ni componentes en `src/components/ui` hasta que el usuario lo pida. Cuando lo pida, generar los componentes en JavaScript (`typescript: false`) y conservar los tokens y las fuentes de `src/style.css`.
 
 ### Mensajes al usuario y manejo de errores
 
@@ -73,6 +75,7 @@ Al implementar cualquier fase de `ROADMAP.md` que maneje errores o devuelva mens
 
 - No escribir comentarios en el código, salvo que el usuario lo pida.
 - Es un proyecto académico: usar sintaxis básica y legible en todos los lenguajes (JavaScript, Vue, SQL), sin funcionalidades avanzadas, librerías innecesarias ni abstracciones de más, para que cualquiera del equipo entienda el código al leerlo.
+- shadcn/vue es la excepción a esa regla, y solo después de que el usuario pida implementarla.
 
 ## Verificación de cambios
 

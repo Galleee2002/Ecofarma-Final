@@ -5,6 +5,8 @@ const TAMANIO_MAXIMO_RECETA = 5 * 1024 * 1024;
 const TIPOS_DE_RECETA = ['image/jpeg', 'image/png', 'image/webp'];
 const BUCKET_RECETAS = 'recetas-medicas';
 const MENSAJE_ERROR_CREAR = 'No pudimos crear la solicitud. Intentá de nuevo en unos minutos.';
+const MENSAJE_ERROR_CONFIRMAR = 'No pudimos confirmar la entrega. Intentá de nuevo en unos minutos.';
+const MENSAJE_ERROR_CANCELAR = 'No pudimos cancelar la solicitud. Intentá de nuevo en unos minutos.';
 
 function obtenerExtension(archivo) {
     if (archivo.type === 'image/png') {
@@ -51,7 +53,7 @@ async function borrarReceta(ruta) {
     }
 }
 
-async function leerMensajeDeError(errorFuncion) {
+async function leerMensajeDeError(errorFuncion, mensajePorDefecto) {
     console.error(errorFuncion);
 
     try {
@@ -63,7 +65,7 @@ async function leerMensajeDeError(errorFuncion) {
         console.error(errorLectura);
     }
 
-    return MENSAJE_ERROR_CREAR;
+    return mensajePorDefecto;
 }
 
 export function useSolicitudes() {
@@ -75,6 +77,12 @@ export function useSolicitudes() {
     const errorCrear = ref('');
     const mensajeCrear = ref('');
     const tipoMensajeCrear = ref('exito');
+    const confirmando = ref(false);
+    const errorConfirmar = ref('');
+    const mensajeConfirmar = ref('');
+    const cancelando = ref(false);
+    const errorCancelar = ref('');
+    const mensajeCancelar = ref('');
 
     async function obtenerCodigo(solicitud) {
         solicitud.codigo = null;
@@ -162,7 +170,7 @@ export function useSolicitudes() {
         });
 
         if (errorFuncion) {
-            errorCrear.value = await leerMensajeDeError(errorFuncion);
+            errorCrear.value = await leerMensajeDeError(errorFuncion, MENSAJE_ERROR_CREAR);
             await borrarReceta(rutaReceta);
             creando.value = false;
             return false;
@@ -181,6 +189,68 @@ export function useSolicitudes() {
         return true;
     }
 
+    async function confirmarEntrega(solicitudId, codigo) {
+        errorConfirmar.value = '';
+        mensajeConfirmar.value = '';
+
+        const codigoLimpio = codigo.trim();
+        if (!/^[0-9]{6}$/.test(codigoLimpio)) {
+            errorConfirmar.value = 'El código tiene que tener 6 dígitos.';
+            return false;
+        }
+
+        confirmando.value = true;
+
+        const { data: respuesta, error: errorFuncion } = await supabase.functions.invoke('confirmar-entrega', {
+            body: {
+                solicitud_id: solicitudId,
+                codigo: codigoLimpio,
+            },
+        });
+
+        confirmando.value = false;
+
+        if (errorFuncion) {
+            errorConfirmar.value = await leerMensajeDeError(errorFuncion, MENSAJE_ERROR_CONFIRMAR);
+            return false;
+        }
+
+        if (!respuesta || respuesta.ok !== true) {
+            errorConfirmar.value = MENSAJE_ERROR_CONFIRMAR;
+            return false;
+        }
+
+        mensajeConfirmar.value = 'Entrega confirmada. El medicamento quedó registrado como entregado.';
+        return true;
+    }
+
+    async function cancelarSolicitud(solicitudId) {
+        errorCancelar.value = '';
+        mensajeCancelar.value = '';
+        cancelando.value = true;
+
+        const { data: respuesta, error: errorFuncion } = await supabase.functions.invoke('cancelar-solicitud', {
+            body: {
+                solicitud_id: solicitudId,
+            },
+        });
+
+        cancelando.value = false;
+
+        if (errorFuncion) {
+            errorCancelar.value = await leerMensajeDeError(errorFuncion, MENSAJE_ERROR_CANCELAR);
+            return false;
+        }
+
+        if (!respuesta || respuesta.ok !== true) {
+            errorCancelar.value = MENSAJE_ERROR_CANCELAR;
+            return false;
+        }
+
+        mensajeCancelar.value = 'Solicitud cancelada. El medicamento volvió a estar disponible.';
+        return true;
+    }
+
     return {
         solicitudes,
         cargando,
@@ -190,7 +260,15 @@ export function useSolicitudes() {
         errorCrear,
         mensajeCrear,
         tipoMensajeCrear,
+        confirmando,
+        errorConfirmar,
+        mensajeConfirmar,
+        cancelando,
+        errorCancelar,
+        mensajeCancelar,
         cargarMisSolicitudes,
         crearSolicitud,
+        confirmarEntrega,
+        cancelarSolicitud,
     };
 }

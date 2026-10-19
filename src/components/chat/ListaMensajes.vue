@@ -43,7 +43,7 @@ watch(function () {
 <template>
     <div ref="contenedor" class="flex max-h-80 flex-col gap-2 overflow-y-auto rounded border p-3">
         <p v-if="mensajes.length === 0" class="rounded border border-secondary bg-secondary/10 p-4 text-secondary">
-            Todavía no hay mensajes. Coordiná el día, la hora y el lugar del encuentro.
+            Todavía no hay mensajes. Proponé el día, la hora y el lugar con el formulario de encuentro.
         </p>
 
         <article

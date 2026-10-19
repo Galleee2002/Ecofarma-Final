@@ -293,6 +293,7 @@ El frontend puede **leer** casi todo lo que le corresponde a cada usuario, pero 
 | Publicar un medicamento | Edge Function `publicar-medicamento` |
 | Crear una solicitud | Edge Function `crear-solicitud` |
 | Confirmar una entrega con el código | Edge Function `confirmar-entrega` |
+| Cancelar una solicitud y liberar el medicamento | Edge Function `cancelar-solicitud` |
 | Aprobar o rechazar donaciones, suspender usuarios | Edge Functions de administración |
 
 **¿Por qué las acciones importantes van por Edge Functions?** Porque tienen reglas que no se pueden dejar en manos del navegador del usuario. Por ejemplo, al crear una solicitud hay que comprobar si el medicamento requiere receta, generar el código de 6 dígitos y reservar el medicamento. Si eso lo hiciera el frontend, un usuario con conocimientos técnicos podría saltearse los controles. En cambio, la Edge Function corre en el servidor y nadie puede modificarla.

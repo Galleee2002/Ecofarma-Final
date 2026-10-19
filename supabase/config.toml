@@ -392,6 +392,14 @@ verify_jwt = false
 entrypoint = "./functions/crear-solicitud/index.js"
 verify_jwt = false
 
+[functions.confirmar-entrega]
+entrypoint = "./functions/confirmar-entrega/index.js"
+verify_jwt = false
+
+[functions.cancelar-solicitud]
+entrypoint = "./functions/cancelar-solicitud/index.js"
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
