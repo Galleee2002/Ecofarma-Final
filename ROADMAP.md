@@ -290,8 +290,8 @@ Decisiones tomadas:
 
 ### Fase 7: Chat de coordinación (Trello #29)
 
-- [ ] Suscripción Realtime a `solicitud_mensajes`, envío de mensajes y scroll automático.
-- [ ] Botón de acceso al chat desde «Mis solicitudes» (`components/perfil/ListaMisSolicitudes.vue`) y desde las donaciones `reservado` del donante.
+- [x] Suscripción Realtime a `solicitud_mensajes`, envío de mensajes y scroll automático.
+- [x] Botón de acceso al chat desde «Mis solicitudes» (`components/perfil/ListaMisSolicitudes.vue`) y desde las donaciones `reservado` del donante.
 - [ ] Coordinar día, hora y lugar por el chat.
 - [ ] Aviso de normas de convivencia al abrir el chat.
 - [ ] Edge Function `confirmar-entrega`: el donante ingresa el código → solicitud `completado`, medicamento `entregado`, `fecha_entrega` registrada.
@@ -347,8 +347,9 @@ Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/
 | Login | `/login` | `LoginView`, `components/auth/FormularioLogin` | `useAuth` | `auth.signInWithPassword`; acepta `?redirect=` |
 | Sesión y logout | todas | `components/layout/BarraNavegacion` | `useAuth` | `auth.onAuthStateChange` (`INITIAL_SESSION`), `auth.signOut`, `select` del propio perfil en `profiles` |
 | Mis datos | `/perfil` | `PerfilView`, `components/perfil/FormularioPerfil` | `usePerfil` | `update` de `profiles` (solo `telefono`, `direccion`, `localidad`) |
-| Mis donaciones | `/perfil` | `components/perfil/ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id` |
+| Mis donaciones | `/perfil` | `components/perfil/ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id`; si está `reservado`, `select` de la solicitud en `pendiente_coordinacion` o `en_camino` |
 | Mis solicitudes | `/perfil` | `components/perfil/ListaMisSolicitudes` | `useSolicitudes` | `select` de `solicitudes` por `receptor_id` (columnas explícitas) y `rpc('obtener_codigo_confirmacion')` |
+| Chat de una solicitud | `/solicitud/:solicitudId/chat` | `ChatView`, `components/chat/` (`ListaMensajes`, `FormularioMensaje`) | `useMensajes` | `select` de `solicitudes` y de `solicitud_mensajes`, `rpc('participantes_solicitud')`, `insert` de mensajes y Realtime `postgres_changes` |
 | Solicitar medicamento | `/medicamento/:id` | `components/medicamentos/PanelSolicitar` | `useSolicitudes.crearSolicitud` | Storage `recetas-medicas` + Edge Function `crear-solicitud` |
 | Publicar donación | `/donar` | `DonarView`, `components/donaciones/FormularioDonacion` | `useVademecum`, `useDonaciones` | `select` de `medicamentos_habilitados` para las sugerencias; `upload` y `remove` en el bucket `fotos-envases`; `functions.invoke('publicar-medicamento')` |
 | Guard de rutas | todas | `src/router/index.js` | `useAuth` | `meta.requiereSesion` → `/login?redirect=`; `meta.soloInvitados` → catálogo |
@@ -357,7 +358,6 @@ Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/
 
 El frontend los va a consumir cuando se hagan sus fases:
 
-- Realtime sobre `solicitud_mensajes`, `insert` de mensajes y `rpc('participantes_solicitud')` (Fase 7).
 - Edge Function `confirmar-entrega` y la cancelación de solicitudes (Fase 7).
 - Moderación y gestión de usuarios para el admin (Fases 8 y 9).
 

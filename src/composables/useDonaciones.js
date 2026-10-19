@@ -104,6 +104,42 @@ export function useDonaciones() {
     const mensajePublicar = ref('');
     const tipoMensajePublicar = ref('exito');
 
+    async function adjuntarSolicitudesActivas(filas) {
+        for (const donacion of filas) {
+            donacion.solicitud_id = null;
+        }
+
+        const idsReservados = [];
+        for (const donacion of filas) {
+            if (donacion.estado === 'reservado') {
+                idsReservados.push(donacion.id);
+            }
+        }
+
+        if (idsReservados.length === 0) {
+            return;
+        }
+
+        const { data, error: errorSolicitudes } = await supabase
+            .from('solicitudes')
+            .select('id, medicamento_id, estado')
+            .in('medicamento_id', idsReservados)
+            .in('estado', ['pendiente_coordinacion', 'en_camino']);
+
+        if (errorSolicitudes) {
+            console.error(errorSolicitudes);
+            return;
+        }
+
+        for (const donacion of filas) {
+            for (const solicitud of data) {
+                if (solicitud.medicamento_id === donacion.id) {
+                    donacion.solicitud_id = solicitud.id;
+                }
+            }
+        }
+    }
+
     async function cargarMisDonaciones(userId) {
         cargando.value = true;
         error.value = '';
@@ -119,6 +155,7 @@ export function useDonaciones() {
             error.value = 'No pudimos cargar tus donaciones. Intentá de nuevo en unos minutos.';
             donaciones.value = [];
         } else {
+            await adjuntarSolicitudesActivas(data);
             donaciones.value = data;
         }
 

@@ -40,6 +40,12 @@ const routes = [
         component: () => import('../views/DonarView.vue'),
         meta: { requiereSesion: true },
     },
+    {
+        path: '/solicitud/:solicitudId/chat',
+        name: 'chat-solicitud',
+        component: () => import('../views/ChatView.vue'),
+        meta: { requiereSesion: true },
+    },
 ];
 
 export const router = createRouter({

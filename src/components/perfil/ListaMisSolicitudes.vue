@@ -65,6 +65,13 @@ function reintentar() {
             <p v-if="solicitud.errorCodigo" class="rounded border border-warning bg-warning/10 p-2 text-warning">
                 Código no disponible. Recargá la página para intentar de nuevo.
             </p>
+            <RouterLink
+                v-if="solicitud.estado === 'pendiente_coordinacion' || solicitud.estado === 'en_camino'"
+                :to="{ name: 'chat-solicitud', params: { solicitudId: solicitud.id } }"
+                class="text-primary"
+            >
+                Abrir chat
+            </RouterLink>
         </li>
     </ul>
 </template>

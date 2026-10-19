@@ -66,6 +66,13 @@ function reintentar() {
             >
                 Motivo del rechazo: {{ donacion.motivo_rechazo }}
             </p>
+            <RouterLink
+                v-if="donacion.estado === 'reservado' && donacion.solicitud_id"
+                :to="{ name: 'chat-solicitud', params: { solicitudId: donacion.solicitud_id } }"
+                class="text-primary"
+            >
+                Abrir chat
+            </RouterLink>
         </li>
     </ul>
 </template>
