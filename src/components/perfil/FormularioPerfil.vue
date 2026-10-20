@@ -1,5 +1,9 @@
 <script setup>
 import { ref } from 'vue';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const props = defineProps({
     perfil: {
@@ -55,26 +59,30 @@ function enviar() {
         </dl>
 
         <div class="flex flex-col gap-1">
-            <label for="perfil-telefono">Teléfono</label>
-            <input id="perfil-telefono" v-model="datos.telefono" type="tel" autocomplete="tel" class="rounded border px-3 py-2" />
+            <Label for="perfil-telefono">Teléfono</Label>
+            <Input id="perfil-telefono" v-model="datos.telefono" type="tel" autocomplete="tel" />
         </div>
 
         <div class="flex flex-col gap-1">
-            <label for="perfil-direccion">Dirección</label>
-            <input id="perfil-direccion" v-model="datos.direccion" type="text" autocomplete="street-address" class="rounded border px-3 py-2" />
+            <Label for="perfil-direccion">Dirección</Label>
+            <Input id="perfil-direccion" v-model="datos.direccion" type="text" autocomplete="street-address" />
         </div>
 
         <div class="flex flex-col gap-1">
-            <label for="perfil-localidad">Localidad</label>
-            <input id="perfil-localidad" v-model="datos.localidad" type="text" class="rounded border px-3 py-2" />
+            <Label for="perfil-localidad">Localidad</Label>
+            <Input id="perfil-localidad" v-model="datos.localidad" type="text" />
         </div>
 
-        <p v-if="error !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ error }}</p>
+        <Alert v-if="error !== ''" variant="danger">
+            <p>{{ error }}</p>
+        </Alert>
 
-        <p v-if="mensaje !== ''" class="rounded border border-success bg-success/10 p-4 text-success">{{ mensaje }}</p>
+        <Alert v-if="mensaje !== ''" variant="success">
+            <p>{{ mensaje }}</p>
+        </Alert>
 
-        <button type="submit" class="rounded border border-primary px-3 py-2 text-primary" :disabled="cargando">
+        <Button type="submit" :disabled="cargando">
             {{ cargando ? 'Guardando...' : 'Guardar cambios' }}
-        </button>
+        </Button>
     </form>
 </template>

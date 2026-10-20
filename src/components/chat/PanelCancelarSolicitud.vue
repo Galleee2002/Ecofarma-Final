@@ -1,5 +1,8 @@
 <script setup>
 import { ref } from 'vue';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 defineProps({
     cancelando: {
@@ -30,28 +33,27 @@ function confirmar() {
 </script>
 
 <template>
-    <div class="flex flex-col gap-2 rounded border p-4">
-        <p v-if="error !== ''" class="rounded border border-danger bg-danger/10 p-2 text-danger">{{ error }}</p>
+    <Card>
+        <CardContent class="flex flex-col gap-2">
+            <Alert v-if="error !== ''" variant="danger">
+                <p>{{ error }}</p>
+            </Alert>
 
-        <template v-if="pideConfirmacion">
-            <p>¿Confirmás la cancelación? El medicamento vuelve a estar disponible para otra persona.</p>
-            <div class="flex gap-2">
-                <button
-                    type="button"
-                    class="rounded border border-danger px-3 py-2 text-danger"
-                    :disabled="cancelando"
-                    @click="confirmar"
-                >
-                    {{ cancelando ? 'Cancelando...' : 'Sí, cancelar' }}
-                </button>
-                <button type="button" class="rounded border px-3 py-2" :disabled="cancelando" @click="volver">
-                    No, volver
-                </button>
-            </div>
-        </template>
+            <template v-if="pideConfirmacion">
+                <p>¿Confirmás la cancelación? El medicamento vuelve a estar disponible para otra persona.</p>
+                <div class="flex gap-2">
+                    <Button type="button" variant="destructive" :disabled="cancelando" @click="confirmar">
+                        {{ cancelando ? 'Cancelando...' : 'Sí, cancelar' }}
+                    </Button>
+                    <Button type="button" variant="outline" :disabled="cancelando" @click="volver">
+                        No, volver
+                    </Button>
+                </div>
+            </template>
 
-        <button v-else type="button" class="rounded border border-danger px-3 py-2 text-danger" @click="pedir">
-            Cancelar solicitud
-        </button>
-    </div>
+            <Button v-else type="button" variant="destructive" @click="pedir">
+                Cancelar solicitud
+            </Button>
+        </CardContent>
+    </Card>
 </template>

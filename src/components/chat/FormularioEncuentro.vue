@@ -1,5 +1,9 @@
 <script setup>
 import { ref } from 'vue';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 defineProps({
     enviando: {
@@ -60,25 +64,27 @@ function proponer() {
     <form class="flex flex-col gap-2" @submit.prevent="proponer">
         <p class="text-primary">Proponer encuentro</p>
 
-        <p v-if="error !== ''" class="rounded border border-danger bg-danger/10 p-2 text-danger">{{ error }}</p>
+        <Alert v-if="error !== ''" variant="danger">
+            <p>{{ error }}</p>
+        </Alert>
 
-        <label class="flex flex-col gap-1">
-            Día
-            <input v-model="dia" type="date" class="rounded border px-3 py-2" :disabled="deshabilitado || enviando" />
-        </label>
+        <div class="flex flex-col gap-1">
+            <Label for="encuentro-dia">Día</Label>
+            <Input id="encuentro-dia" v-model="dia" type="date" :disabled="deshabilitado || enviando" />
+        </div>
 
-        <label class="flex flex-col gap-1">
-            Hora
-            <input v-model="hora" type="time" class="rounded border px-3 py-2" :disabled="deshabilitado || enviando" />
-        </label>
+        <div class="flex flex-col gap-1">
+            <Label for="encuentro-hora">Hora</Label>
+            <Input id="encuentro-hora" v-model="hora" type="time" :disabled="deshabilitado || enviando" />
+        </div>
 
-        <label class="flex flex-col gap-1">
-            Lugar
-            <input v-model="lugar" type="text" class="rounded border px-3 py-2" :disabled="deshabilitado || enviando" />
-        </label>
+        <div class="flex flex-col gap-1">
+            <Label for="encuentro-lugar">Lugar</Label>
+            <Input id="encuentro-lugar" v-model="lugar" type="text" :disabled="deshabilitado || enviando" />
+        </div>
 
-        <button type="submit" class="rounded border border-primary px-3 py-2 text-primary" :disabled="deshabilitado || enviando">
+        <Button type="submit" :disabled="deshabilitado || enviando">
             {{ enviando ? 'Enviando...' : 'Proponer encuentro' }}
-        </button>
+        </Button>
     </form>
 </template>

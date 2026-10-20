@@ -1,5 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '../../composables/useAuth';
 
 const router = useRouter();
@@ -34,21 +36,23 @@ async function salir() {
                 <RouterLink :to="{ name: 'donar' }" class="text-primary">Donar</RouterLink>
                 <RouterLink :to="{ name: 'perfil' }" class="text-primary">Mi perfil</RouterLink>
                 <span>Hola, {{ nombreUsuario() }}</span>
-                <button type="button" class="rounded border px-3 py-1" :disabled="cargando" @click="salir">
+                <Button type="button" variant="outline" :disabled="cargando" @click="salir">
                     {{ cargando ? 'Cerrando sesión...' : 'Cerrar sesión' }}
-                </button>
+                </Button>
             </template>
         </nav>
 
-        <div
+        <Alert
             v-if="mensajeExito !== ''"
-            class="flex items-start justify-between gap-2 rounded border p-4"
-            :class="tipoMensaje === 'cierre' ? 'border-danger bg-danger/10 text-danger' : 'border-success bg-success/10 text-success'"
+            :variant="tipoMensaje === 'cierre' ? 'danger' : 'success'"
+            class="flex items-start justify-between gap-2"
         >
             <p>{{ mensajeExito }}</p>
-            <button type="button" @click="ocultarMensajeExito">Cerrar</button>
-        </div>
+            <Button type="button" variant="ghost" @click="ocultarMensajeExito">Cerrar</Button>
+        </Alert>
 
-        <p v-if="error !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ error }}</p>
+        <Alert v-if="error !== ''" variant="danger">
+            <p>{{ error }}</p>
+        </Alert>
     </header>
 </template>

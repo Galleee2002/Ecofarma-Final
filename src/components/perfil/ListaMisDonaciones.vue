@@ -1,4 +1,9 @@
 <script setup>
+import { Alert } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+
 defineProps({
     donaciones: {
         type: Array,
@@ -31,6 +36,13 @@ function textoEstado(estado) {
     return estado;
 }
 
+function varianteEstado(estado) {
+    if (textosEstado[estado]) {
+        return estado;
+    }
+    return 'default';
+}
+
 function formatearFecha(fecha) {
     const partes = fecha.split('-');
     return partes[2] + '/' + partes[1] + '/' + partes[0];
@@ -44,35 +56,41 @@ function reintentar() {
 <template>
     <p v-if="cargando" class="text-muted">Cargando tus donaciones...</p>
 
-    <div v-else-if="error !== ''" class="flex flex-col items-start gap-2 rounded border border-danger bg-danger/10 p-4 text-danger">
+    <Alert v-else-if="error !== ''" variant="danger" class="flex flex-col items-start gap-2">
         <p>{{ error }}</p>
-        <button type="button" class="rounded border border-danger px-3 py-1" @click="reintentar">Reintentar</button>
-    </div>
+        <Button type="button" variant="destructive" @click="reintentar">Reintentar</Button>
+    </Alert>
 
-    <p v-else-if="donaciones.length === 0" class="rounded border border-muted bg-muted/10 p-4 text-muted">
-        Todavía no publicaste donaciones.
-    </p>
+    <Alert v-else-if="donaciones.length === 0" variant="muted">
+        <p>Todavía no publicaste donaciones.</p>
+    </Alert>
 
     <ul v-else class="flex flex-col gap-4">
-        <li v-for="donacion in donaciones" :key="donacion.id" class="flex flex-col gap-1 rounded border p-4">
-            <h2 class="text-lg text-primary">{{ donacion.nombre_comercial }}</h2>
-            <p>{{ donacion.principio_activo }} {{ donacion.concentracion }}</p>
-            <p>Cantidad: {{ donacion.cantidad_disponible }}</p>
-            <p>Vence: {{ formatearFecha(donacion.fecha_vencimiento) }}</p>
-            <p>Estado: {{ textoEstado(donacion.estado) }}</p>
-            <p
-                v-if="donacion.estado === 'rechazado' && donacion.motivo_rechazo"
-                class="rounded border border-warning bg-warning/10 p-2 text-warning"
-            >
-                Motivo del rechazo: {{ donacion.motivo_rechazo }}
-            </p>
-            <RouterLink
-                v-if="donacion.estado === 'reservado' && donacion.solicitud_id"
-                :to="{ name: 'chat-solicitud', params: { solicitudId: donacion.solicitud_id } }"
-                class="text-primary"
-            >
-                Abrir chat
-            </RouterLink>
+        <li v-for="donacion in donaciones" :key="donacion.id">
+            <Card>
+                <CardHeader>
+                    <h2 class="text-lg text-primary">{{ donacion.nombre_comercial }}</h2>
+                </CardHeader>
+                <CardContent class="flex flex-col gap-1">
+                    <p>{{ donacion.principio_activo }} {{ donacion.concentracion }}</p>
+                    <p>Cantidad: {{ donacion.cantidad_disponible }}</p>
+                    <p>Vence: {{ formatearFecha(donacion.fecha_vencimiento) }}</p>
+                    <Badge :variant="varianteEstado(donacion.estado)">{{ textoEstado(donacion.estado) }}</Badge>
+                    <Alert
+                        v-if="donacion.estado === 'rechazado' && donacion.motivo_rechazo"
+                        variant="warning"
+                    >
+                        <p>Motivo del rechazo: {{ donacion.motivo_rechazo }}</p>
+                    </Alert>
+                    <RouterLink
+                        v-if="donacion.estado === 'reservado' && donacion.solicitud_id"
+                        :to="{ name: 'chat-solicitud', params: { solicitudId: donacion.solicitud_id } }"
+                        class="text-primary"
+                    >
+                        Abrir chat
+                    </RouterLink>
+                </CardContent>
+            </Card>
         </li>
     </ul>
 </template>

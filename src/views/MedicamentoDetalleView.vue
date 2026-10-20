@@ -1,6 +1,7 @@
 <script setup>
 import { watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { Alert } from '@/components/ui/alert';
 import { useMedicamentos } from '../composables/useMedicamentos';
 import DetalleMedicamento from '../components/medicamentos/DetalleMedicamento.vue';
 import PanelSolicitar from '../components/medicamentos/PanelSolicitar.vue';
@@ -38,7 +39,9 @@ watch(
 
         <p v-if="cargando" class="text-muted">Cargando medicamento...</p>
 
-        <p v-else-if="error !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ error }}</p>
+        <Alert v-else-if="error !== ''" variant="danger">
+            <p>{{ error }}</p>
+        </Alert>
 
         <template v-else-if="medicamento !== null">
             <DetalleMedicamento :medicamento="medicamento" />

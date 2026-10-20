@@ -1,6 +1,6 @@
 # shadcn/vue — implementación
 
-Los componentes de la sección 2 ya están en `src/components/ui`. El catálogo ya está maquetado. El resto de las pantallas de las fases 2 a 7 sigue con clases de Tailwind mínimas hasta que se maquete. Este documento describe qué ya se trajo, qué falta en las pantallas, qué dejar para después y qué no instalar.
+Los componentes de la sección 2 ya están en `src/components/ui`. Las pantallas de las fases 2 a 7 de «Pantallas listas para maquetar» ya están maquetadas. Este documento describe qué ya se trajo, qué falta en las pantallas, qué dejar para después y qué no instalar.
 
 Reglas que siguen valiendo (`AGENTS.md` y `ROADMAP.md`, sección «Pendiente: componentes shadcn/vue»):
 
@@ -20,16 +20,16 @@ Los componentes usan nombres de shadcn que no están en la paleta. En `@theme` d
 
 ## Pantallas listas para maquetar
 
-La funcionalidad de las fases 2 a 7 ya está, con estilos mínimos. Estas pantallas se pueden maquetar con los componentes de la sección 2. El casillero se marca cuando esa pantalla quedó maquetada. El catálogo ya está marcado. El resto sigue sin marcar.
+La funcionalidad de las fases 2 a 7 ya está. Estas pantallas se maquetan con los componentes de la sección 2. El casillero se marca cuando esa pantalla quedó maquetada.
 
 - [x] **Catálogo** — `/catalogo`. `CatalogoView` y `components/medicamentos/` (`MedicamentoSearch`, `MedicamentoGrid`, `MedicamentoCard`).
-- [ ] **Detalle y solicitud** — `/medicamento/:id`. `MedicamentoDetalleView`, `DetalleMedicamento` y `PanelSolicitar`.
-- [ ] **Ingreso** — `/login`. `LoginView` y `FormularioLogin`. Acepta `?redirect=`.
-- [ ] **Registro** — `/registro`. `RegistroView` y `FormularioRegistro`.
-- [ ] **Perfil** — `/perfil`. `PerfilView` con las pestañas Mis datos (`FormularioPerfil`), Mis donaciones (`ListaMisDonaciones`) y Mis solicitudes (`ListaMisSolicitudes`).
-- [ ] **Publicar donación** — `/donar`. `DonarView` y `FormularioDonacion`. El `<datalist>` del vademécum se conserva.
-- [ ] **Chat** — `/solicitud/:solicitudId/chat`. `ChatView` y `components/chat/` (`ListaMensajes`, `FormularioMensaje`, `FormularioEncuentro`, `FormularioConfirmarEntrega`, `PanelCancelarSolicitud`).
-- [ ] **Barra de navegación** — todas las rutas. `components/layout/BarraNavegacion`. No es una pantalla, pero se maqueta junto con el resto.
+- [x] **Detalle y solicitud** — `/medicamento/:id`. `MedicamentoDetalleView`, `DetalleMedicamento` y `PanelSolicitar`.
+- [x] **Ingreso** — `/login`. `LoginView` y `FormularioLogin`. Acepta `?redirect=`.
+- [x] **Registro** — `/registro`. `RegistroView` y `FormularioRegistro`.
+- [x] **Perfil** — `/perfil`. `PerfilView` con las pestañas Mis datos (`FormularioPerfil`), Mis donaciones (`ListaMisDonaciones`) y Mis solicitudes (`ListaMisSolicitudes`).
+- [x] **Publicar donación** — `/donar`. `DonarView` y `FormularioDonacion`. El `<datalist>` del vademécum se conserva.
+- [x] **Chat** — `/solicitud/:solicitudId/chat`. `ChatView` y `components/chat/` (`ListaMensajes`, `FormularioMensaje`, `FormularioEncuentro`, `FormularioConfirmarEntrega`, `PanelCancelarSolicitud`).
+- [x] **Barra de navegación** — todas las rutas. `components/layout/BarraNavegacion`. No es una pantalla, pero se maqueta junto con el resto.
 
 Todavía no tienen pantalla ni flujo, así que no se marcan acá:
 
@@ -62,7 +62,7 @@ Al traer la sección 2, el CLI agregó solo lo que faltaba:
 
 ## 2. Traer ahora
 
-Cubren los controles que hoy son HTML con clases mínimas en las fases 2 a 7 (catálogo, registro, login, perfil, donar, solicitar y chat). Los diez ya están copiados. El catálogo ya usa Input, Label, Card, Alert y Button. El resto de las pantallas todavía no.
+Cubren los controles de las fases 2 a 7 (catálogo, registro, login, perfil, donar, solicitar y chat). Los diez ya están copiados y esas pantallas ya los usan.
 
 | | Componente | Dónde entra |
 |---|---|---|
@@ -127,7 +127,7 @@ El input de archivo (fotos del envase y foto de la receta) se queda nativo. shad
 2. [x] Dejar que el CLI agregue las dependencias de la sección 1. No instalar `lucide-vue-next`, `clsx` ni `tailwind-merge` al lado de `@lucide/vue` y del paquete `cn`.
 3. [x] `typescript: false`. Componentes en `src/components/ui`. No tocar los tokens, los alias de tema ni las fuentes.
 4. [x] Traer únicamente la lista de la sección 2.
-5. [x] Ajustar las variantes de **Alert** a los tokens de `src/style.css` (`danger`, `success`, `warning` y `muted`). **Badge** queda con las variantes del CLI hasta una pantalla que muestre estados.
-6. [ ] Reemplazar el HTML mínimo de los componentes de dominio (`components/auth`, `components/medicamentos`, `components/donaciones`, `components/perfil`, `components/chat`, `components/layout`). No mover la lógica de Supabase a `src/components/ui`. Al terminar una pantalla, marcar su casillero en «Pantallas listas para maquetar».
-7. [ ] Mantener el `<datalist>` del vademécum al maquetar `/donar`. Hoy sigue en `FormularioDonacion.vue`.
+5. [x] Ajustar las variantes de **Alert** a los tokens de `src/style.css` (`danger`, `success`, `warning` y `muted`). **Badge** conserva las variantes del CLI y suma variantes con esos tokens para los estados de donación y de solicitud.
+6. [x] Reemplazar el HTML mínimo de los componentes de dominio (`components/auth`, `components/medicamentos`, `components/donaciones`, `components/perfil`, `components/chat`, `components/layout`). No mover la lógica de Supabase a `src/components/ui`. Al terminar una pantalla, marcar su casillero en «Pantallas listas para maquetar».
+7. [x] Mantener el `<datalist>` del vademécum al maquetar `/donar`. Sigue en `FormularioDonacion.vue`.
 8. [x] No agregar **Form**, toasts ni modales en este paso.

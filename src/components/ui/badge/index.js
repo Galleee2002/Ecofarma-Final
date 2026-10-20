@@ -17,6 +17,15 @@ export const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
+        pendiente_revision: "border-muted bg-muted/10 text-muted",
+        disponible: "border-success bg-success/10 text-success",
+        reservado: "border-primary bg-primary/10 text-primary",
+        entregado: "border-success bg-success/10 text-success",
+        rechazado: "border-danger bg-danger/10 text-danger",
+        pendiente_coordinacion: "border-warning bg-warning/10 text-warning",
+        en_camino: "border-primary bg-primary/10 text-primary",
+        completado: "border-success bg-success/10 text-success",
+        cancelado: "border-muted bg-muted/10 text-muted",
       },
     },
     defaultVariants: {

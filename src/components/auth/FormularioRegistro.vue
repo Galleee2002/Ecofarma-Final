@@ -1,5 +1,10 @@
 <script setup>
 import { ref } from 'vue';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 defineProps({
     cargando: {
@@ -33,49 +38,51 @@ function enviar() {
 <template>
     <form class="flex flex-col gap-4" novalidate @submit.prevent="enviar">
         <div class="flex flex-col gap-1">
-            <label for="registro-nombre">Nombre y apellido</label>
-            <input id="registro-nombre" v-model="datos.name" type="text" autocomplete="name" class="rounded border px-3 py-2" />
+            <Label for="registro-nombre">Nombre y apellido</Label>
+            <Input id="registro-nombre" v-model="datos.name" type="text" autocomplete="name" />
         </div>
 
         <div class="flex flex-col gap-1">
-            <label for="registro-dni">DNI</label>
-            <input id="registro-dni" v-model="datos.dni" type="text" inputmode="numeric" class="rounded border px-3 py-2" />
+            <Label for="registro-dni">DNI</Label>
+            <Input id="registro-dni" v-model="datos.dni" type="text" inputmode="numeric" />
         </div>
 
         <div class="flex flex-col gap-1">
-            <label for="registro-telefono">Teléfono</label>
-            <input id="registro-telefono" v-model="datos.telefono" type="tel" autocomplete="tel" class="rounded border px-3 py-2" />
+            <Label for="registro-telefono">Teléfono</Label>
+            <Input id="registro-telefono" v-model="datos.telefono" type="tel" autocomplete="tel" />
         </div>
 
         <div class="flex flex-col gap-1">
-            <label for="registro-direccion">Dirección</label>
-            <input id="registro-direccion" v-model="datos.direccion" type="text" autocomplete="street-address" class="rounded border px-3 py-2" />
+            <Label for="registro-direccion">Dirección</Label>
+            <Input id="registro-direccion" v-model="datos.direccion" type="text" autocomplete="street-address" />
         </div>
 
         <div class="flex flex-col gap-1">
-            <label for="registro-localidad">Localidad</label>
-            <input id="registro-localidad" v-model="datos.localidad" type="text" class="rounded border px-3 py-2" />
+            <Label for="registro-localidad">Localidad</Label>
+            <Input id="registro-localidad" v-model="datos.localidad" type="text" />
         </div>
 
         <div class="flex flex-col gap-1">
-            <label for="registro-email">Email</label>
-            <input id="registro-email" v-model="datos.email" type="email" autocomplete="email" class="rounded border px-3 py-2" />
+            <Label for="registro-email">Email</Label>
+            <Input id="registro-email" v-model="datos.email" type="email" autocomplete="email" />
         </div>
 
         <div class="flex flex-col gap-1">
-            <label for="registro-password">Contraseña (mínimo 6 caracteres)</label>
-            <input id="registro-password" v-model="datos.password" type="password" autocomplete="new-password" class="rounded border px-3 py-2" />
+            <Label for="registro-password">Contraseña (mínimo 6 caracteres)</Label>
+            <Input id="registro-password" v-model="datos.password" type="password" autocomplete="new-password" />
         </div>
 
-        <label class="flex items-start gap-2">
-            <input v-model="datos.aceptoDdjj" type="checkbox" class="mt-1" />
-            <span>Acepto los Términos y Condiciones y la Declaración Jurada de EcoFARMA.</span>
-        </label>
+        <div class="flex items-start gap-2">
+            <Checkbox id="registro-ddjj" v-model="datos.aceptoDdjj" class="mt-0.5" />
+            <Label for="registro-ddjj">Acepto los Términos y Condiciones y la Declaración Jurada de EcoFARMA.</Label>
+        </div>
 
-        <p v-if="error !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ error }}</p>
+        <Alert v-if="error !== ''" variant="danger">
+            <p>{{ error }}</p>
+        </Alert>
 
-        <button type="submit" class="rounded border border-primary px-3 py-2 text-primary" :disabled="cargando">
+        <Button type="submit" :disabled="cargando">
             {{ cargando ? 'Creando cuenta...' : 'Crear cuenta' }}
-        </button>
+        </Button>
     </form>
 </template>

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { Alert } from '@/components/ui/alert';
 import { useAuth } from '../composables/useAuth';
 import { useMensajes } from '../composables/useMensajes';
 import { useSolicitudes } from '../composables/useSolicitudes';
@@ -84,19 +85,21 @@ async function alCancelar() {
 
         <h1 class="text-2xl text-primary">Chat</h1>
 
-        <p v-if="mensajeConfirmar !== ''" class="rounded border border-success bg-success/10 p-4 text-success">
-            {{ mensajeConfirmar }}
-        </p>
-        <p v-if="mensajeCancelar !== ''" class="rounded border border-success bg-success/10 p-4 text-success">
-            {{ mensajeCancelar }}
-        </p>
+        <Alert v-if="mensajeConfirmar !== ''" variant="success">
+            <p>{{ mensajeConfirmar }}</p>
+        </Alert>
+        <Alert v-if="mensajeCancelar !== ''" variant="success">
+            <p>{{ mensajeCancelar }}</p>
+        </Alert>
 
         <p v-if="cargando" class="text-muted">Cargando la conversación...</p>
 
-        <p v-else-if="error !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ error }}</p>
+        <Alert v-else-if="error !== ''" variant="danger">
+            <p>{{ error }}</p>
+        </Alert>
 
         <template v-else-if="solicitud !== null">
-            <div class="rounded border border-warning bg-warning/10 p-4 text-warning">
+            <Alert variant="warning">
                 <p>Normas de convivencia</p>
                 <ul class="list-disc pl-5">
                     <li>Coordiná el encuentro en un lugar público.</li>
@@ -104,19 +107,19 @@ async function alCancelar() {
                     <li>Al recibir el medicamento, revisá el envase y la fecha de vencimiento.</li>
                     <li>Tratá con respeto a la otra persona.</li>
                 </ul>
-            </div>
+            </Alert>
 
             <p v-if="solicitud.medicamentos">{{ solicitud.medicamentos.nombre_comercial }}</p>
             <p v-if="nombreOtro !== ''">Con {{ nombreOtro }}</p>
 
             <ListaMensajes :mensajes="mensajes" :user-id="sesion.user.id" />
 
-            <p v-if="cuentaSuspendida" class="rounded border border-warning bg-warning/10 p-4 text-warning">
-                Tu cuenta está suspendida y no podés enviar mensajes.
-            </p>
-            <p v-else-if="!puedeEscribir" class="rounded border border-muted bg-muted/10 p-4 text-muted">
-                Esta solicitud ya no admite mensajes nuevos. Podés leer los anteriores.
-            </p>
+            <Alert v-if="cuentaSuspendida" variant="warning">
+                <p>Tu cuenta está suspendida y no podés enviar mensajes.</p>
+            </Alert>
+            <Alert v-else-if="!puedeEscribir" variant="muted">
+                <p>Esta solicitud ya no admite mensajes nuevos. Podés leer los anteriores.</p>
+            </Alert>
 
             <FormularioEncuentro :enviando="enviando" :deshabilitado="!puedeEscribir" @proponer="alEnviar" />
 

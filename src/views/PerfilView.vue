@@ -1,5 +1,7 @@
 <script setup>
 import { ref } from 'vue';
+import { Alert } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '../composables/useAuth';
 import { usePerfil } from '../composables/usePerfil';
 import { useDonaciones } from '../composables/useDonaciones';
@@ -33,55 +35,53 @@ function abrirPestana(pestana) {
         recargarSolicitudes();
     }
 }
-
-function clasePestana(pestana) {
-    if (pestanaActiva.value === pestana) {
-        return 'border-b-2 border-primary text-primary';
-    }
-    return '';
-}
 </script>
 
 <template>
     <main class="mx-auto flex max-w-md flex-col gap-4 p-6">
         <h1 class="text-2xl text-primary">Mi perfil</h1>
 
-        <p v-if="errorPerfil !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ errorPerfil }}</p>
+        <Alert v-if="errorPerfil !== ''" variant="danger">
+            <p>{{ errorPerfil }}</p>
+        </Alert>
 
         <p v-else-if="perfil === null" class="text-muted">Cargando tus datos...</p>
 
-        <template v-else>
-            <nav class="flex gap-4">
-                <button type="button" class="px-1 py-2" :class="clasePestana('datos')" @click="abrirPestana('datos')">Mis datos</button>
-                <button type="button" class="px-1 py-2" :class="clasePestana('donaciones')" @click="abrirPestana('donaciones')">Mis donaciones</button>
-                <button type="button" class="px-1 py-2" :class="clasePestana('solicitudes')" @click="abrirPestana('solicitudes')">Mis solicitudes</button>
-            </nav>
+        <Tabs v-else :model-value="pestanaActiva" class="flex-col gap-4" @update:model-value="abrirPestana">
+            <TabsList variant="line" class="w-full">
+                <TabsTrigger value="datos">Mis datos</TabsTrigger>
+                <TabsTrigger value="donaciones">Mis donaciones</TabsTrigger>
+                <TabsTrigger value="solicitudes">Mis solicitudes</TabsTrigger>
+            </TabsList>
 
-            <FormularioPerfil
-                v-if="pestanaActiva === 'datos'"
-                :perfil="perfil"
-                :email="sesion.user.email"
-                :cargando="guardando"
-                :error="errorGuardar"
-                :mensaje="mensajeGuardar"
-                @guardar="actualizarDatos"
-            />
+            <TabsContent value="datos">
+                <FormularioPerfil
+                    :perfil="perfil"
+                    :email="sesion.user.email"
+                    :cargando="guardando"
+                    :error="errorGuardar"
+                    :mensaje="mensajeGuardar"
+                    @guardar="actualizarDatos"
+                />
+            </TabsContent>
 
-            <ListaMisDonaciones
-                v-if="pestanaActiva === 'donaciones'"
-                :donaciones="donaciones"
-                :cargando="cargandoDonaciones"
-                :error="errorDonaciones"
-                @reintentar="recargarDonaciones"
-            />
+            <TabsContent value="donaciones">
+                <ListaMisDonaciones
+                    :donaciones="donaciones"
+                    :cargando="cargandoDonaciones"
+                    :error="errorDonaciones"
+                    @reintentar="recargarDonaciones"
+                />
+            </TabsContent>
 
-            <ListaMisSolicitudes
-                v-if="pestanaActiva === 'solicitudes'"
-                :solicitudes="solicitudes"
-                :cargando="cargandoSolicitudes"
-                :error="errorSolicitudes"
-                @reintentar="recargarSolicitudes"
-            />
-        </template>
+            <TabsContent value="solicitudes">
+                <ListaMisSolicitudes
+                    :solicitudes="solicitudes"
+                    :cargando="cargandoSolicitudes"
+                    :error="errorSolicitudes"
+                    @reintentar="recargarSolicitudes"
+                />
+            </TabsContent>
+        </Tabs>
     </main>
 </template>

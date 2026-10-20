@@ -1,5 +1,9 @@
 <script setup>
 import { ref } from 'vue';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 defineProps({
     enviando: {
@@ -34,19 +38,17 @@ function enviar() {
 
 <template>
     <form class="flex flex-col gap-2" @submit.prevent="enviar">
-        <p v-if="error !== ''" class="rounded border border-danger bg-danger/10 p-2 text-danger">{{ error }}</p>
+        <Alert v-if="error !== ''" variant="danger">
+            <p>{{ error }}</p>
+        </Alert>
 
-        <label class="flex flex-col gap-1">
-            Mensaje
-            <input v-model="texto" type="text" class="rounded border px-3 py-2" :disabled="deshabilitado || enviando" />
-        </label>
+        <div class="flex flex-col gap-1">
+            <Label for="chat-mensaje">Mensaje</Label>
+            <Input id="chat-mensaje" v-model="texto" type="text" :disabled="deshabilitado || enviando" />
+        </div>
 
-        <button
-            type="submit"
-            class="rounded border border-primary px-3 py-2 text-primary"
-            :disabled="deshabilitado || enviando || texto.trim() === ''"
-        >
+        <Button type="submit" :disabled="deshabilitado || enviando || texto.trim() === ''">
             {{ enviando ? 'Enviando...' : 'Enviar' }}
-        </button>
+        </Button>
     </form>
 </template>

@@ -1,5 +1,10 @@
 <script setup>
 import { computed, ref } from 'vue';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 defineProps({
     confirmando: {
@@ -26,29 +31,31 @@ function confirmar() {
 </script>
 
 <template>
-    <form class="flex flex-col gap-2 rounded border p-4" @submit.prevent="confirmar">
-        <p>Cuando se encuentren, pedile el código de 6 dígitos al receptor y cargalo acá.</p>
+    <Card>
+        <CardContent>
+            <form class="flex flex-col gap-2" @submit.prevent="confirmar">
+                <p>Cuando se encuentren, pedile el código de 6 dígitos al receptor y cargalo acá.</p>
 
-        <p v-if="error !== ''" class="rounded border border-danger bg-danger/10 p-2 text-danger">{{ error }}</p>
+                <Alert v-if="error !== ''" variant="danger">
+                    <p>{{ error }}</p>
+                </Alert>
 
-        <label class="flex flex-col gap-1">
-            Código de retiro
-            <input
-                v-model="codigo"
-                type="text"
-                inputmode="numeric"
-                maxlength="6"
-                class="rounded border px-3 py-2"
-                :disabled="confirmando"
-            />
-        </label>
+                <div class="flex flex-col gap-1">
+                    <Label for="codigo-retiro">Código de retiro</Label>
+                    <Input
+                        id="codigo-retiro"
+                        v-model="codigo"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        :disabled="confirmando"
+                    />
+                </div>
 
-        <button
-            type="submit"
-            class="rounded border border-primary px-3 py-2 text-primary"
-            :disabled="confirmando || !codigoValido"
-        >
-            {{ confirmando ? 'Confirmando...' : 'Confirmar entrega' }}
-        </button>
-    </form>
+                <Button type="submit" :disabled="confirmando || !codigoValido">
+                    {{ confirmando ? 'Confirmando...' : 'Confirmar entrega' }}
+                </Button>
+            </form>
+        </CardContent>
+    </Card>
 </template>

@@ -1,5 +1,7 @@
 <script setup>
 import { ref, watch, nextTick, onMounted } from 'vue';
+import { Alert } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const props = defineProps({
     mensajes: {
@@ -24,8 +26,13 @@ function formatearFecha(fecha) {
 
 async function bajarAlFinal() {
     await nextTick();
-    if (contenedor.value !== null) {
-        contenedor.value.scrollTop = contenedor.value.scrollHeight;
+    if (contenedor.value === null) {
+        return;
+    }
+
+    const viewport = contenedor.value.querySelector('[data-slot="scroll-area-viewport"]');
+    if (viewport !== null) {
+        viewport.scrollTop = viewport.scrollHeight;
     }
 }
 
@@ -41,19 +48,23 @@ watch(function () {
 </script>
 
 <template>
-    <div ref="contenedor" class="flex max-h-80 flex-col gap-2 overflow-y-auto rounded border p-3">
-        <p v-if="mensajes.length === 0" class="rounded border border-muted bg-muted/10 p-4 text-muted">
-            Todavía no hay mensajes. Proponé el día, la hora y el lugar con el formulario de encuentro.
-        </p>
+    <div ref="contenedor">
+        <ScrollArea class="h-80 rounded border">
+            <div class="flex flex-col gap-2 p-3">
+                <Alert v-if="mensajes.length === 0" variant="muted">
+                    <p>Todavía no hay mensajes. Proponé el día, la hora y el lugar con el formulario de encuentro.</p>
+                </Alert>
 
-        <article
-            v-for="mensaje in mensajes"
-            :key="mensaje.id"
-            class="flex max-w-[85%] flex-col gap-1 rounded border p-2"
-            :class="esPropio(mensaje) ? 'self-end border-primary' : 'self-start border-muted'"
-        >
-            <p>{{ mensaje.mensaje }}</p>
-            <p class="text-sm text-muted">{{ formatearFecha(mensaje.created_at) }}</p>
-        </article>
+                <article
+                    v-for="mensaje in mensajes"
+                    :key="mensaje.id"
+                    class="flex max-w-[85%] flex-col gap-1 rounded border p-2"
+                    :class="esPropio(mensaje) ? 'self-end border-primary' : 'self-start border-muted'"
+                >
+                    <p>{{ mensaje.mensaje }}</p>
+                    <p class="text-sm text-muted">{{ formatearFecha(mensaje.created_at) }}</p>
+                </article>
+            </div>
+        </ScrollArea>
     </div>
 </template>

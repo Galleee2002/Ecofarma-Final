@@ -83,7 +83,7 @@ Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fo
 
 ### Pendiente: componentes shadcn/vue
 
-Los componentes de `src/components/ui` ya están copiados. `/catalogo` usa `Input`, `Label`, `Card`, `Alert` y `Button` con los tokens de esta sección. El resto de las pantallas sigue con clases mínimas hasta que se pida maquetar cada una.
+Los componentes de `src/components/ui` ya están copiados. El catálogo, el detalle y la solicitud, el ingreso, el registro, el perfil, publicar donación, el chat y la barra de navegación usan esos componentes con los tokens de esta sección. Moderación, gestión de usuarios y la landing siguen sin maquetar.
 
 Cuando se pida, se puede sumar sin cambiar el stack (Vue 3, Vite, Tailwind CSS 4, JavaScript y pnpm):
 

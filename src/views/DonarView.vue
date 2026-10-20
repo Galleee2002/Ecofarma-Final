@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { Alert } from '@/components/ui/alert';
 import { useAuth } from '../composables/useAuth';
 import { useVademecum } from '../composables/useVademecum';
 import { useDonaciones } from '../composables/useDonaciones';
@@ -31,7 +32,9 @@ onMounted(function () {
     <main class="mx-auto flex max-w-md flex-col gap-4 p-6">
         <h1 class="text-2xl text-primary">Donar un medicamento</h1>
 
-        <p v-if="errorPerfil !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ errorPerfil }}</p>
+        <Alert v-if="errorPerfil !== ''" variant="danger">
+            <p>{{ errorPerfil }}</p>
+        </Alert>
 
         <p v-else-if="perfil === null" class="text-muted">Cargando tus datos...</p>
 

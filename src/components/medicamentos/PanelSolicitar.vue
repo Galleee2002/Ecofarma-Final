@@ -1,6 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '../../composables/useAuth';
 import { useSolicitudes } from '../../composables/useSolicitudes';
 
@@ -44,13 +50,6 @@ const puedeSolicitar = computed(function () {
     }
 
     return true;
-});
-
-const claseMensaje = computed(function () {
-    if (tipoMensajeCrear.value === 'exito') {
-        return 'border-success bg-success/10 text-success';
-    }
-    return 'border-muted bg-muted/10 text-muted';
 });
 
 function irALogin() {
@@ -113,79 +112,73 @@ async function solicitar() {
 </script>
 
 <template>
-    <section class="flex flex-col gap-4 rounded border p-4">
-        <h2 class="text-lg text-primary">Solicitar este medicamento</h2>
+    <Card>
+        <CardHeader>
+            <h2 class="text-lg text-primary">Solicitar este medicamento</h2>
+        </CardHeader>
+        <CardContent class="flex flex-col gap-4">
+            <Alert v-if="errorPerfil !== ''" variant="danger">
+                <p>{{ errorPerfil }}</p>
+            </Alert>
 
-        <p v-if="errorPerfil !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ errorPerfil }}</p>
-
-        <template v-else-if="sesion === null">
-            <p class="rounded border border-muted bg-muted/10 p-4 text-muted">
-                Para solicitar este medicamento tenés que iniciar sesión.
-            </p>
-            <button type="button" class="rounded border border-primary px-3 py-2 text-primary" @click="irALogin">
-                Iniciar sesión para solicitar
-            </button>
-        </template>
-
-        <template v-else-if="perfil === null">
-            <p class="text-muted">Cargando tus datos...</p>
-        </template>
-
-        <template v-else>
-            <p v-if="cuentaSuspendida" class="rounded border border-warning bg-warning/10 p-4 text-warning">
-                Tu cuenta está suspendida, no podés solicitar medicamentos.
-            </p>
-
-            <template v-else>
-                <label class="flex items-start gap-2">
-                    <input v-model="esParaTercero" type="checkbox" class="mt-1" />
-                    <span>Solicito este medicamento para otra persona</span>
-                </label>
-
-                <div v-if="esParaTercero" class="flex flex-col gap-1">
-                    <label for="solicitud-destinatario">Nombre del destinatario</label>
-                    <input
-                        id="solicitud-destinatario"
-                        v-model="nombreDestinatario"
-                        type="text"
-                        class="rounded border px-3 py-2"
-                    />
-                </div>
-
-                <div v-if="requiereReceta" class="flex flex-col gap-2">
-                    <label for="solicitud-receta">Foto de la receta médica (JPG, PNG o WEBP, hasta 5 MB)</label>
-                    <input
-                        id="solicitud-receta"
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        class="rounded border px-3 py-2"
-                        @change="elegirReceta"
-                    />
-                    <div v-if="vistaPreviaReceta !== ''" class="flex flex-col gap-1">
-                        <img :src="vistaPreviaReceta" alt="Vista previa de la receta" class="h-32 w-32 object-cover" />
-                        <button type="button" class="rounded border border-danger px-2 py-1 text-danger" @click="quitarReceta">
-                            Quitar
-                        </button>
-                    </div>
-                </div>
-
-                <label class="flex items-start gap-2">
-                    <input v-model="aceptoDdjj" type="checkbox" class="mt-1" />
-                    <span>Acepto los Términos y Condiciones y la Declaración Jurada de EcoFARMA.</span>
-                </label>
+            <template v-else-if="sesion === null">
+                <Alert variant="muted">
+                    <p>Para solicitar este medicamento tenés que iniciar sesión.</p>
+                </Alert>
+                <Button type="button" @click="irALogin">Iniciar sesión para solicitar</Button>
             </template>
 
-            <p v-if="errorCrear !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ errorCrear }}</p>
-            <p v-if="mensajeCrear !== ''" class="rounded border p-4" :class="claseMensaje">{{ mensajeCrear }}</p>
+            <template v-else-if="perfil === null">
+                <p class="text-muted">Cargando tus datos...</p>
+            </template>
 
-            <button
-                type="button"
-                class="rounded border border-primary px-3 py-2 text-primary"
-                :disabled="!puedeSolicitar"
-                @click="solicitar"
-            >
-                {{ creando ? 'Enviando...' : 'Solicitar' }}
-            </button>
-        </template>
-    </section>
+            <template v-else>
+                <Alert v-if="cuentaSuspendida" variant="warning">
+                    <p>Tu cuenta está suspendida, no podés solicitar medicamentos.</p>
+                </Alert>
+
+                <template v-else>
+                    <div class="flex items-start gap-2">
+                        <Checkbox id="solicitud-tercero" v-model="esParaTercero" class="mt-0.5" />
+                        <Label for="solicitud-tercero">Solicito este medicamento para otra persona</Label>
+                    </div>
+
+                    <div v-if="esParaTercero" class="flex flex-col gap-1">
+                        <Label for="solicitud-destinatario">Nombre del destinatario</Label>
+                        <Input id="solicitud-destinatario" v-model="nombreDestinatario" type="text" />
+                    </div>
+
+                    <div v-if="requiereReceta" class="flex flex-col gap-2">
+                        <Label for="solicitud-receta">Foto de la receta médica (JPG, PNG o WEBP, hasta 5 MB)</Label>
+                        <input
+                            id="solicitud-receta"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            @change="elegirReceta"
+                        />
+                        <div v-if="vistaPreviaReceta !== ''" class="flex flex-col gap-1">
+                            <img :src="vistaPreviaReceta" alt="Vista previa de la receta" class="h-32 w-32 object-cover" />
+                            <Button type="button" variant="destructive" @click="quitarReceta">Quitar</Button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-2">
+                        <Checkbox id="solicitud-ddjj" v-model="aceptoDdjj" class="mt-0.5" />
+                        <Label for="solicitud-ddjj">Acepto los Términos y Condiciones y la Declaración Jurada de EcoFARMA.</Label>
+                    </div>
+                </template>
+
+                <Alert v-if="errorCrear !== ''" variant="danger">
+                    <p>{{ errorCrear }}</p>
+                </Alert>
+                <Alert v-if="mensajeCrear !== ''" :variant="tipoMensajeCrear === 'exito' ? 'success' : 'muted'">
+                    <p>{{ mensajeCrear }}</p>
+                </Alert>
+
+                <Button type="button" :disabled="!puedeSolicitar" @click="solicitar">
+                    {{ creando ? 'Enviando...' : 'Solicitar' }}
+                </Button>
+            </template>
+        </CardContent>
+    </Card>
 </template>
