@@ -63,6 +63,9 @@ async function salir() {
                     <RouterLink :to="{ name: 'admin-vademecum' }" :class="claseEnlace('admin-vademecum')">
                         Vademécum
                     </RouterLink>
+                    <RouterLink :to="{ name: 'admin-usuarios' }" :class="claseEnlace('admin-usuarios')">
+                        Usuarios
+                    </RouterLink>
                 </template>
                 <span class="text-icon">Hola, {{ nombreUsuario() }}</span>
                 <Button

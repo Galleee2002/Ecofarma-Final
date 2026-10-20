@@ -34,6 +34,7 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Fase 5 (estilos mínimos): formulario de donación en `/donar` con sugerencias del vademécum (`useVademecum`), bucket `fotos-envases` (migración `bucket_fotos_envases`) y Edge Function `publicar-medicamento` en JavaScript. Pendiente aplicarlas al proyecto remoto (`db push` y `functions deploy`).
 - [x] Fase 6 (estilos mínimos): vista pública `/medicamento/:id`, botón «Solicitar» con gates, bucket `recetas-medicas` (migración `bucket_recetas_medicas`) y Edge Function `crear-solicitud` en JavaScript. Pendiente aplicarlas al proyecto remoto (`db push` y `functions deploy crear-solicitud`).
 - [x] Fase 8 (estilos mínimos): rutas `/admin/*` con guard de `rol = 'admin'`, pestañas de moderación y alta del vademécum, Edge Functions `moderar-donacion` y `alta-medicamento-habilitado` en JavaScript. Pendiente desplegarlas al proyecto remoto (`functions deploy`).
+- [x] Fase 9: gestión de cuentas en `/admin/usuarios` (búsqueda, filtros, Table) y Edge Function `gestionar-usuarios` para listar con email, suspender, rehabilitar, promover o revocar. Pendiente desplegarla al proyecto remoto (`functions deploy gestionar-usuarios`).
 - [ ] Frontend de las funcionalidades actuales: decidir la estructura de carpetas con el equipo y empezar. Inventario y endpoints en la sección 5.
 
 ### Decisiones de modelo
@@ -84,7 +85,7 @@ Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fo
 
 ### Pendiente: componentes shadcn/vue
 
-Los componentes de `src/components/ui` ya están copiados. El catálogo, el detalle y la solicitud, el ingreso, el registro, el perfil, publicar donación, el chat, la moderación, el alta del vademécum y la barra de navegación usan esos componentes con los tokens de esta sección. La moderación usa **Select** para vincular una fila del vademécum. `secondary` e `icon` se usan en los enlaces activos de la barra, el saludo y las fechas de vencimiento. Gestión de usuarios y la landing siguen sin maquetar.
+Los componentes de `src/components/ui` ya están copiados. El catálogo, el detalle y la solicitud, el ingreso, el registro, el perfil, publicar donación, el chat, la moderación, el alta del vademécum, la gestión de usuarios y la barra de navegación usan esos componentes con los tokens de esta sección. La moderación usa **Select** para vincular una fila del vademécum. La gestión de usuarios usa **Table** y **Select** para filtros. `secondary` e `icon` se usan en los enlaces activos de la barra, el saludo y las fechas de vencimiento. La landing sigue sin maquetar.
 
 Cuando se pida, se puede sumar sin cambiar el stack (Vue 3, Vite, Tailwind CSS 4, JavaScript y pnpm):
 
@@ -343,10 +344,18 @@ Decisiones tomadas:
 
 ### Fase 9: Gestión de usuarios, roles y bloqueos (Trello #24)
 
-En el tablero esta tarjeta se llama «Formulario de publicación (Donación)». El contenido es la gestión de cuentas.
+Hecha. Rama de trabajo: `feature09/gestion-usuarios`, creada desde `dev`. En el tablero esta tarjeta se llama «Formulario de publicación (Donación)». El contenido es la gestión de cuentas.
 
-- [ ] Vista para consultar `profiles`, con búsqueda por nombre, email o DNI y filtros por estado y rol.
-- [ ] Suspender o rehabilitar (`is_validado`) y promover o revocar admin. Va en una Edge Function porque el email vive en `auth.users`.
+Decisiones tomadas:
+
+- La consulta de `profiles` ya la permite el RLS del admin. El email vive en `auth.users`, así que listar y las escrituras van en la Edge Function `gestionar-usuarios` con `service_role`, el mismo patrón que `alta-medicamento-habilitado` (`verify_jwt = false` y validación del JWT con `auth.getUser`).
+- `/admin/usuarios` usa `meta.requiereSesion` y `meta.requiereAdmin`. El guard de la Fase 8 cubre la ruta. Suspender no cierra `/admin` ni las Edge Functions de admin: solo cambia `profiles.is_validado`. Para sacar el acceso de admin hay que revocar el rol. Rol e `is_validado` son independientes.
+- `gestionar-usuarios` rechaza actuar sobre la propia cuenta (403) y rechaza revocar si quedaría cero admins (409). No banea en Auth ni cierra la sesión de la otra persona.
+- La búsqueda por nombre, email o DNI y los filtros por estado y rol se hacen en memoria, como el catálogo. La confirmación de cada acción es un segundo paso en la fila, sin modal.
+- Pendiente en remoto: `pnpm supabase functions deploy gestionar-usuarios`. No hace falta `db push`.
+
+- [x] Vista para consultar `profiles`, con búsqueda por nombre, email o DNI y filtros por estado y rol.
+- [x] Suspender o rehabilitar (`is_validado`) y promover o revocar admin. Va en una Edge Function porque el email vive en `auth.users`.
 
 ### Fase 10: Landing (Trello #18)
 
@@ -392,13 +401,12 @@ Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/
 | Publicar donación | `/donar` | `DonarView`, `components/donaciones/FormularioDonacion` | `useVademecum`, `useDonaciones` | `select` de `medicamentos_habilitados` para las sugerencias; `upload` y `remove` en el bucket `fotos-envases`; `functions.invoke('publicar-medicamento')` |
 | Moderación de donaciones | `/admin/donaciones` | `AdminDonacionesView`, `components/admin/` (`ListaModeracion`, `TarjetaModeracion`) | `useModeracion`, `useVademecum` | `select` de `medicamentos` en `pendiente_revision`, `disponible` y `rechazado` (join a `profiles.name`); `functions.invoke('moderar-donacion')` |
 | Alta del vademécum | `/admin/vademecum` | `AdminVademecumView`, `components/admin/FormularioAltaVademecum` | `useVademecum` | `functions.invoke('alta-medicamento-habilitado')` |
+| Gestión de usuarios | `/admin/usuarios` | `AdminUsuariosView`, `components/admin/` (`NavAdmin`, `TablaUsuarios`) | `useUsuariosAdmin` | Edge Function `gestionar-usuarios` (`listar`, `suspender`, `rehabilitar`, `promover`, `revocar`) |
 | Guard de rutas | todas | `src/router/index.js` | `useAuth` | `meta.requiereSesion` → `/login?redirect=`; `meta.soloInvitados` → catálogo; `meta.requiereAdmin` espera el perfil y redirige al catálogo si `rol` no es `admin` |
 
 ### Endpoints que todavía no existen
 
-El frontend los va a consumir cuando se hagan sus fases:
-
-- Gestión de usuarios para el admin (Fase 9).
+No quedan endpoints pendientes de las fases del backlog actual. La landing (Fase 10) no suma Edge Functions.
 
 ### Reglas a mantener
 

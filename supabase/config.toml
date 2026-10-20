@@ -408,6 +408,10 @@ verify_jwt = false
 entrypoint = "./functions/alta-medicamento-habilitado/index.js"
 verify_jwt = false
 
+[functions.gestionar-usuarios]
+entrypoint = "./functions/gestionar-usuarios/index.js"
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

@@ -26,6 +26,10 @@ export const badgeVariants = cva(
         en_camino: "border-primary bg-primary/10 text-primary",
         completado: "border-success bg-success/10 text-success",
         cancelado: "border-muted bg-muted/10 text-muted",
+        activa: "border-success bg-success/10 text-success",
+        suspendida: "border-danger bg-danger/10 text-danger",
+        admin: "border-primary bg-primary/10 text-primary",
+        usuario: "border-muted bg-muted/10 text-muted",
       },
     },
     defaultVariants: {

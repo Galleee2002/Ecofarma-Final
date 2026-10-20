@@ -13,5 +13,8 @@ const route = useRoute();
         <Button :variant="route.name === 'admin-vademecum' ? 'secondary' : 'ghost'" as-child>
             <RouterLink :to="{ name: 'admin-vademecum' }">Vademécum</RouterLink>
         </Button>
+        <Button :variant="route.name === 'admin-usuarios' ? 'secondary' : 'ghost'" as-child>
+            <RouterLink :to="{ name: 'admin-usuarios' }">Usuarios</RouterLink>
+        </Button>
     </nav>
 </template>

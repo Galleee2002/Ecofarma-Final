@@ -62,6 +62,12 @@ const routes = [
         component: () => import('../views/AdminVademecumView.vue'),
         meta: { requiereSesion: true, requiereAdmin: true },
     },
+    {
+        path: '/admin/usuarios',
+        name: 'admin-usuarios',
+        component: () => import('../views/AdminUsuariosView.vue'),
+        meta: { requiereSesion: true, requiereAdmin: true },
+    },
 ];
 
 export const router = createRouter({
