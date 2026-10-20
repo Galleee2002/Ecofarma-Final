@@ -1,4 +1,6 @@
 <script setup>
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import MedicamentoCard from './MedicamentoCard.vue';
 
 defineProps({
@@ -24,16 +26,16 @@ function reintentar() {
 </script>
 
 <template>
-    <p v-if="cargando">Cargando medicamentos...</p>
+    <p v-if="cargando" class="text-muted">Cargando medicamentos...</p>
 
-    <div v-else-if="error !== ''" class="flex flex-col items-start gap-2 rounded border border-danger bg-danger/10 p-4 text-danger">
+    <Alert v-else-if="error !== ''" variant="danger" class="flex flex-col items-start gap-2">
         <p>{{ error }}</p>
-        <button type="button" class="rounded border border-danger px-3 py-1" @click="reintentar">Reintentar</button>
-    </div>
+        <Button type="button" variant="destructive" @click="reintentar">Reintentar</Button>
+    </Alert>
 
-    <p v-else-if="medicamentos.length === 0" class="rounded border border-muted bg-muted/10 p-4 text-muted">
-        No encontramos medicamentos disponibles que coincidan con tu búsqueda.
-    </p>
+    <Alert v-else-if="medicamentos.length === 0" variant="muted">
+        <p>No encontramos medicamentos disponibles que coincidan con tu búsqueda.</p>
+    </Alert>
 
     <div v-else class="grid gap-4">
         <MedicamentoCard v-for="medicamento in medicamentos" :key="medicamento.id" :medicamento="medicamento" />

@@ -1,4 +1,7 @@
 <script setup>
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
 defineProps({
     modelValue: {
         type: String,
@@ -8,21 +11,20 @@ defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
-function actualizarBusqueda(evento) {
-    emit('update:modelValue', evento.target.value);
+function actualizarBusqueda(valor) {
+    emit('update:modelValue', valor);
 }
 </script>
 
 <template>
     <div class="flex flex-col gap-1">
-        <label for="busqueda-medicamentos">Buscar medicamento</label>
-        <input
+        <Label for="busqueda-medicamentos">Buscar medicamento</Label>
+        <Input
             id="busqueda-medicamentos"
             type="search"
             placeholder="Nombre comercial o principio activo"
-            class="rounded border px-3 py-2"
-            :value="modelValue"
-            @input="actualizarBusqueda"
+            :model-value="modelValue"
+            @update:model-value="actualizarBusqueda"
         />
     </div>
 </template>

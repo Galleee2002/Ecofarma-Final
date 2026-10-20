@@ -83,7 +83,7 @@ Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fo
 
 ### Pendiente: componentes shadcn/vue
 
-No instalar ni usar [shadcn/vue](https://www.shadcn-vue.com/) hasta que se pida de forma explícita. Hasta entonces la interfaz sigue con clases de Tailwind mínimas y los tokens de esta sección.
+Los componentes de `src/components/ui` ya están copiados. `/catalogo` usa `Input`, `Label`, `Card`, `Alert` y `Button` con los tokens de esta sección. El resto de las pantallas sigue con clases mínimas hasta que se pida maquetar cada una.
 
 Cuando se pida, se puede sumar sin cambiar el stack (Vue 3, Vite, Tailwind CSS 4, JavaScript y pnpm):
 
@@ -203,7 +203,7 @@ Hecha. Es la base del resto y no tiene tarjeta propia en el backlog actual.
 
 ### Fase 2: Catálogo público (Trello #20, Sprint Backlog)
 
-Consulta directa a `medicamentos` desde Vue, sin login. El clic a la ficha ya está; la vista de destino se crea en la Fase 6.
+Consulta directa a `medicamentos` desde Vue, sin login. El clic a la ficha ya está; la vista de destino se crea en la Fase 6. La pantalla `/catalogo` usa `Input`, `Label`, `Card`, `Alert` y `Button` de `src/components/ui`. La consulta, el filtro y la búsqueda siguen en `useMedicamentos`.
 
 - [x] Política RLS de lectura pública de medicamentos `disponible` con `fecha_vencimiento >= current_date` (incluida en la migración `rls_policies`).
 - [x] Traer solo `estado = 'disponible'` y `fecha_vencimiento >= hoy`.

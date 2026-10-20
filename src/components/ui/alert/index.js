@@ -10,13 +10,14 @@ export const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-card text-card-foreground",
-        destructive:
-          "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
+        danger: "text-danger border-danger bg-danger/10",
+        success: "text-success border-success bg-success/10",
+        warning: "text-warning border-warning bg-warning/10",
+        muted: "text-muted border-muted bg-muted/10",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "muted",
     },
   },
 );

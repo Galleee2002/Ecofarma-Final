@@ -1,6 +1,6 @@
 # shadcn/vue — implementación
 
-Notas para cuando se pida instalar y usar [shadcn/vue](https://www.shadcn-vue.com/). Hasta ese pedido, la interfaz sigue con clases de Tailwind mínimas. Este documento no autoriza a instalarlo: describe qué traer, qué dejar para después y qué no instalar, en base a las fases 2 a 7 ya hechas.
+Los componentes de la sección 2 ya están en `src/components/ui`. El catálogo ya está maquetado. El resto de las pantallas de las fases 2 a 7 sigue con clases de Tailwind mínimas hasta que se maquete. Este documento describe qué ya se trajo, qué falta en las pantallas, qué dejar para después y qué no instalar.
 
 Reglas que siguen valiendo (`AGENTS.md` y `ROADMAP.md`, sección «Pendiente: componentes shadcn/vue»):
 
@@ -20,9 +20,9 @@ Los componentes usan nombres de shadcn que no están en la paleta. En `@theme` d
 
 ## Pantallas listas para maquetar
 
-La funcionalidad de las fases 2 a 7 ya está, con estilos mínimos. Estas pantallas se pueden maquetar con los componentes de la sección 2. El casillero se marca cuando esa pantalla quedó maquetada. Hoy todos están sin marcar.
+La funcionalidad de las fases 2 a 7 ya está, con estilos mínimos. Estas pantallas se pueden maquetar con los componentes de la sección 2. El casillero se marca cuando esa pantalla quedó maquetada. El catálogo ya está marcado. El resto sigue sin marcar.
 
-- [ ] **Catálogo** — `/catalogo`. `CatalogoView` y `components/medicamentos/` (`MedicamentoSearch`, `MedicamentoGrid`, `MedicamentoCard`).
+- [x] **Catálogo** — `/catalogo`. `CatalogoView` y `components/medicamentos/` (`MedicamentoSearch`, `MedicamentoGrid`, `MedicamentoCard`).
 - [ ] **Detalle y solicitud** — `/medicamento/:id`. `MedicamentoDetalleView`, `DetalleMedicamento` y `PanelSolicitar`.
 - [ ] **Ingreso** — `/login`. `LoginView` y `FormularioLogin`. Acepta `?redirect=`.
 - [ ] **Registro** — `/registro`. `RegistroView` y `FormularioRegistro`.
@@ -53,29 +53,29 @@ El CLI actual de shadcn/vue no usa `lucide-vue-next` ni un helper local armado c
 
 Al traer la sección 2, el CLI agregó solo lo que faltaba:
 
-- `reka-ui`
-- `@vueuse/core` (lo usa `ScrollArea`)
-
-`class-variance-authority` y `tw-animate-css` ya estaban. `tw-animate-css` sigue como devDependency; no se importó en `src/style.css` para no pisar los tokens ni las fuentes.
+- [x] `reka-ui`
+- [x] `@vueuse/core` (lo usa `ScrollArea`)
+- [x] `class-variance-authority` y `tw-animate-css` ya estaban. `tw-animate-css` sigue como devDependency; no se importó en `src/style.css` para no pisar los tokens ni las fuentes.
+- [x] `@lucide/vue` y el paquete `cn` ya estaban. No se instalaron `lucide-vue-next`, `clsx` ni `tailwind-merge`.
 
 ---
 
 ## 2. Traer ahora
 
-Cubren los controles que hoy son HTML con clases mínimas en las fases 2 a 7 (catálogo, registro, login, perfil, donar, solicitar y chat).
+Cubren los controles que hoy son HTML con clases mínimas en las fases 2 a 7 (catálogo, registro, login, perfil, donar, solicitar y chat). Los diez ya están copiados. El catálogo ya usa Input, Label, Card, Alert y Button. El resto de las pantallas todavía no.
 
-| Componente | Dónde entra |
-|---|---|
-| **Button** | Login, registro, perfil, donar, solicitar, quitar foto o receta, reintentar, cerrar sesión y enviar en el chat |
-| **Input** | Texto, email, contraseña, teléfono, número, fecha y hora |
-| **Label** | Las etiquetas de esos formularios |
-| **Textarea** | Descripción de la donación (`FormularioDonacion.vue`) |
-| **Checkbox** | DDJJ del registro, DDJJ al solicitar y «es para un tercero» (`FormularioRegistro.vue`, `PanelSolicitar.vue`) |
-| **Card** | Tarjeta del catálogo (`MedicamentoCard.vue`), ficha del medicamento y cada ítem de «Mis donaciones» y «Mis solicitudes» |
-| **Badge** | Estados de la donación (En revisión, Disponible, Reservado, Entregado, Rechazado) y de la solicitud |
-| **Alert** | Errores, éxitos, advertencias y avisos informativos |
-| **Tabs** | Las tres pestañas de `/perfil`: Mis datos, Mis donaciones, Mis solicitudes (`PerfilView.vue`) |
-| **Scroll area** | La lista de mensajes del chat (`ListaMensajes.vue`), que ya hace scroll al final |
+| | Componente | Dónde entra |
+|---|---|---|
+| [x] | **Button** | Login, registro, perfil, donar, solicitar, quitar foto o receta, reintentar, cerrar sesión y enviar en el chat |
+| [x] | **Input** | Texto, email, contraseña, teléfono, número, fecha y hora |
+| [x] | **Label** | Las etiquetas de esos formularios |
+| [x] | **Textarea** | Descripción de la donación (`FormularioDonacion.vue`) |
+| [x] | **Checkbox** | DDJJ del registro, DDJJ al solicitar y «es para un tercero» (`FormularioRegistro.vue`, `PanelSolicitar.vue`) |
+| [x] | **Card** | Tarjeta del catálogo (`MedicamentoCard.vue`), ficha del medicamento y cada ítem de «Mis donaciones» y «Mis solicitudes» |
+| [x] | **Badge** | Estados de la donación (En revisión, Disponible, Reservado, Entregado, Rechazado) y de la solicitud |
+| [x] | **Alert** | Errores, éxitos, advertencias y avisos informativos. Variantes `danger`, `success`, `warning` y `muted`. |
+| [x] | **Tabs** | Las tres pestañas de `/perfil`: Mis datos, Mis donaciones, Mis solicitudes (`PerfilView.vue`) |
+| [x] | **Scroll area** | La lista de mensajes del chat (`ListaMensajes.vue`), que ya hace scroll al final |
 
 ### Alert y los cuatro tipos de mensaje
 
@@ -88,7 +88,7 @@ Cubren los controles que hoy son HTML con clases mínimas en las fases 2 a 7 (ca
 | Advertencia | `warning` | Cuenta con `is_validado = false`, sugerencias del vademécum que fallan, motivo de rechazo, normas del chat |
 | Informativo | `muted` | Donación en `pendiente_revision`, listas vacías, chat cerrado, código de retiro que no se pudo leer |
 
-Las variantes por defecto de shadcn no coinciden con esos cuatro tokens. Hay que ajustarlas en el componente copiado a `src/components/ui`, usando `text-danger`, `border-danger`, `bg-danger/10` y los equivalentes de `success`, `warning` y `muted`. No usar hex ni los colores por defecto de Tailwind (`red-500`, `green-500`, etc.).
+Las variantes de `src/components/ui/alert` usan `text-danger`, `border-danger`, `bg-danger/10` y los equivalentes de `success`, `warning` y `muted`. No usar hex ni los colores por defecto de Tailwind (`red-500`, `green-500`, etc.).
 
 ---
 
@@ -123,11 +123,11 @@ El input de archivo (fotos del envase y foto de la receta) se queda nativo. shad
 
 ## 5. Al implementar
 
-1. Instalar solo cuando se pida de forma explícita.
-2. Dejar que el CLI agregue las dependencias de la sección 1. No instalar `lucide-vue-next`, `clsx` ni `tailwind-merge` al lado de `@lucide/vue` y del paquete `cn`.
-3. `typescript: false`. Componentes en `src/components/ui`. No tocar los tokens, los alias de tema ni las fuentes.
-4. Traer únicamente la lista de la sección 2.
-5. Ajustar las variantes de **Alert** (y, si hace falta, **Badge**) a los tokens de `src/style.css`.
-6. Reemplazar el HTML mínimo de los componentes de dominio (`components/auth`, `components/medicamentos`, `components/donaciones`, `components/perfil`, `components/chat`, `components/layout`). No mover la lógica de Supabase a `src/components/ui`. Al terminar una pantalla, marcar su casillero en «Pantallas listas para maquetar».
-7. Mantener el `<datalist>` del vademécum.
-8. No agregar **Form**, toasts ni modales en este paso.
+1. [x] Instalar solo cuando se pida de forma explícita.
+2. [x] Dejar que el CLI agregue las dependencias de la sección 1. No instalar `lucide-vue-next`, `clsx` ni `tailwind-merge` al lado de `@lucide/vue` y del paquete `cn`.
+3. [x] `typescript: false`. Componentes en `src/components/ui`. No tocar los tokens, los alias de tema ni las fuentes.
+4. [x] Traer únicamente la lista de la sección 2.
+5. [x] Ajustar las variantes de **Alert** a los tokens de `src/style.css` (`danger`, `success`, `warning` y `muted`). **Badge** queda con las variantes del CLI hasta una pantalla que muestre estados.
+6. [ ] Reemplazar el HTML mínimo de los componentes de dominio (`components/auth`, `components/medicamentos`, `components/donaciones`, `components/perfil`, `components/chat`, `components/layout`). No mover la lógica de Supabase a `src/components/ui`. Al terminar una pantalla, marcar su casillero en «Pantallas listas para maquetar».
+7. [ ] Mantener el `<datalist>` del vademécum al maquetar `/donar`. Hoy sigue en `FormularioDonacion.vue`.
+8. [x] No agregar **Form**, toasts ni modales en este paso.
