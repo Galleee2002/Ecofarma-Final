@@ -13,6 +13,21 @@ const sesionInicial = new Promise(function (resolver) {
     resolverSesionInicial = resolver;
 });
 
+let resolverPerfil;
+let perfilListo = new Promise(function (resolver) {
+    resolverPerfil = resolver;
+});
+
+function marcarPerfilListo() {
+    resolverPerfil();
+}
+
+function resetearEsperaPerfil() {
+    perfilListo = new Promise(function (resolver) {
+        resolverPerfil = resolver;
+    });
+}
+
 function traducirError(errorAuth, mensajePorDefecto) {
     console.error(errorAuth);
 
@@ -46,6 +61,7 @@ async function cargarPerfil() {
 
     if (sesion.value === null) {
         perfil.value = null;
+        marcarPerfilListo();
         return;
     }
 
@@ -62,6 +78,8 @@ async function cargarPerfil() {
     } else {
         perfil.value = data;
     }
+
+    marcarPerfilListo();
 }
 
 function actualizarSesion(nuevaSesion) {
@@ -75,9 +93,29 @@ function actualizarSesion(nuevaSesion) {
     if (nuevaSesion === null) {
         perfil.value = null;
         errorPerfil.value = '';
+        marcarPerfilListo();
     } else if (nuevaSesion.user.id !== idAnterior) {
+        resetearEsperaPerfil();
         setTimeout(cargarPerfil, 0);
     }
+}
+
+function esperarPerfil() {
+    if (sesion.value === null) {
+        return Promise.resolve();
+    }
+    if (perfil.value !== null && perfil.value.id === sesion.value.user.id) {
+        return Promise.resolve();
+    }
+    if (errorPerfil.value !== '') {
+        return Promise.resolve();
+    }
+    return perfilListo;
+}
+
+function mostrarAviso(texto, tipo) {
+    mensajeExito.value = texto;
+    tipoMensaje.value = tipo;
 }
 
 function iniciarAuth() {
@@ -231,6 +269,8 @@ export function useAuth() {
         cargando,
         error,
         esperarSesionInicial,
+        esperarPerfil,
+        mostrarAviso,
         registrarse,
         iniciarSesion,
         cerrarSesion,

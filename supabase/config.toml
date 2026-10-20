@@ -400,6 +400,14 @@ verify_jwt = false
 entrypoint = "./functions/cancelar-solicitud/index.js"
 verify_jwt = false
 
+[functions.moderar-donacion]
+entrypoint = "./functions/moderar-donacion/index.js"
+verify_jwt = false
+
+[functions.alta-medicamento-habilitado]
+entrypoint = "./functions/alta-medicamento-habilitado/index.js"
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

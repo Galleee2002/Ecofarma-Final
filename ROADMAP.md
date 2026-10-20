@@ -33,6 +33,7 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Fase 4 (estilos mínimos): sesión persistida en el guard, rutas protegidas con `meta.requiereSesion` / `meta.soloInvitados`, y `/perfil` con edición de datos y pestañas «Mis donaciones» y «Mis solicitudes» (composables `usePerfil`, `useDonaciones`, `useSolicitudes`).
 - [x] Fase 5 (estilos mínimos): formulario de donación en `/donar` con sugerencias del vademécum (`useVademecum`), bucket `fotos-envases` (migración `bucket_fotos_envases`) y Edge Function `publicar-medicamento` en JavaScript. Pendiente aplicarlas al proyecto remoto (`db push` y `functions deploy`).
 - [x] Fase 6 (estilos mínimos): vista pública `/medicamento/:id`, botón «Solicitar» con gates, bucket `recetas-medicas` (migración `bucket_recetas_medicas`) y Edge Function `crear-solicitud` en JavaScript. Pendiente aplicarlas al proyecto remoto (`db push` y `functions deploy crear-solicitud`).
+- [x] Fase 8 (estilos mínimos): rutas `/admin/*` con guard de `rol = 'admin'`, pestañas de moderación y alta del vademécum, Edge Functions `moderar-donacion` y `alta-medicamento-habilitado` en JavaScript. Pendiente desplegarlas al proyecto remoto (`functions deploy`).
 - [ ] Frontend de las funcionalidades actuales: decidir la estructura de carpetas con el equipo y empezar. Inventario y endpoints en la sección 5.
 
 ### Decisiones de modelo
@@ -83,7 +84,7 @@ Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fo
 
 ### Pendiente: componentes shadcn/vue
 
-Los componentes de `src/components/ui` ya están copiados. El catálogo, el detalle y la solicitud, el ingreso, el registro, el perfil, publicar donación, el chat y la barra de navegación usan esos componentes con los tokens de esta sección. Moderación, gestión de usuarios y la landing siguen sin maquetar.
+Los componentes de `src/components/ui` ya están copiados. El catálogo, el detalle y la solicitud, el ingreso, el registro, el perfil, publicar donación, el chat, la moderación y la barra de navegación usan esos componentes con los tokens de esta sección. Gestión de usuarios y la landing siguen sin maquetar.
 
 Cuando se pida, se puede sumar sin cambiar el stack (Vue 3, Vite, Tailwind CSS 4, JavaScript y pnpm):
 
@@ -324,9 +325,21 @@ Decisiones tomadas:
 
 ### Fase 8: Moderación de donaciones (Trello #26)
 
-- [ ] Rutas `/admin/*` restringidas a `rol = 'admin'` (guard en Vue y verificación en RLS y Edge Functions).
-- [ ] Pestañas Pendientes (con contador), Disponibles y Rechazados: ver fotos y vencimiento, corregir datos, aprobar (`disponible`, vinculando `medicamento_habilitado_id`) o rechazar (`rechazado` + motivo en `motivo_rechazo`), con aviso al donante por mail.
-- [ ] Alta en `medicamentos_habilitados`.
+Hecha. Rama de trabajo: `feature08/moderacion-donaciones`, creada desde `dev`.
+
+Decisiones tomadas:
+
+- El aviso al donante por mail no se implementa en esta fase: no hay servicio de correo. Al aprobar, la donación pasa a `disponible` y el donante la ve en «Mis donaciones». Al rechazar, se guarda `motivo_rechazo` y esa pestaña ya muestra el motivo. No hay tabla de alertas.
+- Las rutas `/admin/donaciones` y `/admin/vademecum` usan `meta.requiereSesion` y `meta.requiereAdmin`. El guard espera `esperarPerfil()` porque el perfil se carga después de la sesión. Sin sesión va a `/login?redirect=`. Si falla el perfil, no entra y se muestra `errorPerfil`. Si el `rol` no es `admin`, va al catálogo con un aviso `warning`.
+- `authenticated` solo tiene `SELECT` sobre `medicamentos` y `medicamentos_habilitados`: no hay políticas de `INSERT` ni `UPDATE`. Las escrituras van en Edge Functions con `service_role`, el mismo patrón que `publicar-medicamento` (`verify_jwt = false` y validación del JWT con `auth.getUser`).
+- `moderar-donacion` solo acepta donaciones en `pendiente_revision`, `disponible` o `rechazado`. Corregir actualiza los datos del fármaco sin tocar fotos, `user_id`, `estado` ni el vínculo. Aprobar deja `disponible`, guarda `medicamento_habilitado_id` y limpia `motivo_rechazo`. Rechazar exige un motivo y deja `rechazado`.
+- `alta-medicamento-habilitado` exige `principio_activo`. Si ya existe la misma combinación de principio activo, concentración y forma, no inserta y avisa para usar esa fila al aprobar.
+- `useVademecum` ahora trae el `id` de cada fila para el desplegable de aprobación. Las sugerencias de `/donar` siguen usando los mismos campos.
+- Pendiente en remoto: `pnpm supabase functions deploy moderar-donacion` y `pnpm supabase functions deploy alta-medicamento-habilitado`.
+
+- [x] Rutas `/admin/*` restringidas a `rol = 'admin'` (guard en Vue y verificación en RLS y Edge Functions).
+- [x] Pestañas Pendientes (con contador), Disponibles y Rechazados: ver fotos y vencimiento, corregir datos, aprobar (`disponible`, vinculando `medicamento_habilitado_id`) o rechazar (`rechazado` + motivo en `motivo_rechazo`). El donante ve el resultado en «Mis donaciones»; el mail queda para más adelante.
+- [x] Alta en `medicamentos_habilitados`.
 
 ### Fase 9: Gestión de usuarios, roles y bloqueos (Trello #24)
 
@@ -377,13 +390,15 @@ Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/
 | Chat de una solicitud | `/solicitud/:solicitudId/chat` | `ChatView`, `components/chat/` (`ListaMensajes`, `FormularioMensaje`, `FormularioEncuentro`, `FormularioConfirmarEntrega`, `PanelCancelarSolicitud`) | `useMensajes`, `useSolicitudes` | `select` de `solicitudes` y de `solicitud_mensajes`, `rpc('participantes_solicitud')`, `insert` de mensajes (el encuentro se propone con un mensaje armado desde el formulario), Realtime `postgres_changes`, `functions.invoke('confirmar-entrega')` y `functions.invoke('cancelar-solicitud')` |
 | Solicitar medicamento | `/medicamento/:id` | `components/medicamentos/PanelSolicitar` | `useSolicitudes.crearSolicitud` | Storage `recetas-medicas` + Edge Function `crear-solicitud` |
 | Publicar donación | `/donar` | `DonarView`, `components/donaciones/FormularioDonacion` | `useVademecum`, `useDonaciones` | `select` de `medicamentos_habilitados` para las sugerencias; `upload` y `remove` en el bucket `fotos-envases`; `functions.invoke('publicar-medicamento')` |
-| Guard de rutas | todas | `src/router/index.js` | `useAuth` | `meta.requiereSesion` → `/login?redirect=`; `meta.soloInvitados` → catálogo |
+| Moderación de donaciones | `/admin/donaciones` | `AdminDonacionesView`, `components/admin/` (`ListaModeracion`, `TarjetaModeracion`) | `useModeracion`, `useVademecum` | `select` de `medicamentos` en `pendiente_revision`, `disponible` y `rechazado` (join a `profiles.name`); `functions.invoke('moderar-donacion')` |
+| Alta del vademécum | `/admin/vademecum` | `AdminVademecumView`, `components/admin/FormularioAltaVademecum` | `useVademecum` | `functions.invoke('alta-medicamento-habilitado')` |
+| Guard de rutas | todas | `src/router/index.js` | `useAuth` | `meta.requiereSesion` → `/login?redirect=`; `meta.soloInvitados` → catálogo; `meta.requiereAdmin` espera el perfil y redirige al catálogo si `rol` no es `admin` |
 
 ### Endpoints que todavía no existen
 
 El frontend los va a consumir cuando se hagan sus fases:
 
-- Moderación y gestión de usuarios para el admin (Fases 8 y 9).
+- Gestión de usuarios para el admin (Fase 9).
 
 ### Reglas a mantener
 

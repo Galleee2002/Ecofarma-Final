@@ -46,6 +46,22 @@ const routes = [
         component: () => import('../views/ChatView.vue'),
         meta: { requiereSesion: true },
     },
+    {
+        path: '/admin',
+        redirect: { name: 'admin-donaciones' },
+    },
+    {
+        path: '/admin/donaciones',
+        name: 'admin-donaciones',
+        component: () => import('../views/AdminDonacionesView.vue'),
+        meta: { requiereSesion: true, requiereAdmin: true },
+    },
+    {
+        path: '/admin/vademecum',
+        name: 'admin-vademecum',
+        component: () => import('../views/AdminVademecumView.vue'),
+        meta: { requiereSesion: true, requiereAdmin: true },
+    },
 ];
 
 export const router = createRouter({
@@ -54,7 +70,7 @@ export const router = createRouter({
 });
 
 router.beforeEach(async function (to) {
-    const { sesion, esperarSesionInicial } = useAuth();
+    const { sesion, perfil, errorPerfil, esperarSesionInicial, esperarPerfil, mostrarAviso } = useAuth();
     await esperarSesionInicial();
 
     if (to.meta.requiereSesion && sesion.value === null) {
@@ -63,5 +79,18 @@ router.beforeEach(async function (to) {
 
     if (to.meta.soloInvitados && sesion.value !== null) {
         return { name: 'catalogo' };
+    }
+
+    if (to.meta.requiereAdmin) {
+        await esperarPerfil();
+
+        if (errorPerfil.value !== '') {
+            return { name: 'catalogo' };
+        }
+
+        if (perfil.value === null || perfil.value.rol !== 'admin') {
+            mostrarAviso('Esta sección es solo para administradores.', 'advertencia');
+            return { name: 'catalogo' };
+        }
     }
 });

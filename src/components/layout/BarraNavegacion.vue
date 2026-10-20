@@ -5,7 +5,17 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '../../composables/useAuth';
 
 const router = useRouter();
-const { sesion, perfil, mensajeExito, tipoMensaje, cargando, error, cerrarSesion, ocultarMensajeExito } = useAuth();
+const { sesion, perfil, errorPerfil, mensajeExito, tipoMensaje, cargando, error, cerrarSesion, ocultarMensajeExito } = useAuth();
+
+function varianteAviso() {
+    if (tipoMensaje.value === 'cierre') {
+        return 'danger';
+    }
+    if (tipoMensaje.value === 'advertencia') {
+        return 'warning';
+    }
+    return 'success';
+}
 
 function nombreUsuario() {
     if (perfil.value !== null && perfil.value.name) {
@@ -35,6 +45,10 @@ async function salir() {
             <template v-else>
                 <RouterLink :to="{ name: 'donar' }" class="text-primary">Donar</RouterLink>
                 <RouterLink :to="{ name: 'perfil' }" class="text-primary">Mi perfil</RouterLink>
+                <template v-if="perfil !== null && perfil.rol === 'admin'">
+                    <RouterLink :to="{ name: 'admin-donaciones' }" class="text-primary">Moderación</RouterLink>
+                    <RouterLink :to="{ name: 'admin-vademecum' }" class="text-primary">Vademécum</RouterLink>
+                </template>
                 <span>Hola, {{ nombreUsuario() }}</span>
                 <Button
                     type="button"
@@ -49,11 +63,15 @@ async function salir() {
 
         <Alert
             v-if="mensajeExito !== ''"
-            :variant="tipoMensaje === 'cierre' ? 'danger' : 'success'"
+            :variant="varianteAviso()"
             class="flex items-start justify-between gap-2"
         >
             <p>{{ mensajeExito }}</p>
             <Button type="button" variant="ghost" @click="ocultarMensajeExito">Cerrar</Button>
+        </Alert>
+
+        <Alert v-if="errorPerfil !== ''" variant="danger">
+            <p>{{ errorPerfil }}</p>
         </Alert>
 
         <Alert v-if="error !== ''" variant="danger">
