@@ -36,7 +36,12 @@ async function salir() {
                 <RouterLink :to="{ name: 'donar' }" class="text-primary">Donar</RouterLink>
                 <RouterLink :to="{ name: 'perfil' }" class="text-primary">Mi perfil</RouterLink>
                 <span>Hola, {{ nombreUsuario() }}</span>
-                <Button type="button" variant="outline" :disabled="cargando" @click="salir">
+                <Button
+                    type="button"
+                    class="border-danger bg-danger text-primary-foreground hover:border-danger hover:bg-danger/90 hover:text-primary-foreground"
+                    :disabled="cargando"
+                    @click="salir"
+                >
                     {{ cargando ? 'Cerrando sesión...' : 'Cerrar sesión' }}
                 </Button>
             </template>

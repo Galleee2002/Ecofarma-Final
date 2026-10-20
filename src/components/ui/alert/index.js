@@ -14,6 +14,7 @@ export const alertVariants = cva(
         success: "text-success border-success bg-success/10",
         warning: "text-warning border-warning bg-warning/10",
         muted: "text-muted border-muted bg-muted/10",
+        primary: "text-foreground border-primary bg-primary-soft",
       },
     },
     defaultVariants: {

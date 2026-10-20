@@ -99,7 +99,7 @@ async function alCancelar() {
         </Alert>
 
         <template v-else-if="solicitud !== null">
-            <Alert variant="warning">
+            <Alert variant="primary">
                 <p>Normas de convivencia</p>
                 <ul class="list-disc pl-5">
                     <li>Coordiná el encuentro en un lugar público.</li>
