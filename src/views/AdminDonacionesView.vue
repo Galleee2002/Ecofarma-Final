@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useModeracion } from '../composables/useModeracion';
 import { useVademecum } from '../composables/useVademecum';
 import ListaModeracion from '../components/admin/ListaModeracion.vue';
+import NavAdmin from '../components/admin/NavAdmin.vue';
 
 const {
     donaciones,
@@ -59,10 +60,7 @@ onMounted(function () {
     <main class="mx-auto flex max-w-3xl flex-col gap-4 p-6">
         <h1 class="text-2xl text-primary">Moderación de donaciones</h1>
 
-        <nav class="flex flex-wrap gap-4">
-            <RouterLink :to="{ name: 'admin-donaciones' }" class="text-primary">Donaciones</RouterLink>
-            <RouterLink :to="{ name: 'admin-vademecum' }" class="text-primary">Vademécum</RouterLink>
-        </nav>
+        <NavAdmin />
 
         <Alert v-if="errorVademecum !== ''" variant="warning">
             <p>{{ errorVademecum }}</p>

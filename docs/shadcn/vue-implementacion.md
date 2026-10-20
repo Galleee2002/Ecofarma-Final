@@ -1,6 +1,6 @@
 # shadcn/vue — implementación
 
-Los componentes de la sección 2 ya están en `src/components/ui`. Las pantallas de las fases 2 a 7 de «Pantallas listas para maquetar» ya están maquetadas. Este documento describe qué ya se trajo, qué falta en las pantallas, qué dejar para después y qué no instalar.
+Los componentes de la sección 2 ya están en `src/components/ui`. Las pantallas de las fases 2 a 8 de «Pantallas listas para maquetar» ya están maquetadas. Este documento describe qué ya se trajo, qué falta en las pantallas, qué dejar para después y qué no instalar.
 
 Reglas que siguen valiendo (`AGENTS.md` y `ROADMAP.md`, sección «Pendiente: componentes shadcn/vue»):
 
@@ -14,13 +14,13 @@ Reglas que siguen valiendo (`AGENTS.md` y `ROADMAP.md`, sección «Pendiente: co
 - Mensajes personalizados en español. Nunca mostrar el error crudo de Supabase, de una Edge Function o de JavaScript.
 - No exponer la `service_role` key.
 
-Los componentes usan nombres de shadcn que no están en la paleta. En `@theme` de `src/style.css` esos nombres son alias de tokens que ya existen, sin hex nuevos: `primary-foreground` y `secondary-foreground` apuntan a `background`, `muted-foreground` a `muted`, `destructive` a `danger`, `card` a `background`, `card-foreground` a `foreground`, `border` e `input` a `muted`, y `ring` a `primary`. `muted` sigue siendo `#6C757D`, así que un `bg-muted` se ve gris. `cn-font-heading` usa Noto Sans. No reemplazar estos alias por la paleta por defecto del CLI. Un `shadcn-vue add` puede pisar `src/style.css`; hay que revisar ese archivo después.
+Los componentes usan nombres de shadcn que no están en la paleta. En `@theme` de `src/style.css` esos nombres son alias de tokens que ya existen, sin hex nuevos: `primary-foreground` y `secondary-foreground` apuntan a `background`, `muted-foreground` a `muted`, `destructive` a `danger`, `card` a `background`, `card-foreground` a `foreground`, `border` e `input` a `muted`, `ring` a `primary`, `popover` y `popover-foreground` a `background` y `foreground`, y `accent` a `primary-soft` con `accent-foreground` en `foreground`. `muted` sigue siendo `#6C757D`, así que un `bg-muted` se ve gris. `cn-font-heading` usa Noto Sans. No reemplazar estos alias por la paleta por defecto del CLI. Un `shadcn-vue add` puede pisar `src/style.css`; hay que revisar ese archivo después.
 
 ---
 
 ## Pantallas listas para maquetar
 
-La funcionalidad de las fases 2 a 7 ya está. Estas pantallas se maquetan con los componentes de la sección 2. El casillero se marca cuando esa pantalla quedó maquetada.
+La funcionalidad de las fases 2 a 8 ya está. Estas pantallas se maquetan con los componentes de la sección 2. El casillero se marca cuando esa pantalla quedó maquetada.
 
 - [x] **Catálogo** — `/catalogo`. `CatalogoView` y `components/medicamentos/` (`MedicamentoSearch`, `MedicamentoGrid`, `MedicamentoCard`).
 - [x] **Detalle y solicitud** — `/medicamento/:id`. `MedicamentoDetalleView`, `DetalleMedicamento` y `PanelSolicitar`.
@@ -30,10 +30,11 @@ La funcionalidad de las fases 2 a 7 ya está. Estas pantallas se maquetan con lo
 - [x] **Publicar donación** — `/donar`. `DonarView` y `FormularioDonacion`. El `<datalist>` del vademécum se conserva.
 - [x] **Chat** — `/solicitud/:solicitudId/chat`. `ChatView` y `components/chat/` (`ListaMensajes`, `FormularioMensaje`, `FormularioEncuentro`, `FormularioConfirmarEntrega`, `PanelCancelarSolicitud`).
 - [x] **Barra de navegación** — todas las rutas. `components/layout/BarraNavegacion`. No es una pantalla, pero se maqueta junto con el resto.
+- [x] **Moderación de donaciones** — `/admin/donaciones`. `AdminDonacionesView`, `NavAdmin`, `ListaModeracion` y `TarjetaModeracion`. El vínculo al vademécum usa **Select**.
+- [x] **Alta del vademécum** — `/admin/vademecum`. `AdminVademecumView`, `NavAdmin` y `FormularioAltaVademecum`.
 
 Todavía no tienen pantalla ni flujo, así que no se marcan acá:
 
-- Moderación de donaciones (fase 8): rutas `/admin/*`.
 - Gestión de usuarios, roles y bloqueos (fase 9).
 - Landing (fase 10): Inicio, Información/Ayuda, Sobre nosotros, Contacto y Legales. `/` redirige al catálogo.
 
@@ -62,7 +63,7 @@ Al traer la sección 2, el CLI agregó solo lo que faltaba:
 
 ## 2. Traer ahora
 
-Cubren los controles de las fases 2 a 7 (catálogo, registro, login, perfil, donar, solicitar y chat). Los diez ya están copiados y esas pantallas ya los usan.
+Cubren los controles de las fases 2 a 8 (catálogo, registro, login, perfil, donar, solicitar, chat y moderación). Ya están copiados y esas pantallas ya los usan.
 
 | | Componente | Dónde entra |
 |---|---|---|
@@ -74,8 +75,9 @@ Cubren los controles de las fases 2 a 7 (catálogo, registro, login, perfil, don
 | [x] | **Card** | Tarjeta del catálogo (`MedicamentoCard.vue`), ficha del medicamento y cada ítem de «Mis donaciones» y «Mis solicitudes» |
 | [x] | **Badge** | Estados de la donación (En revisión, Disponible, Reservado, Entregado, Rechazado) y de la solicitud |
 | [x] | **Alert** | Errores, éxitos, advertencias y avisos informativos. Variantes `danger`, `success`, `warning` y `muted`. |
-| [x] | **Tabs** | Las tres pestañas de `/perfil`: Mis datos, Mis donaciones, Mis solicitudes (`PerfilView.vue`) |
+| [x] | **Tabs** | Las tres pestañas de `/perfil` y las de `/admin/donaciones` (`PerfilView.vue`, `AdminDonacionesView.vue`) |
 | [x] | **Scroll area** | La lista de mensajes del chat (`ListaMensajes.vue`), que ya hace scroll al final |
+| [x] | **Select** | El vínculo al vademécum al aprobar una donación (`TarjetaModeracion.vue`). No reemplaza el `<datalist>` de `/donar`. |
 
 ### Alert y los cuatro tipos de mensaje
 
@@ -99,7 +101,7 @@ No hace falta traerlos para el frontend de lo que ya existe.
 | Componente | Cuándo |
 |---|---|
 | **Alert dialog** | Solo si más adelante se quiere un modal para confirmar la entrega o cancelar. Hoy esas acciones están en la misma pantalla del chat, sin modal. |
-| **Table**, **Select** y **Tabs** de nuevo | Moderación de donaciones (fase 8) y gestión de usuarios (fase 9): pestañas con contador, filtros por estado y rol, búsqueda por nombre, email o DNI. |
+| **Table** | Gestión de usuarios (fase 9): filtros por estado y rol, búsqueda por nombre, email o DNI. |
 | **Skeleton** | Opcional, si se quiere reemplazar los textos «Cargando…». Hoy ese estado es un párrafo con `text-muted`. |
 
 La fase 10 (landing) es la última del tablero. No anticipar componentes de marketing (accordion, carrusel, etc.) hasta esa etapa.
@@ -111,7 +113,7 @@ La fase 10 (landing) es la última del tablero. No anticipar componentes de mark
 | Componente | Por qué |
 |---|---|
 | **Form** | Arrastra `vee-validate` y Zod. La validación ya vive en los composables (`useAuth`, `useDonaciones`, `useSolicitudes`). Con Input, Label, Textarea y Checkbox alcanza, y el proyecto pide sintaxis básica sin librerías de más. |
-| **Select**, **Combobox** o **Command** para el vademécum | `FormularioDonacion.vue` usa `<datalist>` a propósito. El donante puede escribir un valor que no está en `medicamentos_habilitados`; en ese caso la Edge Function `publicar-medicamento` deja la donación en `pendiente_revision`. Un select cerrado perdería ese comportamiento. |
+| **Combobox** o **Command** para el vademécum al donar | `FormularioDonacion.vue` usa `<datalist>` a propósito. El donante puede escribir un valor que no está en `medicamentos_habilitados`; en ese caso la Edge Function `publicar-medicamento` deja la donación en `pendiente_revision`. Un select cerrado perdería ese comportamiento. El **Select** de shadcn sí se usa en la moderación, donde el admin elige una fila existente. |
 | **Sonner** o **Toast** | Los mensajes están en el formulario o en la barra de navegación, no son notificaciones flotantes. El cierre de sesión, por ejemplo, se muestra en `BarraNavegacion.vue` con un botón «Cerrar». |
 | **Navigation menu**, **Dropdown menu**, **Sheet** | `BarraNavegacion.vue` es un `nav` simple (catálogo, donar, perfil, cerrar sesión). |
 | **Calendar** y selector de fecha de shadcn | Las fechas y horas usan `input type="date"` y `input type="time"` (vencimiento de la donación, día y hora del encuentro). |
@@ -126,7 +128,7 @@ El input de archivo (fotos del envase y foto de la receta) se queda nativo. shad
 1. [x] Instalar solo cuando se pida de forma explícita.
 2. [x] Dejar que el CLI agregue las dependencias de la sección 1. No instalar `lucide-vue-next`, `clsx` ni `tailwind-merge` al lado de `@lucide/vue` y del paquete `cn`.
 3. [x] `typescript: false`. Componentes en `src/components/ui`. No tocar los tokens, los alias de tema ni las fuentes.
-4. [x] Traer únicamente la lista de la sección 2.
+4. [x] Traer la lista de la sección 2 y **Select** para el vínculo al vademécum en la moderación.
 5. [x] Ajustar las variantes de **Alert** a los tokens de `src/style.css` (`danger`, `success`, `warning` y `muted`). **Badge** conserva las variantes del CLI y suma variantes con esos tokens para los estados de donación y de solicitud.
 6. [x] Reemplazar el HTML mínimo de los componentes de dominio (`components/auth`, `components/medicamentos`, `components/donaciones`, `components/perfil`, `components/chat`, `components/layout`). No mover la lógica de Supabase a `src/components/ui`. Al terminar una pantalla, marcar su casillero en «Pantallas listas para maquetar».
 7. [x] Mantener el `<datalist>` del vademécum al maquetar `/donar`. Sigue en `FormularioDonacion.vue`.

@@ -84,7 +84,7 @@ Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fo
 
 ### Pendiente: componentes shadcn/vue
 
-Los componentes de `src/components/ui` ya están copiados. El catálogo, el detalle y la solicitud, el ingreso, el registro, el perfil, publicar donación, el chat, la moderación y la barra de navegación usan esos componentes con los tokens de esta sección. Gestión de usuarios y la landing siguen sin maquetar.
+Los componentes de `src/components/ui` ya están copiados. El catálogo, el detalle y la solicitud, el ingreso, el registro, el perfil, publicar donación, el chat, la moderación, el alta del vademécum y la barra de navegación usan esos componentes con los tokens de esta sección. La moderación usa **Select** para vincular una fila del vademécum. `secondary` e `icon` se usan en los enlaces activos de la barra, el saludo y las fechas de vencimiento. Gestión de usuarios y la landing siguen sin maquetar.
 
 Cuando se pida, se puede sumar sin cambiar el stack (Vue 3, Vite, Tailwind CSS 4, JavaScript y pnpm):
 

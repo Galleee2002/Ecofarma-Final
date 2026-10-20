@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
 const props = defineProps({
@@ -139,7 +140,7 @@ function rechazar() {
             <Badge :variant="varianteEstado(donacion.estado)">{{ textoEstado(donacion.estado) }}</Badge>
         </CardHeader>
         <CardContent class="flex flex-col gap-4">
-            <p>Vence: {{ formatearFecha(donacion.fecha_vencimiento) }}</p>
+            <p class="text-icon">Vence: {{ formatearFecha(donacion.fecha_vencimiento) }}</p>
 
             <div v-if="fotos().length > 0" class="flex flex-wrap gap-2">
                 <img
@@ -147,7 +148,7 @@ function rechazar() {
                     :key="indice"
                     :src="foto"
                     :alt="'Foto ' + (indice + 1) + ' de ' + donacion.nombre_comercial"
-                    class="h-24 w-24 object-cover"
+                    class="h-24 w-24 rounded-lg object-cover"
                 />
             </div>
 
@@ -218,16 +219,20 @@ function rechazar() {
 
             <div class="flex flex-col gap-2">
                 <Label :for="'moderar-vademecum-' + donacion.id">Medicamento del vademécum</Label>
-                <select
-                    :id="'moderar-vademecum-' + donacion.id"
-                    v-model="datos.medicamento_habilitado_id"
-                    class="border-input h-8 w-full rounded-lg border bg-transparent px-2.5 py-1 text-sm"
-                >
-                    <option value="">Elegí una fila del vademécum</option>
-                    <option v-for="fila in filasVademecum" :key="fila.id" :value="String(fila.id)">
-                        {{ etiquetaVademecum(fila) }}
-                    </option>
-                </select>
+                <Select v-model="datos.medicamento_habilitado_id">
+                    <SelectTrigger :id="'moderar-vademecum-' + donacion.id" class="w-full">
+                        <SelectValue placeholder="Elegí una fila del vademécum" />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                        <SelectItem
+                            v-for="fila in filasVademecum"
+                            :key="fila.id"
+                            :value="String(fila.id)"
+                        >
+                            {{ etiquetaVademecum(fila) }}
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
                 <Button type="button" :disabled="guardando" @click="aprobar">
                     {{ guardando ? 'Guardando...' : 'Aprobar' }}
                 </Button>

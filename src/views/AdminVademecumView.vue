@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { Alert } from '@/components/ui/alert';
 import { useVademecum } from '../composables/useVademecum';
 import FormularioAltaVademecum from '../components/admin/FormularioAltaVademecum.vue';
+import NavAdmin from '../components/admin/NavAdmin.vue';
 
 const {
     error,
@@ -32,10 +33,7 @@ onMounted(function () {
     <main class="mx-auto flex max-w-md flex-col gap-4 p-6">
         <h1 class="text-2xl text-primary">Alta del vademécum</h1>
 
-        <nav class="flex flex-wrap gap-4">
-            <RouterLink :to="{ name: 'admin-donaciones' }" class="text-primary">Donaciones</RouterLink>
-            <RouterLink :to="{ name: 'admin-vademecum' }" class="text-primary">Vademécum</RouterLink>
-        </nav>
+        <NavAdmin />
 
         <Alert v-if="error !== ''" variant="warning">
             <p>{{ error }}</p>

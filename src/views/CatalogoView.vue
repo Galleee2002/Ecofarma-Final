@@ -10,7 +10,7 @@ onMounted(cargarMedicamentos);
 </script>
 
 <template>
-    <main class="mx-auto flex max-w-3xl flex-col gap-4 p-6">
+    <main class="mx-auto flex max-w-5xl flex-col gap-4 p-6">
         <h1 class="text-2xl text-primary">Catálogo de medicamentos</h1>
         <MedicamentoSearch v-model="busqueda" />
         <MedicamentoGrid

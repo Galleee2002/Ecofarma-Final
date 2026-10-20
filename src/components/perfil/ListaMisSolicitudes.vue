@@ -82,7 +82,7 @@ function reintentar() {
                     <RouterLink
                         v-if="solicitud.estado === 'pendiente_coordinacion' || solicitud.estado === 'en_camino'"
                         :to="{ name: 'chat-solicitud', params: { solicitudId: solicitud.id } }"
-                        class="text-primary"
+                        class="text-secondary"
                     >
                         Abrir chat
                     </RouterLink>

@@ -25,6 +25,10 @@
     --color-border: var(--color-muted);
     --color-input: var(--color-muted);
     --color-ring: var(--color-primary);
+    --color-popover: var(--color-background);
+    --color-popover-foreground: var(--color-foreground);
+    --color-accent: var(--color-primary-soft);
+    --color-accent-foreground: var(--color-foreground);
 
     --radius-md: 0.375rem;
 }
