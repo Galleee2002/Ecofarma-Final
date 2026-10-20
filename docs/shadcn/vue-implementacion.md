@@ -14,6 +14,29 @@ Reglas que siguen valiendo (`AGENTS.md` y `ROADMAP.md`, sección «Pendiente: co
 - Mensajes personalizados en español. Nunca mostrar el error crudo de Supabase, de una Edge Function o de JavaScript.
 - No exponer la `service_role` key.
 
+Los componentes usan nombres de shadcn que no están en la paleta. En `@theme` de `src/style.css` esos nombres son alias de tokens que ya existen, sin hex nuevos: `primary-foreground` y `secondary-foreground` apuntan a `background`, `muted-foreground` a `muted`, `destructive` a `danger`, `card` a `background`, `card-foreground` a `foreground`, `border` e `input` a `muted`, y `ring` a `primary`. `muted` sigue siendo `#6C757D`, así que un `bg-muted` se ve gris. `cn-font-heading` usa Noto Sans. No reemplazar estos alias por la paleta por defecto del CLI. Un `shadcn-vue add` puede pisar `src/style.css`; hay que revisar ese archivo después.
+
+---
+
+## Pantallas listas para maquetar
+
+La funcionalidad de las fases 2 a 7 ya está, con estilos mínimos. Estas pantallas se pueden maquetar con los componentes de la sección 2. El casillero se marca cuando esa pantalla quedó maquetada. Hoy todos están sin marcar.
+
+- [ ] **Catálogo** — `/catalogo`. `CatalogoView` y `components/medicamentos/` (`MedicamentoSearch`, `MedicamentoGrid`, `MedicamentoCard`).
+- [ ] **Detalle y solicitud** — `/medicamento/:id`. `MedicamentoDetalleView`, `DetalleMedicamento` y `PanelSolicitar`.
+- [ ] **Ingreso** — `/login`. `LoginView` y `FormularioLogin`. Acepta `?redirect=`.
+- [ ] **Registro** — `/registro`. `RegistroView` y `FormularioRegistro`.
+- [ ] **Perfil** — `/perfil`. `PerfilView` con las pestañas Mis datos (`FormularioPerfil`), Mis donaciones (`ListaMisDonaciones`) y Mis solicitudes (`ListaMisSolicitudes`).
+- [ ] **Publicar donación** — `/donar`. `DonarView` y `FormularioDonacion`. El `<datalist>` del vademécum se conserva.
+- [ ] **Chat** — `/solicitud/:solicitudId/chat`. `ChatView` y `components/chat/` (`ListaMensajes`, `FormularioMensaje`, `FormularioEncuentro`, `FormularioConfirmarEntrega`, `PanelCancelarSolicitud`).
+- [ ] **Barra de navegación** — todas las rutas. `components/layout/BarraNavegacion`. No es una pantalla, pero se maqueta junto con el resto.
+
+Todavía no tienen pantalla ni flujo, así que no se marcan acá:
+
+- Moderación de donaciones (fase 8): rutas `/admin/*`.
+- Gestión de usuarios, roles y bloqueos (fase 9).
+- Landing (fase 10): Inicio, Información/Ayuda, Sobre nosotros, Contacto y Legales. `/` redirige al catálogo.
+
 ---
 
 ## 1. Dependencias
@@ -26,16 +49,14 @@ Reglas que siguen valiendo (`AGENTS.md` y `ROADMAP.md`, sección «Pendiente: co
 - `class-variance-authority`
 - `lucide-vue-next`
 
-El `package.json` ya tiene un conjunto distinto y no equivalente:
+El CLI actual de shadcn/vue no usa `lucide-vue-next` ni un helper local armado con `clsx` y `tailwind-merge`. Los componentes copiados importan iconos desde `@lucide/vue` y `cn` desde el paquete npm `cn`. Esas dos dependencias ya estaban. No hay que sumar las otras al lado: quedarían las dos formas instaladas.
 
-| Ya está | Qué espera shadcn/vue |
-|---|---|
-| `@lucide/vue` | `lucide-vue-next` |
-| `cn` (paquete de npm) | una función `cn()` propia del proyecto, armada con `clsx` y `tailwind-merge` |
-| `class-variance-authority` | la misma |
-| `tw-animate-css` (devDependency) | la usa el init nuevo de shadcn para animaciones |
+Al traer la sección 2, el CLI agregó solo lo que faltaba:
 
-El paquete npm `cn` no es el helper de shadcn. Hay que dejar que el CLI agregue las dependencias oficiales y no mezclar `@lucide/vue` con `lucide-vue-next`, ni el paquete `cn` con el helper local.
+- `reka-ui`
+- `@vueuse/core` (lo usa `ScrollArea`)
+
+`class-variance-authority` y `tw-animate-css` ya estaban. `tw-animate-css` sigue como devDependency; no se importó en `src/style.css` para no pisar los tokens ni las fuentes.
 
 ---
 
@@ -77,7 +98,7 @@ No hace falta traerlos para el frontend de lo que ya existe.
 
 | Componente | Cuándo |
 |---|---|
-| **Alert dialog** | Confirmar la entrega y cancelar una solicitud (lo que falta de la fase 7). Hoy no hay modales. |
+| **Alert dialog** | Solo si más adelante se quiere un modal para confirmar la entrega o cancelar. Hoy esas acciones están en la misma pantalla del chat, sin modal. |
 | **Table**, **Select** y **Tabs** de nuevo | Moderación de donaciones (fase 8) y gestión de usuarios (fase 9): pestañas con contador, filtros por estado y rol, búsqueda por nombre, email o DNI. |
 | **Skeleton** | Opcional, si se quiere reemplazar los textos «Cargando…». Hoy ese estado es un párrafo con `text-muted`. |
 
@@ -103,10 +124,10 @@ El input de archivo (fotos del envase y foto de la receta) se queda nativo. shad
 ## 5. Al implementar
 
 1. Instalar solo cuando se pida de forma explícita.
-2. Dejar que el CLI agregue `reka-ui`, `clsx`, `tailwind-merge`, `class-variance-authority` y `lucide-vue-next`. Revisar el choque con `@lucide/vue` y con el paquete `cn` antes de dejar las dos cosas instaladas.
-3. `typescript: false`. Componentes en `src/components/ui`. No tocar los tokens ni las fuentes.
+2. Dejar que el CLI agregue las dependencias de la sección 1. No instalar `lucide-vue-next`, `clsx` ni `tailwind-merge` al lado de `@lucide/vue` y del paquete `cn`.
+3. `typescript: false`. Componentes en `src/components/ui`. No tocar los tokens, los alias de tema ni las fuentes.
 4. Traer únicamente la lista de la sección 2.
 5. Ajustar las variantes de **Alert** (y, si hace falta, **Badge**) a los tokens de `src/style.css`.
-6. Reemplazar el HTML mínimo de los componentes de dominio (`components/auth`, `components/medicamentos`, `components/donaciones`, `components/perfil`, `components/chat`, `components/layout`). No mover la lógica de Supabase a `src/components/ui`.
+6. Reemplazar el HTML mínimo de los componentes de dominio (`components/auth`, `components/medicamentos`, `components/donaciones`, `components/perfil`, `components/chat`, `components/layout`). No mover la lógica de Supabase a `src/components/ui`. Al terminar una pantalla, marcar su casillero en «Pantallas listas para maquetar».
 7. Mantener el `<datalist>` del vademécum.
 8. No agregar **Form**, toasts ni modales en este paso.
