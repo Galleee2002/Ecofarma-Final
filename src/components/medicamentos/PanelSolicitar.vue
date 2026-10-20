@@ -50,7 +50,7 @@ const claseMensaje = computed(function () {
     if (tipoMensajeCrear.value === 'exito') {
         return 'border-success bg-success/10 text-success';
     }
-    return 'border-secondary bg-secondary/10 text-secondary';
+    return 'border-muted bg-muted/10 text-muted';
 });
 
 function irALogin() {
@@ -119,7 +119,7 @@ async function solicitar() {
         <p v-if="errorPerfil !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ errorPerfil }}</p>
 
         <template v-else-if="sesion === null">
-            <p class="rounded border border-secondary bg-secondary/10 p-4 text-secondary">
+            <p class="rounded border border-muted bg-muted/10 p-4 text-muted">
                 Para solicitar este medicamento tenés que iniciar sesión.
             </p>
             <button type="button" class="rounded border border-primary px-3 py-2 text-primary" @click="irALogin">
@@ -128,7 +128,7 @@ async function solicitar() {
         </template>
 
         <template v-else-if="perfil === null">
-            <p class="text-secondary">Cargando tus datos...</p>
+            <p class="text-muted">Cargando tus datos...</p>
         </template>
 
         <template v-else>

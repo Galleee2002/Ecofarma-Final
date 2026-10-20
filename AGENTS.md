@@ -68,7 +68,7 @@ Al implementar cualquier fase de `ROADMAP.md` que maneje errores o devuelva mens
   - Error: `danger` (`text-danger`, `border-danger`, `bg-danger/10`).
   - Éxito: `success` (`text-success`, `border-success`, `bg-success/10`).
   - Advertencia: `warning` (`text-warning`, `border-warning`, `bg-warning/10`).
-  - Informativo: `secondary` (`text-secondary`, `border-secondary`, `bg-secondary/10`).
+  - Informativo: `muted` (`text-muted`, `border-muted`, `bg-muted/10`).
 - Las Edge Functions deben responder errores con un cuerpo JSON consistente (por ejemplo `{ "error": "<mensaje para el usuario>" }`) y el código HTTP adecuado, para que el frontend pueda mostrar el mensaje personalizado.
 
 ## Estilo de código

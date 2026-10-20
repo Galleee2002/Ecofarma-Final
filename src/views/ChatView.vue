@@ -80,7 +80,7 @@ async function alCancelar() {
 
 <template>
     <main class="mx-auto flex max-w-md flex-col gap-4 p-6">
-        <RouterLink :to="{ name: 'perfil' }" class="text-secondary">Volver al perfil</RouterLink>
+        <RouterLink :to="{ name: 'perfil' }" class="text-muted">Volver al perfil</RouterLink>
 
         <h1 class="text-2xl text-primary">Chat</h1>
 
@@ -91,7 +91,7 @@ async function alCancelar() {
             {{ mensajeCancelar }}
         </p>
 
-        <p v-if="cargando" class="text-secondary">Cargando la conversación...</p>
+        <p v-if="cargando" class="text-muted">Cargando la conversación...</p>
 
         <p v-else-if="error !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ error }}</p>
 
@@ -114,7 +114,7 @@ async function alCancelar() {
             <p v-if="cuentaSuspendida" class="rounded border border-warning bg-warning/10 p-4 text-warning">
                 Tu cuenta está suspendida y no podés enviar mensajes.
             </p>
-            <p v-else-if="!puedeEscribir" class="rounded border border-secondary bg-secondary/10 p-4 text-secondary">
+            <p v-else-if="!puedeEscribir" class="rounded border border-muted bg-muted/10 p-4 text-muted">
                 Esta solicitud ya no admite mensajes nuevos. Podés leer los anteriores.
             </p>
 

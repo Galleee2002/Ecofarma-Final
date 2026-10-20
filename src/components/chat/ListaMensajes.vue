@@ -42,7 +42,7 @@ watch(function () {
 
 <template>
     <div ref="contenedor" class="flex max-h-80 flex-col gap-2 overflow-y-auto rounded border p-3">
-        <p v-if="mensajes.length === 0" class="rounded border border-secondary bg-secondary/10 p-4 text-secondary">
+        <p v-if="mensajes.length === 0" class="rounded border border-muted bg-muted/10 p-4 text-muted">
             Todavía no hay mensajes. Proponé el día, la hora y el lugar con el formulario de encuentro.
         </p>
 
@@ -50,10 +50,10 @@ watch(function () {
             v-for="mensaje in mensajes"
             :key="mensaje.id"
             class="flex max-w-[85%] flex-col gap-1 rounded border p-2"
-            :class="esPropio(mensaje) ? 'self-end border-primary' : 'self-start border-secondary'"
+            :class="esPropio(mensaje) ? 'self-end border-primary' : 'self-start border-muted'"
         >
             <p>{{ mensaje.mensaje }}</p>
-            <p class="text-sm text-secondary">{{ formatearFecha(mensaje.created_at) }}</p>
+            <p class="text-sm text-muted">{{ formatearFecha(mensaje.created_at) }}</p>
         </article>
     </div>
 </template>

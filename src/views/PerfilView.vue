@@ -48,7 +48,7 @@ function clasePestana(pestana) {
 
         <p v-if="errorPerfil !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ errorPerfil }}</p>
 
-        <p v-else-if="perfil === null" class="text-secondary">Cargando tus datos...</p>
+        <p v-else-if="perfil === null" class="text-muted">Cargando tus datos...</p>
 
         <template v-else>
             <nav class="flex gap-4">

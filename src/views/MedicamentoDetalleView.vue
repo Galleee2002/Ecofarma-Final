@@ -34,9 +34,9 @@ watch(
 
 <template>
     <main class="mx-auto flex max-w-3xl flex-col gap-6 p-6">
-        <RouterLink to="/catalogo" class="text-secondary">Volver al catálogo</RouterLink>
+        <RouterLink to="/catalogo" class="text-muted">Volver al catálogo</RouterLink>
 
-        <p v-if="cargando" class="text-secondary">Cargando medicamento...</p>
+        <p v-if="cargando" class="text-muted">Cargando medicamento...</p>
 
         <p v-else-if="error !== ''" class="rounded border border-danger bg-danger/10 p-4 text-danger">{{ error }}</p>
 

@@ -31,7 +31,7 @@ function reintentar() {
         <button type="button" class="rounded border border-danger px-3 py-1" @click="reintentar">Reintentar</button>
     </div>
 
-    <p v-else-if="medicamentos.length === 0" class="rounded border border-secondary bg-secondary/10 p-4 text-secondary">
+    <p v-else-if="medicamentos.length === 0" class="rounded border border-muted bg-muted/10 p-4 text-muted">
         No encontramos medicamentos disponibles que coincidan con tu búsqueda.
     </p>
 

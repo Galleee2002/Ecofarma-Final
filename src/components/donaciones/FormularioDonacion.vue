@@ -216,7 +216,7 @@ function enviar() {
         <p
             v-if="mensaje !== ''"
             class="rounded border p-4"
-            :class="tipoMensaje === 'exito' ? 'border-success bg-success/10 text-success' : 'border-secondary bg-secondary/10 text-secondary'"
+            :class="tipoMensaje === 'exito' ? 'border-success bg-success/10 text-success' : 'border-muted bg-muted/10 text-muted'"
         >
             {{ mensaje }}
         </p>

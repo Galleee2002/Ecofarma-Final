@@ -7,7 +7,7 @@ Reglas que siguen valiendo (`AGENTS.md` y `ROADMAP.md`, sección «Pendiente: co
 - Vue 3, Vite, Tailwind CSS 4, JavaScript y pnpm. Sin TypeScript.
 - El CLI copia cada componente al proyecto (por ejemplo `src/components/ui`). No es un paquete cerrado.
 - Generar los componentes en JavaScript (`typescript: false` en `components.json`).
-- Conservar `src/style.css`, los tokens (`primary`, `secondary`, `icon`, `success`, `danger`, `warning`) y las fuentes de `index.html`. El init no reemplaza ese archivo.
+- Conservar `src/style.css`, los tokens (`primary`, `secondary`, `icon`, `success`, `danger`, `warning`, `background`, `foreground`, `muted`) y las fuentes de `index.html`. El init no reemplaza ese archivo.
 - El alias `@` en Vite y un `jsconfig.json` alcanzan para los imports.
 - Colores solo con esos tokens, nunca con hex sueltos.
 - La lógica de datos queda en los composables. Las vistas pasan los datos por props.
@@ -65,9 +65,9 @@ Cubren los controles que hoy son HTML con clases mínimas en las fases 2 a 7 (ca
 | Error | `danger` | Fallo de carga, error de formulario, cierre de sesión |
 | Éxito | `success` | Registro, ingreso, datos guardados, donación publicada como `disponible` |
 | Advertencia | `warning` | Cuenta con `is_validado = false`, sugerencias del vademécum que fallan, motivo de rechazo, normas del chat |
-| Informativo | `secondary` | Donación en `pendiente_revision`, listas vacías, chat cerrado, código de retiro que no se pudo leer |
+| Informativo | `muted` | Donación en `pendiente_revision`, listas vacías, chat cerrado, código de retiro que no se pudo leer |
 
-Las variantes por defecto de shadcn no coinciden con esos cuatro tokens. Hay que ajustarlas en el componente copiado a `src/components/ui`, usando `text-danger`, `border-danger`, `bg-danger/10` y los equivalentes de `success`, `warning` y `secondary`. No usar hex ni los colores por defecto de Tailwind (`red-500`, `green-500`, etc.).
+Las variantes por defecto de shadcn no coinciden con esos cuatro tokens. Hay que ajustarlas en el componente copiado a `src/components/ui`, usando `text-danger`, `border-danger`, `bg-danger/10` y los equivalentes de `success`, `warning` y `muted`. No usar hex ni los colores por defecto de Tailwind (`red-500`, `green-500`, etc.).
 
 ---
 
@@ -79,7 +79,7 @@ No hace falta traerlos para el frontend de lo que ya existe.
 |---|---|
 | **Alert dialog** | Confirmar la entrega y cancelar una solicitud (lo que falta de la fase 7). Hoy no hay modales. |
 | **Table**, **Select** y **Tabs** de nuevo | Moderación de donaciones (fase 8) y gestión de usuarios (fase 9): pestañas con contador, filtros por estado y rol, búsqueda por nombre, email o DNI. |
-| **Skeleton** | Opcional, si se quiere reemplazar los textos «Cargando…». Hoy ese estado es un párrafo con `text-secondary`. |
+| **Skeleton** | Opcional, si se quiere reemplazar los textos «Cargando…». Hoy ese estado es un párrafo con `text-muted`. |
 
 La fase 10 (landing) es la última del tablero. No anticipar componentes de marketing (accordion, carrusel, etc.) hasta esa etapa.
 

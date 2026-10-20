@@ -71,12 +71,15 @@ Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fo
 
 | Token | Hex | Uso |
 |---|---|---|
-| `primary` | `#215B8D` | Color principal |
-| `secondary` | `#309AE6` | Color secundario |
-| `icon` | `#52806C` | Íconos |
-| `success` | `#43B75D` | Éxito |
-| `danger` | `#FF383C` | Error / acciones destructivas |
-| `warning` | `#FFAA00` | Advertencia |
+| `primary` | `#215B8D` | Corporativo: Azul Océano |
+| `secondary` | `#309AE6` | Corporativo: Azul Dodger |
+| `icon` | `#52806C` | Corporativo: Verde Mar |
+| `success` | `#43B75D` | Contextual: Césped Artificial (éxito) |
+| `danger` | `#FF3C3C` | Contextual: Rojo Coral (error / acciones destructivas) |
+| `warning` | `#FFAA00` | Contextual: Ámbar (advertencia) |
+| `background` | `#EEF4F6` | Neutro: Blanco Hielo (fondo de página) |
+| `foreground` | `#1A1A1A` | Neutro: Nero (texto) |
+| `muted` | `#6C757D` | Neutro: Muted Gray (informativo / texto secundario) |
 
 ### Pendiente: componentes shadcn/vue
 
@@ -277,7 +280,7 @@ Decisiones tomadas:
 - `publicar-medicamento` tiene `verify_jwt = false`: el proyecto usa las claves nuevas (`sb_publishable_...`), que no son compatibles con la verificación automática del gateway. La función valida el JWT con `auth.getUser(token)` y responde 401 si no hay sesión.
 - La coincidencia con el vademécum es exacta (`.eq` sobre los tres campos), no con `ilike`, porque el `%` de valores como «2 %» actuaría de comodín. Sin concentración o sin forma farmacéutica no hay coincidencia y la donación va a `pendiente_revision`.
 - La fecha de hoy en la Edge Function se calcula con la zona horaria de Argentina, para no rechazar vencimientos válidos por la diferencia con UTC.
-- Al publicar, `disponible` se avisa con `success` y `pendiente_revision` con `secondary`. El formulario se vacía cambiando su `key`.
+- Al publicar, `disponible` se avisa con `success` y `pendiente_revision` con `muted`. El formulario se vacía cambiando su `key`.
 
 - [x] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos (estilos mínimos).
 - [x] Bucket de Storage `fotos-envases` para las fotos de envases (migración `bucket_fotos_envases`).
@@ -388,5 +391,5 @@ Siguen valiendo las de `AGENTS.md`:
 
 - La lógica de datos queda en los composables; las vistas pasan los datos por props.
 - Colores solo con tokens de `src/style.css`.
-- Mensajes personalizados en español con su color (`danger`, `success`, `warning`, `secondary`), sin mostrar errores crudos.
+- Mensajes personalizados en español con su color (`danger`, `success`, `warning`, `muted`), sin mostrar errores crudos.
 - No exponer la `service_role` key.

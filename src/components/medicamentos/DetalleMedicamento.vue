@@ -39,7 +39,7 @@ function formatearFecha(fecha) {
             </div>
         </div>
 
-        <p v-else class="rounded border border-secondary bg-secondary/10 p-4 text-secondary">
+        <p v-else class="rounded border border-muted bg-muted/10 p-4 text-muted">
             Este medicamento no tiene fotos del envase.
         </p>
     </article>
