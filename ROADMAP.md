@@ -77,9 +77,9 @@ Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fo
 | `success` | `#43B75D` | Contextual: Césped Artificial (éxito) |
 | `danger` | `#FF3C3C` | Contextual: Rojo Coral (error / acciones destructivas) |
 | `warning` | `#FFAA00` | Contextual: Ámbar (advertencia) |
-| `background` | `#EEF4F6` | Neutro: Blanco Hielo (fondo de página) |
-| `foreground` | `#1A1A1A` | Neutro: Nero (texto) |
-| `muted` | `#6C757D` | Neutro: Muted Gray (informativo / texto secundario) |
+| `background` | `#EEF4F6` | Contextual: Blanco Hielo (fondo de página) |
+| `foreground` | `#1A1A1A` | Contextual: Negro (texto) |
+| `muted` | `#6C757D` | Contextual: Muted Gray (informativo / texto secundario) |
 
 ### Pendiente: componentes shadcn/vue
 

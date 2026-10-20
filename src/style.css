@@ -32,4 +32,9 @@
         font-family: var(--font-heading);
         font-weight: 600;
     }
+
+    input[type='checkbox'],
+    input[type='radio'] {
+        accent-color: var(--color-primary);
+    }
 }
