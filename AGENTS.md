@@ -23,6 +23,8 @@ El estado del proyecto, el esquema de base de datos y las fases están en `ROADM
 
 ## Estructura
 
+La estructura actual es definitiva: un solo proyecto con `src/` (Vue) en la raíz y `supabase/` al lado. No separar en `/frontend` y `/backend`, ni mover archivos, `.env.local` o imports.
+
 - `index.html`: punto de entrada de Vite.
 - `src/main.js`, `src/App.vue`: arranque de la app.
 - `src/style.css`: Tailwind y tokens de diseño (`@theme`).

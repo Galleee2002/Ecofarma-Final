@@ -88,46 +88,15 @@ Se importa desde `@/components/ui/pagination`.
 
 | Pieza | Rol |
 |---|---|
-| **Pagination** | Contenedor. `itemsPerPage` es obligatorio. La página actual entra por `page` y avisa el cambio con `update:page` (`v-model:page`). |
+| **Pagination** | Contenedor. `itemsPerPage` es obligatorio. También acepta `total`, `page`, `defaultPage`, `siblingCount`, `disabled` y `showEdges`. La página actual entra por `page` y avisa el cambio con `update:page` (`v-model:page`). El slot recibe `page`. |
 | **PaginationContent** | Fila de controles. El slot recibe `items`: cada ítem es una página (`type: 'page'`, con `value`) o puntos suspensivos (`type: 'ellipsis'`). |
-| **PaginationItem** | Número de página. `value` es obligatorio. `isActive` marca la página actual y usa la variante `outline` de **Button**; el resto usa `ghost`. |
+| **PaginationItem** | Número de página. `value` es obligatorio. `isActive` marca la página actual y usa la variante `outline` de **Button**; el resto usa `ghost`. `size` sale en `icon`. |
 | **PaginationLink** | El mismo control, como enlace con `href`, si la página pasa a vivir en la URL. |
 | **PaginationPrevious** y **PaginationNext** | Página anterior y siguiente. |
 | **PaginationFirst** y **PaginationLast** | Primera y última página. |
 | **PaginationEllipsis** | Puntos suspensivos cuando hay más páginas de las que entran en la fila. |
 
-Los textos que trae el CLI están en inglés (`First`, `Previous`, `Next`, `Last` y `More pages`, este último solo para lectores de pantalla). Al usarlo hay que reemplazarlos por el slot, en español. Los controles toman el estilo de `buttonVariants`.
-
-### Alert y los cuatro tipos de mensaje
-
-**Alert** es el componente que tiene que respetar la regla de mensajes de `AGENTS.md`. El texto sigue en español y el color sale del token que corresponda:
-
-| Tipo | Token | Dónde se usa hoy |
-|---|---|---|
-| Error | `danger` | Fallo de carga, error de formulario, cierre de sesión |
-| Éxito | `success` | Registro, ingreso, datos guardados, donación publicada como `disponible` |
-| Advertencia | `warning` | Cuenta con `is_validado = false`, sugerencias del vademécum que fallan, motivo de rechazo, normas del chat |
-| Informativo | `muted` | Donación en `pendiente_revision`, listas vacías, chat cerrado, código de retiro que no se pudo leer |
-
-Las variantes de `src/components/ui/alert` usan `text-danger`, `border-danger`, `bg-danger/10` y los equivalentes de `success`, `warning` y `muted`. No usar hex ni los colores por defecto de Tailwind (`red-500`, `green-500`, etc.).
-
-### Pagination
-
-[x] Copiado en `src/components/ui/pagination`. No está importado en ninguna vista ni en componentes de dominio.
-
-Sirve para recorrer páginas (anterior, siguiente, número, primera, última y puntos suspensivos). Depende de **Button** (`buttonVariants`), de `reka-ui` y de `@vueuse/core`. Esas dependencias ya estaban; el CLI no instaló paquetes nuevos y no pisó `src/components/ui/button`. `src/style.css` quedó igual: el `add` intenta meter Inter, `tw-animate-css` y variables de tema, y eso no se conservó.
-
-| Pieza | Para qué |
-|---|---|
-| **Pagination** | Contenedor. `itemsPerPage` es obligatoria. También acepta `total`, `page`, `defaultPage`, `siblingCount`, `disabled` y `showEdges`. Emite `update:page`. El slot recibe `page`. |
-| **PaginationContent** | Fila de controles. El slot recibe `items`. Cada ítem es una página (`type === 'page'`, con `value`) o un hueco. |
-| **PaginationItem** | Número de página. `value` es obligatorio. `isActive` marca la página actual. `size` sale en `icon`. |
-| **PaginationLink** | Enlace con `href`, fuera del estado de reka-ui. También tiene `isActive` y `size`. |
-| **PaginationPrevious** / **PaginationNext** | Página anterior y siguiente. |
-| **PaginationFirst** / **PaginationLast** | Primera y última página. |
-| **PaginationEllipsis** | Hueco entre números. |
-
-Los textos por defecto del CLI están en inglés (`Previous`, `Next`, `First`, `Last`, `More pages`). El slot de esos controles reemplaza el ícono y el texto juntos, así que al usarlo hay que poner los dos en español.
+Los textos que trae el CLI están en inglés (`First`, `Previous`, `Next`, `Last` y `More pages`, este último solo para lectores de pantalla). El slot de esos controles reemplaza el ícono y el texto juntos, así que al usarlo hay que poner los dos en español. Los controles toman el estilo de `buttonVariants`.
 
 ```vue
 <script setup>
@@ -169,6 +138,19 @@ import {
   </Pagination>
 </template>
 ```
+
+### Alert y los cuatro tipos de mensaje
+
+**Alert** es el componente que tiene que respetar la regla de mensajes de `AGENTS.md`. El texto sigue en español y el color sale del token que corresponda:
+
+| Tipo | Token | Dónde se usa hoy |
+|---|---|---|
+| Error | `danger` | Fallo de carga, error de formulario, cierre de sesión |
+| Éxito | `success` | Registro, ingreso, datos guardados, donación publicada como `disponible` |
+| Advertencia | `warning` | Cuenta con `is_validado = false`, sugerencias del vademécum que fallan, motivo de rechazo, normas del chat |
+| Informativo | `muted` | Donación en `pendiente_revision`, listas vacías, chat cerrado, código de retiro que no se pudo leer |
+
+Las variantes de `src/components/ui/alert` usan `text-danger`, `border-danger`, `bg-danger/10` y los equivalentes de `success`, `warning` y `muted`. No usar hex ni los colores por defecto de Tailwind (`red-500`, `green-500`, etc.).
 
 ---
 

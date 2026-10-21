@@ -17,6 +17,8 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 
 ## 2. Estado
 
+Las fases 1 a 9 están cerradas en funcionalidad. La interfaz de esas pantallas es un wireframe bajo/medio: los componentes de shadcn/vue y los tokens ya están puestos, y la composición (jerarquía, espaciado, agrupación) sigue siendo la de una prueba. Ese es el trabajo actual, en la sección 5. La landing (Fase 10) sigue sin maquetar.
+
 - [x] Entorno inicial con Vue + Tailwind y conexión a Supabase vía variables `VITE_SUPABASE_*`.
 - [x] Tokens de diseño en Tailwind (paleta y tipografías).
 - [x] Base de datos limpia: eliminar las tablas que habían creado las migraciones de Laravel.
@@ -27,15 +29,18 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 - [x] Documentación académica de la base de datos, RLS y grants en `docs/base-de-datos.md`.
 - [x] Migración `realtime_solicitud_mensajes`: `solicitud_mensajes` en la publicación `supabase_realtime` (Postgres Changes), aplicada al proyecto remoto.
 - [x] `supabase/seed.sql` con el vademécum Remediar, 2 usuarios de prueba y 5 donaciones `disponible`, aplicado al proyecto remoto.
-- [x] Catálogo público en `/catalogo` (router mínimo, estilos mínimos): composable `useMedicamentos` con la consulta a Supabase, búsqueda y manejo de errores, y los componentes de búsqueda, grilla y card.
-- [x] Registro, login y logout en `/registro` y `/login` (estilos mínimos): composable `useAuth`, formularios en `components/auth/` y `BarraNavegacion` con el usuario y «Cerrar sesión».
+- [x] Catálogo público en `/catalogo`: composable `useMedicamentos` con la consulta a Supabase, búsqueda y manejo de errores, y los componentes de búsqueda, grilla y card.
+- [x] Registro, login y logout en `/registro` y `/login`: composable `useAuth`, formularios en `components/auth/` y `BarraNavegacion` con el usuario y «Cerrar sesión».
 - [x] Migración `validar_registro`: `handle_new_user` rechaza el alta sin DDJJ aceptada o sin datos obligatorios, aplicada al proyecto remoto.
-- [x] Fase 4 (estilos mínimos): sesión persistida en el guard, rutas protegidas con `meta.requiereSesion` / `meta.soloInvitados`, y `/perfil` con edición de datos y pestañas «Mis donaciones» y «Mis solicitudes» (composables `usePerfil`, `useDonaciones`, `useSolicitudes`).
-- [x] Fase 5 (estilos mínimos): formulario de donación en `/donar` con sugerencias del vademécum (`useVademecum`), bucket `fotos-envases` (migración `bucket_fotos_envases`) y Edge Function `publicar-medicamento` en JavaScript. Pendiente aplicarlas al proyecto remoto (`db push` y `functions deploy`).
-- [x] Fase 6 (estilos mínimos): vista pública `/medicamento/:id`, botón «Solicitar» con gates, bucket `recetas-medicas` (migración `bucket_recetas_medicas`) y Edge Function `crear-solicitud` en JavaScript. Pendiente aplicarlas al proyecto remoto (`db push` y `functions deploy crear-solicitud`).
-- [x] Fase 8 (estilos mínimos): rutas `/admin/*` con guard de `rol = 'admin'`, pestañas de moderación y alta del vademécum, Edge Functions `moderar-donacion` y `alta-medicamento-habilitado` en JavaScript. Pendiente desplegarlas al proyecto remoto (`functions deploy`).
-- [x] Fase 9: gestión de cuentas en `/admin/usuarios` (búsqueda, filtros, Table) y Edge Function `gestionar-usuarios` para listar con email, suspender, rehabilitar, promover o revocar. Pendiente desplegarla al proyecto remoto (`functions deploy gestionar-usuarios`).
-- [ ] Frontend de las funcionalidades actuales: decidir la estructura de carpetas con el equipo y empezar. Inventario y endpoints en la sección 5.
+- [x] Fase 4: sesión persistida en el guard, rutas protegidas con `meta.requiereSesion` / `meta.soloInvitados`, y `/perfil` con edición de datos y pestañas «Mis donaciones» y «Mis solicitudes» (composables `usePerfil`, `useDonaciones`, `useSolicitudes`).
+- [x] Fase 5: formulario de donación en `/donar` con sugerencias del vademécum (`useVademecum`), bucket `fotos-envases` (migración `bucket_fotos_envases`) y Edge Function `publicar-medicamento` en JavaScript. Migración y función aplicadas al proyecto remoto.
+- [x] Fase 6: vista pública `/medicamento/:id`, botón «Solicitar» con gates, bucket `recetas-medicas` (migración `bucket_recetas_medicas`) y Edge Function `crear-solicitud` en JavaScript. Migración y función aplicadas al proyecto remoto.
+- [x] Fase 7: chat, `confirmar-entrega` y `cancelar-solicitud`. Funciones aplicadas al proyecto remoto.
+- [x] Fase 8: rutas `/admin/*` con guard de `rol = 'admin'`, pestañas de moderación y alta del vademécum, Edge Functions `moderar-donacion` y `alta-medicamento-habilitado` en JavaScript. Funciones aplicadas al proyecto remoto.
+- [x] Fase 9: gestión de cuentas en `/admin/usuarios` (búsqueda, filtros, Table) y Edge Function `gestionar-usuarios` para listar con email, suspender, rehabilitar, promover o revocar. Función aplicada al proyecto remoto.
+- [x] Componentes de shadcn/vue en las pantallas de las fases 2 a 9. El detalle está en `docs/shadcn/vue-implementacion.md`. La landing no entra.
+- [ ] Fidelidad alta de esas pantallas (sección 5). La funcionalidad se queda como está.
+- [ ] Fase 10: landing.
 
 ### Decisiones de modelo
 
@@ -82,18 +87,17 @@ Tokens definidos en `@theme` de `src/style.css`; fuentes cargadas desde Bunny Fo
 | `background` | `#EEF4F6` | Contextual: Blanco Hielo (fondo de página) |
 | `foreground` | `#1A1A1A` | Contextual: Negro (texto) |
 | `muted` | `#6C757D` | Contextual: Muted Gray (informativo / texto secundario) |
+| `primary-soft` | `#CEDCEB` | Fondo suave. En `@theme` alimenta el alias `accent` de los componentes. |
 
-### Pendiente: componentes shadcn/vue
+### Componentes shadcn/vue
 
-Los componentes de `src/components/ui` ya están copiados. El catálogo, el detalle y la solicitud, el ingreso, el registro, el perfil, publicar donación, el chat, la moderación, el alta del vademécum, la gestión de usuarios y la barra de navegación usan esos componentes con los tokens de esta sección. La moderación usa **Select** para vincular una fila del vademécum. La gestión de usuarios usa **Table** y **Select** para filtros. `secondary` e `icon` se usan en los enlaces activos de la barra, el saludo y las fechas de vencimiento. La landing sigue sin maquetar.
+Hecho en las pantallas de las fases 2 a 9. El inventario de componentes, las variantes de Alert y lo que no hay que traer están en `docs/shadcn/vue-implementacion.md`.
 
-Cuando se pida, se puede sumar sin cambiar el stack (Vue 3, Vite, Tailwind CSS 4, JavaScript y pnpm):
+Esos componentes cubren los controles (botones, campos, cards, badges, alertas, pestañas, y el resto de esa lista). La moderación usa **Select** para vincular una fila del vademécum. La gestión de usuarios usa **Table** y **Select** para filtros. `secondary` e `icon` se usan en los enlaces activos de la barra, el saludo y las fechas de vencimiento.
 
-- El CLI copia cada componente al proyecto (por ejemplo `src/components/ui`). No es un paquete cerrado.
-- Los componentes se generan en JavaScript (`typescript: false` en `components.json`). El proyecto sigue sin TypeScript.
-- Se conservan `src/style.css`, los tokens de esta sección y las fuentes de `index.html`. El init no reemplaza ese archivo.
-- El alias `@` en Vite y un `jsconfig.json` alcanzan para los imports. Siguen siendo Vue, Vite y Tailwind.
-- Las dependencias de apoyo (`reka-ui`, `clsx`, `tailwind-merge`, `class-variance-authority`, `lucide-vue-next`) acompañan a los componentes. No reemplazan Vue, Vite ni Tailwind.
+Tener el componente no sube la fidelidad. Cada vista sigue siendo un `main` en columna (`max-w-*`, `gap-4`, `p-6`) con un título y los controles apilados. La barra es una fila de enlaces. Cargar es un párrafo «Cargando…». La sección 5 arma la fidelidad alta con estos componentes y con los tokens de arriba, sin reemplazar `src/style.css` y sin sumar Form, toasts ni modales.
+
+Pagination está copiado en `src/components/ui/pagination` y no se usa en ninguna pantalla. Skeleton y Alert dialog siguen opcionales, como en ese documento. La landing no usa estos componentes todavía: no tiene pantalla.
 
 ---
 
@@ -188,7 +192,9 @@ Mensajería de coordinación del punto de encuentro en tiempo real, con RLS: sol
 
 ## 4. Fases de Implementación
 
-El orden sigue el Trello: primero lo que ya está hecho, después el Sprint Backlog y luego el Backlog en el orden de las tarjetas. En el tablero, #27 y #24 tienen el título cruzado con el contenido; cada fase de abajo usa el «Qué hacer» de la tarjeta.
+Las fases 1 a 9 están hechas en funcionalidad. El detalle de cada una queda abajo como registro de decisiones. La interfaz de esas pantallas se trabaja en la sección 5. La Fase 10 es lo único que falta del tablero y va después de esa fidelidad.
+
+El orden original siguió el Trello. En el tablero, #27 y #24 tienen el título cruzado con el contenido; cada fase de abajo usa el «Qué hacer» de la tarjeta.
 
 Confirmar la entrega, cancelar una solicitud, dar de alta el vademécum y avisar al donante por mail no están en ninguna tarjeta. Quedan en la fase del flujo que cierran.
 
@@ -210,7 +216,7 @@ Consulta directa a `medicamentos` desde Vue, sin login. El clic a la ficha ya es
 - [x] Política RLS de lectura pública de medicamentos `disponible` con `fecha_vencimiento >= current_date` (incluida en la migración `rls_policies`).
 - [x] Traer solo `estado = 'disponible'` y `fecha_vencimiento >= hoy`.
 - [x] Buscador reactivo (`v-model`) por `nombre_comercial` o `principio_activo`.
-- [x] Grilla con cards: primera foto del envase, nombre, principio activo, concentración y fecha de vencimiento (en `/catalogo`, router y estilos mínimos).
+- [x] Grilla con cards: primera foto del envase, nombre, principio activo, concentración y fecha de vencimiento (en `/catalogo`). La composición visual pasa a la sección 5.
 - [x] Al hacer clic en una tarjeta, ir a `/medicamento/:id` (`RouterLink` en `MedicamentoCard.vue`). La vista de destino es la Fase 6.
 
 ### Fase 3: Autenticación y validación de usuario (Trello #19, Sprint Backlog)
@@ -283,8 +289,9 @@ Decisiones tomadas:
 - La coincidencia con el vademécum es exacta (`.eq` sobre los tres campos), no con `ilike`, porque el `%` de valores como «2 %» actuaría de comodín. Sin concentración o sin forma farmacéutica no hay coincidencia y la donación va a `pendiente_revision`.
 - La fecha de hoy en la Edge Function se calcula con la zona horaria de Argentina, para no rechazar vencimientos válidos por la diferencia con UTC.
 - Al publicar, `disponible` se avisa con `success` y `pendiente_revision` con `muted`. El formulario se vacía cambiando su `key`.
+- Migración `bucket_fotos_envases` y Edge Function `publicar-medicamento` aplicadas al proyecto remoto.
 
-- [x] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos (estilos mínimos).
+- [x] Formulario en Vue: datos del fármaco, lote, vencimiento y hasta 3 fotos. La composición visual pasa a la sección 5.
 - [x] Bucket de Storage `fotos-envases` para las fotos de envases (migración `bucket_fotos_envases`).
 - [x] Edge Function `publicar-medicamento`: rechaza la publicación si el donante tiene `is_validado = false` (decisión de la Fase 3). Busca en `medicamentos_habilitados` por `principio_activo` + `concentracion` + `forma_farmaceutica`. Si coincide, guarda `medicamento_habilitado_id` y queda `disponible`. Si no, queda en `pendiente_revision` con el vínculo en `NULL`.
 
@@ -299,7 +306,7 @@ Decisiones tomadas:
 - Sin sesión: CTA «Iniciar sesión para solicitar» → `/login?redirect=<ruta>`. Con sesión y `is_validado = false`: aviso `warning` y botón deshabilitado (mismo patrón que donar). Con sesión validada: checkbox de DDJJ del receptor; el botón «Solicitar» solo se habilita si está marcado (y si aplica, con receta y destinatario).
 - Bucket `recetas-medicas` privado (migración `bucket_recetas_medicas`): 5 MB, solo JPG, PNG o WEBP. Cada usuario sube, ve y borra solo en su carpeta (`<user_id>/<uuid>.<extensión>`). El frontend sube la receta (si hace falta) y después invoca `crear-solicitud` con la URL de `getPublicUrl`; si la función falla, borra el archivo subido.
 - `crear-solicitud` tiene `verify_jwt = false` (mismo motivo que `publicar-medicamento`): valida el JWT con `auth.getUser(token)`. Rechaza si `is_validado = false`, si el receptor es el donante, si falta DDJJ, si falta destinatario con `es_para_tercero`, o si falta receta cuando no hay vínculo al vademécum o `requiere_receta = true`. Reserva el medicamento con `update … where estado = 'disponible'` (si 0 filas → 409). Genera el código de 6 dígitos y no lo devuelve en la respuesta: el receptor lo ve en «Mis solicitudes» con `rpc('obtener_codigo_confirmacion')`. Si el insert de la solicitud falla, revierte el medicamento a `disponible`.
-- Pendiente en remoto: `pnpm supabase db push` y `pnpm supabase functions deploy crear-solicitud`.
+- Migración `bucket_recetas_medicas` y Edge Function `crear-solicitud` aplicadas al proyecto remoto.
 
 - [x] Vista `/medicamento/:id` con especificaciones y fotos, y su ruta en `src/router/index.js` (el enlace desde la tarjeta del catálogo ya existe, Fase 2).
 - [x] Botón «Solicitar»: exige sesión, `is_validado` y DDJJ del receptor.
@@ -316,6 +323,7 @@ Decisiones tomadas:
 - Las dos actualizaciones son condicionales. Si el medicamento no cambia, la función vuelve la solicitud al estado anterior.
 - La cuenta con `is_validado = false` no puede confirmar ni cancelar. El paso a `en_camino` no se implementa en esta fase: confirmar y cancelar valen desde `pendiente_coordinacion`.
 - En el chat, el donante ve el formulario del código y las dos partes ven la cancelación, con una confirmación en la misma pantalla. Al terminar, el chat se recarga y deja de admitir mensajes.
+- Edge Functions `confirmar-entrega` y `cancelar-solicitud` aplicadas al proyecto remoto. Esta fase no sumó migración.
 
 - [x] Suscripción Realtime a `solicitud_mensajes`, envío de mensajes y scroll automático.
 - [x] Botón de acceso al chat desde «Mis solicitudes» (`components/perfil/ListaMisSolicitudes.vue`) y desde las donaciones `reservado` del donante.
@@ -336,7 +344,7 @@ Decisiones tomadas:
 - `moderar-donacion` solo acepta donaciones en `pendiente_revision`, `disponible` o `rechazado`. Corregir actualiza los datos del fármaco sin tocar fotos, `user_id`, `estado` ni el vínculo. Aprobar deja `disponible`, guarda `medicamento_habilitado_id` y limpia `motivo_rechazo`. Rechazar exige un motivo y deja `rechazado`.
 - `alta-medicamento-habilitado` exige `principio_activo`. Si ya existe la misma combinación de principio activo, concentración y forma, no inserta y avisa para usar esa fila al aprobar.
 - `useVademecum` ahora trae el `id` de cada fila para el desplegable de aprobación. Las sugerencias de `/donar` siguen usando los mismos campos.
-- Pendiente en remoto: `pnpm supabase functions deploy moderar-donacion` y `pnpm supabase functions deploy alta-medicamento-habilitado`.
+- Edge Functions `moderar-donacion` y `alta-medicamento-habilitado` aplicadas al proyecto remoto.
 
 - [x] Rutas `/admin/*` restringidas a `rol = 'admin'` (guard en Vue y verificación en RLS y Edge Functions).
 - [x] Pestañas Pendientes (con contador), Disponibles y Rechazados: ver fotos y vencimiento, corregir datos, aprobar (`disponible`, vinculando `medicamento_habilitado_id`) o rechazar (`rechazado` + motivo en `motivo_rechazo`). El donante ve el resultado en «Mis donaciones»; el mail queda para más adelante.
@@ -352,40 +360,57 @@ Decisiones tomadas:
 - `/admin/usuarios` usa `meta.requiereSesion` y `meta.requiereAdmin`. El guard de la Fase 8 cubre la ruta. Suspender no cierra `/admin` ni las Edge Functions de admin: solo cambia `profiles.is_validado`. Para sacar el acceso de admin hay que revocar el rol. Rol e `is_validado` son independientes.
 - `gestionar-usuarios` rechaza actuar sobre la propia cuenta (403) y rechaza revocar si quedaría cero admins (409). No banea en Auth ni cierra la sesión de la otra persona.
 - La búsqueda por nombre, email o DNI y los filtros por estado y rol se hacen en memoria, como el catálogo. La confirmación de cada acción es un segundo paso en la fila, sin modal.
-- Pendiente en remoto: `pnpm supabase functions deploy gestionar-usuarios`. No hace falta `db push`.
+- Edge Function `gestionar-usuarios` aplicada al proyecto remoto. No hubo migración nueva en esta fase.
 
 - [x] Vista para consultar `profiles`, con búsqueda por nombre, email o DNI y filtros por estado y rol.
 - [x] Suspender o rehabilitar (`is_validado`) y promover o revocar admin. Va en una Edge Function porque el email vive en `auth.users`.
 
 ### Fase 10: Landing (Trello #18)
 
-Última del tablero. Estilos mínimos hasta esta fase.
+Última del tablero. Empieza cuando la sección 5 cierre la fidelidad de las pantallas que ya existen. Hoy `/` redirige al catálogo. Esta fase sí crea pantallas nuevas: Inicio, Información/Ayuda, Sobre nosotros, Contacto y Legales.
 
 - [ ] Vue Router con las secciones de la arquitectura de información: Inicio, Información/Ayuda, Donar, Recibir, Sobre nosotros, Contacto y Legales.
 - [ ] Home responsive con los colores y tipografías del UI Kit: propósito social y ambiental, cómo donar y cómo recibir, canales de contacto y enlaces al catálogo.
 
 ---
 
-## 5. Pendiente: frontend de las funcionalidades actuales
+## 5. Fidelidad visual de las pantallas actuales
 
-To-do sin fecha. Con la Fase 4 cerrada, las funcionalidades de las Fases 2 a 4 ya andan con estilos mínimos; falta construir su frontend definitivo. Esta sección junta lo que hace falta saber para empezar.
+Trabajo actual. Las fases 1 a 9 funcionan y sus pantallas ya usan `src/components/ui`. La lectura sigue siendo de wireframe bajo/medio. Hay que subirlas a fidelidad alta con lo que ya está: tokens, fuentes y los componentes que cada pantalla usa. El inventario de abajo es el mapa. El detalle de qué componente traer y cuál no está en `docs/shadcn/vue-implementacion.md`.
 
-- [ ] Definir con el equipo dónde vive el frontend (decisión pendiente).
-- [ ] Construir el frontend de las funcionalidades del inventario de abajo.
+### Qué se conserva
 
-### Decisión pendiente: estructura de carpetas
+- La estructura de carpetas (opción A): `src/` en la raíz y `supabase/` al lado. No se mueve nada.
+- Rutas, vistas, composables y llamadas a Supabase del inventario.
+- Tokens, fuentes y alias de `src/style.css`.
+- Mensajes en español con el color del token (`danger`, `success`, `warning`, `muted`).
+- El `<datalist>` de `/donar`.
+- Las confirmaciones en la misma pantalla del chat y de la gestión de usuarios.
 
-- **Opción A, la actual:** un solo proyecto con `src/` (Vue) en la raíz y `supabase/` al lado. No hay que mover nada.
-- **Opción B:** separar en `/frontend` (Vue + Vite + Tailwind, con su `package.json`) y `/backend` (carpeta `supabase/` con migraciones, seed y Edge Functions).
-- Si se elige la B, antes de empezar:
-  - Mover los archivos y actualizar la sección «Estructura» y los «Comandos» de `AGENTS.md`.
-  - Definir desde qué carpeta se corre `pnpm supabase` (la CLI es dependencia del proyecto).
-  - Mover `.env.local` a `/frontend`.
-  - Revisar los imports relativos.
+### Qué se trabaja
+
+La composición de cada pantalla: jerarquía, espaciado, agrupación de la información y los estados de carga, vacío, error y éxito. El flujo se comporta igual que ahora.
+
+Orden, de la cáscara hacia las pantallas de uso:
+
+- [ ] Barra de navegación, en todas las rutas (`components/layout/BarraNavegacion`).
+- [ ] Catálogo, `/catalogo`.
+- [ ] Detalle y solicitud, `/medicamento/:id`.
+- [ ] Ingreso y registro, `/login` y `/registro`.
+- [ ] Perfil, `/perfil` (datos, donaciones y solicitudes).
+- [ ] Publicar donación, `/donar`.
+- [ ] Chat, `/solicitud/:solicitudId/chat`.
+- [ ] Administración: `/admin/donaciones`, `/admin/vademecum` y `/admin/usuarios`.
+
+Una pantalla se marca cuando se lee como pantalla terminada de EcoFARMA y el flujo sigue igual: mismos campos, mismas validaciones y las mismas llamadas a Supabase.
+
+### Estructura de carpetas
+
+Decisión tomada. Se mantiene un solo proyecto con `src/` (Vue) en la raíz y `supabase/` al lado. No se separa en `/frontend` y `/backend`. No hay que mover archivos, `.env.local` ni imports.
 
 ### Inventario de lo que ya existe
 
-Rutas actuales en `src/` (si se elige la opción B, quedan dentro de `/frontend/src/`). Todo consume Supabase con el cliente único de `src/lib/supabase.js` y la `anon` key; RLS decide qué filas ve cada usuario.
+Rutas actuales en `src/`. Todo consume Supabase con el cliente único de `src/lib/supabase.js` y la `anon` key; RLS decide qué filas ve cada usuario.
 
 | Funcionalidad | Ruta | Vista y componentes | Composable | Qué consume de Supabase |
 |---|---|---|---|---|
