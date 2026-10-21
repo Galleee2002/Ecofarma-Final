@@ -204,8 +204,6 @@ export function useAuth() {
             return false;
         }
 
-        tipoMensaje.value = 'exito';
-        mensajeExito.value = 'Tu cuenta se creó correctamente. ¡Te damos la bienvenida a EcoFARMA!';
         return true;
     }
 
@@ -232,8 +230,6 @@ export function useAuth() {
             return false;
         }
 
-        tipoMensaje.value = 'exito';
-        mensajeExito.value = 'Iniciaste sesión correctamente.';
         return true;
     }
 
@@ -251,8 +247,6 @@ export function useAuth() {
             return false;
         }
 
-        tipoMensaje.value = 'cierre';
-        mensajeExito.value = 'Cerraste sesión correctamente.';
         return true;
     }
 

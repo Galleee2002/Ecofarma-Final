@@ -95,7 +95,9 @@ Hecho en las pantallas de las fases 2 a 9. El inventario de componentes, las var
 
 Esos componentes cubren los controles (botones, campos, cards, badges, alertas, pestañas, y el resto de esa lista). La moderación usa **Select** para vincular una fila del vademécum. La gestión de usuarios usa **Table** y **Select** para filtros. `secondary` e `icon` se usan en los enlaces activos de la barra, el saludo y las fechas de vencimiento.
 
-Tener el componente no sube la fidelidad. Cada vista sigue siendo un `main` en columna (`max-w-*`, `gap-4`, `p-6`) con un título y los controles apilados. La barra es una fila de enlaces. Cargar es un párrafo «Cargando…». La sección 5 arma la fidelidad alta con estos componentes y con los tokens de arriba, sin reemplazar `src/style.css` y sin sumar Form, toasts ni modales.
+Tener el componente no sube la fidelidad. Cada vista sigue siendo un `main` en columna (`max-w-*`, `gap-4`, `p-6`) con un título y los controles apilados. La barra es una fila de enlaces. Cargar es un párrafo «Cargando…». La sección 5 arma la fidelidad alta con estos componentes y con los tokens de arriba, sin reemplazar `src/style.css` y sin sumar Form.
+
+Sonner está en `src/components/ui/sonner`. El resultado de ingresar, cerrar sesión, registrarse y publicar una donación sale arriba, dura unos 3 segundos y vuelve hacia arriba. Fondo blanco y texto negro; el borde de éxito usa `success` y el de revisión usa `icon`. Los errores siguen en Alert. Los radios de `src/style.css` son `0.5rem`, `0.75rem` y `1rem`.
 
 Pagination está copiado en `src/components/ui/pagination` y no se usa en ninguna pantalla. Skeleton y Alert dialog siguen opcionales, como en ese documento. La landing no usa estos componentes todavía: no tiene pantalla.
 
@@ -229,10 +231,10 @@ Decisiones tomadas:
 - DNI repetido: el error del trigger llega genérico («Database error saving new user»), así que se muestra un mensaje general («No pudimos crear la cuenta. Verificá que el DNI no esté registrado.»). No se agrega una RPC pública para consultar DNIs, porque permitiría averiguar qué DNIs están registrados.
 - La DDJJ y los datos obligatorios también se validan en la base, no solo en el formulario: como `signUp` se puede llamar directo contra la API, una migración nueva reemplaza `handle_new_user` para cancelar el registro si `acepto_ddjj` no es `true` o falta `name`, `dni`, `telefono`, `direccion` o `localidad`. Los usuarios del seed ya traen esos metadatos.
 - Rama de trabajo: `feature03/autenticacion`, creada desde `dev`.
-- `useAuth` comparte entre vistas la sesión, el perfil y el último mensaje (`mensajeExito` + `tipoMensaje`); `cargando` y `error` son propios de cada vista, para que el error de una pantalla no aparezca en otra.
+- `useAuth` comparte entre vistas la sesión, el perfil y el aviso de admin (`mensajeExito` + `tipoMensaje`); `cargando` y `error` son propios de cada vista, para que el error de una pantalla no aparezca en otra. El resultado de ingresar, registrarse y cerrar sesión es un toast de Sonner, no ese aviso.
 - La sesión se escucha solo con `onAuthStateChange`: el evento `INITIAL_SESSION` trae la sesión guardada al recargar, sin llamar a `getSession`. El perfil se carga con `setTimeout` fuera del callback (recomendación de Supabase para no trabar el cliente) y solo cuando cambia el usuario, no en cada renovación del token.
 - El perfil se consulta con todas sus columnas de dominio aunque hoy solo se muestra `name`: `dni`, `telefono`, `direccion` y `localidad` se usan en la Fase 4 y `rol` / `is_validado` en los guards y el admin.
-- Los mensajes de registro e ingreso usan `success`; el de cierre de sesión usa `danger` por decisión del equipo.
+- Los mensajes de registro, ingreso y cierre de sesión usan `success` en un toast de Sonner de unos 3 segundos.
 - `is_validado` para donar y solicitar: no se agrega una política RLS nueva. Donar y solicitar solo se hacen con las Edge Functions `publicar-medicamento` y `crear-solicitud`, que usan la `service_role` key y no pasan por RLS; por eso cada Edge Function lee el perfil del usuario del JWT y responde 403 con `{ "error": "..." }` si `is_validado = false`. RLS ya cubre la otra vía: sin políticas de `INSERT` en `medicamentos` ni en `solicitudes`, nadie puede insertar directo con la `anon` key.
 - Email rechazado por Supabase (`email_address_invalid`): Supabase Auth bloquea direcciones que considera falsas o no entregables aunque el formato sea correcto (por ejemplo, `holamundo@gmail.com`). Para probar el registro usar emails reales.
 - Persistir la sesión en los guards y proteger las rutas privadas pasan a la Fase 4: todavía no existe ninguna ruta privada, y `/perfil` es la primera. Se hacen en la misma rama que el perfil, para probar el guard con una ruta real en lugar de una vista de prueba.
@@ -376,7 +378,7 @@ Decisiones tomadas:
 
 ## 5. Fidelidad visual de las pantallas actuales
 
-Trabajo actual. Las fases 1 a 9 funcionan. `src/style.css` ya tiene la escala, los radios, las sombras, el borde y la superficie blanca de tarjetas y diálogos. Los controles de `src/components/ui` usan esos tokens, con hover, focus, disabled, carga (`cargando` en el botón), error (`aria-invalid` y Alert) y éxito (Alert y Badge). La barra usa Navigation Menu y las confirmaciones de cerrar sesión, cancelar solicitud, rechazar donación y acciones de cuenta usan Dialog. Cada vista usa `pagina`, `pagina-media` o `pagina-formulario`. Falta el pulido fino de cada pantalla hasta que se lea como terminada. La landing no entra. El detalle de componentes está en `docs/shadcn/vue-implementacion.md`.
+Trabajo actual. Las fases 1 a 9 funcionan. `src/style.css` ya tiene la escala, los radios, las sombras, el borde y la superficie blanca de tarjetas y diálogos. Los controles de `src/components/ui` usan esos tokens, con hover, focus, disabled, carga (`cargando` en el botón), error (`aria-invalid` y Alert) y éxito (Sonner al ingresar, cerrar sesión, registrarse y donar; Alert y Badge en el resto). La barra usa Navigation Menu y las confirmaciones de cerrar sesión, cancelar solicitud, rechazar donación y acciones de cuenta usan Dialog. Cada vista usa `pagina`, `pagina-media` o `pagina-formulario`. Falta el pulido fino de cada pantalla hasta que se lea como terminada. La landing no entra. El detalle de componentes está en `docs/shadcn/vue-implementacion.md`.
 
 ### Qué se conserva
 

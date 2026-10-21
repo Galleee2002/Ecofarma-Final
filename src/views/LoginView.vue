@@ -1,4 +1,5 @@
 <script setup>
+import { toast } from 'vue-sonner';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
 import FormularioLogin from '../components/auth/FormularioLogin.vue';
@@ -12,6 +13,8 @@ async function ingresar(email, password) {
     if (!ingreso) {
         return;
     }
+
+    toast.success('Iniciaste sesión correctamente.');
 
     const destino = route.query.redirect;
     if (typeof destino === 'string' && destino.startsWith('/')) {

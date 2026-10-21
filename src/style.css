@@ -47,9 +47,9 @@
     --color-accent: var(--color-primary-soft);
     --color-accent-foreground: var(--color-foreground);
 
-    --radius-sm: 0.25rem;
-    --radius-md: 0.375rem;
-    --radius-lg: 0.75rem;
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
 
     --shadow-sm: 0 1px 2px rgb(33 91 141 / 0.08);
     --shadow-md: 0 4px 12px rgb(33 91 141 / 0.1);

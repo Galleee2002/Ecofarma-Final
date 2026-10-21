@@ -25,14 +25,6 @@ const props = defineProps({
         type: String,
         required: true,
     },
-    mensaje: {
-        type: String,
-        required: true,
-    },
-    tipoMensaje: {
-        type: String,
-        required: true,
-    },
     cuentaSuspendida: {
         type: Boolean,
         required: true,
@@ -139,12 +131,12 @@ function enviar() {
 </script>
 
 <template>
-    <form class="flex flex-col gap-4" novalidate @submit.prevent="enviar">
-        <Alert v-if="cuentaSuspendida" variant="warning">
+    <form class="grid grid-cols-1 gap-4 lg:grid-cols-2" novalidate @submit.prevent="enviar">
+        <Alert v-if="cuentaSuspendida" variant="warning" class="lg:col-span-2">
             <p>Tu cuenta está suspendida, no podés publicar donaciones.</p>
         </Alert>
 
-        <Alert v-if="errorSugerencias !== ''" variant="warning">
+        <Alert v-if="errorSugerencias !== ''" variant="warning" class="lg:col-span-2">
             <p>{{ errorSugerencias }}</p>
         </Alert>
 
@@ -210,12 +202,12 @@ function enviar() {
             <Input id="donacion-vencimiento" v-model="datos.fecha_vencimiento" type="date" :min="fechaMinima" />
         </div>
 
-        <div class="flex flex-col gap-1">
+        <div class="flex flex-col gap-1 lg:col-span-2">
             <Label for="donacion-descripcion">Descripción (opcional)</Label>
             <Textarea id="donacion-descripcion" v-model="datos.descripcion" rows="3" />
         </div>
 
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-2 lg:col-span-2">
             <Label for="donacion-fotos">Fotos del envase (de 1 a 3, JPG, PNG o WEBP, hasta 5 MB cada una)</Label>
             <input
                 id="donacion-fotos"
@@ -238,15 +230,11 @@ function enviar() {
             </ul>
         </div>
 
-        <Alert v-if="error !== ''" variant="danger">
+        <Alert v-if="error !== ''" variant="danger" class="lg:col-span-2">
             <p>{{ error }}</p>
         </Alert>
 
-        <Alert v-if="mensaje !== ''" :variant="tipoMensaje === 'exito' ? 'success' : 'muted'">
-            <p>{{ mensaje }}</p>
-        </Alert>
-
-        <Button type="submit" :cargando="cargando" :disabled="cuentaSuspendida">
+        <Button type="submit" class="lg:col-span-2 lg:w-fit" :cargando="cargando" :disabled="cuentaSuspendida">
             Publicar donación
         </Button>
     </form>

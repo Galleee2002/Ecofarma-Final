@@ -1,4 +1,5 @@
 <script setup>
+import { toast } from 'vue-sonner';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
 import FormularioRegistro from '../components/auth/FormularioRegistro.vue';
@@ -9,6 +10,7 @@ const { cargando, error, registrarse } = useAuth();
 async function registrar(datos) {
     const registrado = await registrarse(datos);
     if (registrado) {
+        toast.success('Tu cuenta se creó correctamente. ¡Te damos la bienvenida a EcoFARMA!');
         router.push({ name: 'catalogo' });
     }
 }

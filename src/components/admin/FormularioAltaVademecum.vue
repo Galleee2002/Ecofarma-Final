@@ -49,7 +49,7 @@ function enviar() {
 </script>
 
 <template>
-    <form class="flex flex-col gap-4" novalidate @submit.prevent="enviar">
+    <form class="grid grid-cols-1 gap-4 lg:grid-cols-2" novalidate @submit.prevent="enviar">
         <div class="flex flex-col gap-1">
             <Label for="vademecum-principio">Principio activo</Label>
             <Input id="vademecum-principio" v-model="datos.principio_activo" type="text" />
@@ -80,15 +80,15 @@ function enviar() {
             <Label for="vademecum-receta">Requiere receta</Label>
         </div>
 
-        <Alert v-if="error !== ''" :variant="varianteError()">
+        <Alert v-if="error !== ''" :variant="varianteError()" class="lg:col-span-2">
             <p>{{ error }}</p>
         </Alert>
 
-        <Alert v-if="mensaje !== ''" variant="success">
+        <Alert v-if="mensaje !== ''" variant="success" class="lg:col-span-2">
             <p>{{ mensaje }}</p>
         </Alert>
 
-        <Button type="submit" :cargando="cargando">
+        <Button type="submit" class="lg:col-span-2 lg:w-fit" :cargando="cargando">
             Agregar al vademécum
         </Button>
     </form>

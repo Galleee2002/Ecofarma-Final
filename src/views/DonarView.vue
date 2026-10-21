@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { toast } from 'vue-sonner';
 import { Alert } from '@/components/ui/alert';
 import { useAuth } from '../composables/useAuth';
 import { useVademecum } from '../composables/useVademecum';
@@ -19,6 +20,11 @@ const cuentaSuspendida = computed(function () {
 async function publicar(datos, fotos) {
     const publicada = await publicarDonacion(sesion.value.user.id, datos, fotos);
     if (publicada) {
+        if (tipoMensajePublicar.value === 'exito') {
+            toast.success(mensajePublicar.value);
+        } else {
+            toast.info(mensajePublicar.value);
+        }
         claveFormulario.value = claveFormulario.value + 1;
     }
 }
@@ -29,7 +35,7 @@ onMounted(function () {
 </script>
 
 <template>
-    <main class="pagina-formulario">
+    <main class="pagina-media">
         <h1 class="text-2xl font-bold text-primary">Donar un medicamento</h1>
 
         <Alert v-if="errorPerfil !== ''" variant="danger">
@@ -45,8 +51,6 @@ onMounted(function () {
             :error-sugerencias="errorSugerencias"
             :cargando="publicando"
             :error="errorPublicar"
-            :mensaje="mensajePublicar"
-            :tipo-mensaje="tipoMensajePublicar"
             :cuenta-suspendida="cuentaSuspendida"
             @publicar="publicar"
         />

@@ -2,7 +2,7 @@
 
 Los componentes de la sección 2 ya están en `src/components/ui`. **Pagination** también está copiado en `src/components/ui/pagination`, pero no se usa en ninguna pantalla. Las pantallas de las fases 2 a 9 de «Pantallas listas para maquetar» ya están maquetadas. Este documento describe qué ya se trajo, qué falta en las pantallas, qué dejar para después y qué no instalar.
 
-Reglas que siguen valiendo (`AGENTS.md` y `ROADMAP.md`, sección «Pendiente: componentes shadcn/vue»):
+Reglas que siguen valiendo (`AGENTS.md` y `ROADMAP.md`, sección «Componentes shadcn/vue»):
 
 - Vue 3, Vite, Tailwind CSS 4, JavaScript y pnpm. Sin TypeScript.
 - El CLI copia cada componente al proyecto (por ejemplo `src/components/ui`). No es un paquete cerrado.
@@ -58,6 +58,7 @@ Al traer la sección 2, el CLI agregó solo lo que faltaba:
 - [x] `@vueuse/core` (lo usa `ScrollArea`)
 - [x] `class-variance-authority` y `tw-animate-css` ya estaban. `tw-animate-css` sigue como devDependency; no se importó en `src/style.css` para no pisar los tokens ni las fuentes.
 - [x] `@lucide/vue` y el paquete `cn` ya estaban. No se instalaron `lucide-vue-next`, `clsx` ni `tailwind-merge`.
+- [x] `vue-sonner` (lo usa **Sonner**). El CLI lo agregó al traer ese componente. No se importó su CSS en `src/style.css`: entra desde `App.vue`, para no pisar los tokens ni las fuentes.
 
 ---
 
@@ -74,7 +75,8 @@ Cubren los controles de las fases 2 a 9 (catálogo, registro, login, perfil, don
 | [x] | **Checkbox** | DDJJ del registro, DDJJ al solicitar y «es para un tercero» (`FormularioRegistro.vue`, `PanelSolicitar.vue`) |
 | [x] | **Card** | Tarjeta del catálogo (`MedicamentoCard.vue`), ficha del medicamento y cada ítem de «Mis donaciones» y «Mis solicitudes» |
 | [x] | **Badge** | Estados de la donación (En revisión, Disponible, Reservado, Entregado, Rechazado), de la solicitud y de las cuentas (Activa, Suspendida, Administrador, Usuario) |
-| [x] | **Alert** | Errores, éxitos, advertencias y avisos informativos. Variantes `danger`, `success`, `warning` y `muted`. |
+| [x] | **Alert** | Errores, advertencias y avisos que quedan en la pantalla. Variantes `danger`, `success`, `warning` y `muted`. |
+| [x] | **Sonner** | El resultado de ingresar, cerrar sesión, registrarse y publicar una donación. Sale arriba, dura unos 3 segundos y vuelve hacia arriba. Fondo blanco, texto negro. El borde de éxito usa `success` y el de revisión usa `icon`. |
 | [x] | **Tabs** | Las tres pestañas de `/perfil` y las de `/admin/donaciones` (`PerfilView.vue`, `AdminDonacionesView.vue`) |
 | [x] | **Scroll area** | La lista de mensajes del chat (`ListaMensajes.vue`), que ya hace scroll al final |
 | [x] | **Select** | El vínculo al vademécum al aprobar una donación (`TarjetaModeracion.vue`) y los filtros de estado y rol en `/admin/usuarios`. No reemplaza el `<datalist>` de `/donar`. |
@@ -145,12 +147,32 @@ import {
 
 | Tipo | Token | Dónde se usa hoy |
 |---|---|---|
-| Error | `danger` | Fallo de carga, error de formulario, cierre de sesión |
-| Éxito | `success` | Registro, ingreso, datos guardados, donación publicada como `disponible` |
+| Error | `danger` | Fallo de carga, error de formulario, cierre de sesión que falla |
+| Éxito | `success` | Datos guardados y el resto de confirmaciones que quedan en la pantalla. Ingreso, cierre, registro y donación publicada como `disponible` usan **Sonner** |
 | Advertencia | `warning` | Cuenta con `is_validado = false`, sugerencias del vademécum que fallan, motivo de rechazo, normas del chat |
-| Informativo | `muted` | Donación en `pendiente_revision`, listas vacías, chat cerrado, código de retiro que no se pudo leer |
+| Informativo | `muted` | Listas vacías, chat cerrado y código de retiro que no se pudo leer. La donación en `pendiente_revision` avisa con **Sonner**: fondo blanco, texto negro y borde `icon` |
 
 Las variantes de `src/components/ui/alert` usan `text-danger`, `border-danger`, `bg-danger/10` y los equivalentes de `success`, `warning` y `muted`. No usar hex ni los colores por defecto de Tailwind (`red-500`, `green-500`, etc.).
+
+### Sonner
+
+Copiado en `src/components/ui/sonner`. El `Toaster` está en `App.vue`, arriba y al centro (`position="top-center"`), así que entra desde arriba y, a los 3 segundos, sale hacia arriba. Sigue visible si la vista redirige. `duration` es `3000`, con `rich-colors` y `theme="light"`. El radio es `radius-lg`.
+
+El fondo es blanco (`surface`) y el texto es negro (`foreground`). El verde claro no se usa de relleno:
+
+- Éxito: el borde usa `success`.
+- Donación en revisión: el borde usa `icon`.
+- La fuente es `var(--font-sans)`.
+
+| Qué pasó | Dónde se dispara | Toast |
+|---|---|---|
+| Ingreso correcto | `LoginView.vue` | `toast.success` |
+| Cierre correcto | `BarraNavegacion.vue` | `toast.success` con borde `danger` |
+| Cuenta creada | `RegistroView.vue` | `toast.success` |
+| Donación `disponible` | `DonarView.vue` | `toast.success` |
+| Donación `pendiente_revision` | `DonarView.vue` | `toast.info` |
+
+Los textos de la donación se arman en `useDonaciones.js`. La vista elige el toast. Los errores de esos formularios, las advertencias de `/donar` y el aviso «Esta sección es solo para administradores.» siguen en **Alert**.
 
 ---
 
@@ -173,7 +195,6 @@ La fase 10 (landing) es la última del tablero. No anticipar componentes de mark
 |---|---|
 | **Form** | Arrastra `vee-validate` y Zod. La validación ya vive en los composables (`useAuth`, `useDonaciones`, `useSolicitudes`). Con Input, Label, Textarea y Checkbox alcanza, y el proyecto pide sintaxis básica sin librerías de más. |
 | **Combobox** o **Command** para el vademécum al donar | `FormularioDonacion.vue` usa `<datalist>` a propósito. El donante puede escribir un valor que no está en `medicamentos_habilitados`; en ese caso la Edge Function `publicar-medicamento` deja la donación en `pendiente_revision`. Un select cerrado perdería ese comportamiento. El **Select** de shadcn sí se usa en la moderación, donde el admin elige una fila existente. |
-| **Sonner** o **Toast** | Los mensajes están en el formulario o en la barra de navegación, no son notificaciones flotantes. El cierre de sesión, por ejemplo, se muestra en `BarraNavegacion.vue` con un botón «Cerrar». |
 | **Navigation menu**, **Dropdown menu**, **Sheet** | `BarraNavegacion.vue` es un `nav` simple (catálogo, donar, perfil, cerrar sesión). |
 | **Calendar** y selector de fecha de shadcn | Las fechas y horas usan `input type="date"` y `input type="time"` (vencimiento de la donación, día y hora del encuentro). |
 | **Avatar** | No hay fotos de perfil. Las imágenes son fotos de envase y de receta. |
@@ -191,4 +212,4 @@ El input de archivo (fotos del envase y foto de la receta) se queda nativo. shad
 5. [x] Ajustar las variantes de **Alert** a los tokens de `src/style.css` (`danger`, `success`, `warning` y `muted`). **Badge** conserva las variantes del CLI y suma variantes con esos tokens para los estados de donación, de solicitud y de cuenta.
 6. [x] Reemplazar el HTML mínimo de los componentes de dominio (`components/auth`, `components/medicamentos`, `components/donaciones`, `components/perfil`, `components/chat`, `components/layout`). No mover la lógica de Supabase a `src/components/ui`. Al terminar una pantalla, marcar su casillero en «Pantallas listas para maquetar».
 7. [x] Mantener el `<datalist>` del vademécum al maquetar `/donar`. Sigue en `FormularioDonacion.vue`.
-8. [x] No agregar **Form**, toasts ni modales en este paso.
+8. [x] No agregar **Form**. **Sonner** se usa para el resultado de ingresar, cerrar sesión, registrarse y publicar una donación. Los errores siguen en **Alert**.

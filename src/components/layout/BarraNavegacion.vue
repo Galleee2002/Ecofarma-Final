@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { toast } from 'vue-sonner';
 import { useRoute, useRouter } from 'vue-router';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -28,9 +29,6 @@ const { sesion, perfil, errorPerfil, mensajeExito, tipoMensaje, cargando, error,
 const confirmarSalida = ref(false);
 
 function varianteAviso() {
-    if (tipoMensaje.value === 'cierre') {
-        return 'danger';
-    }
     if (tipoMensaje.value === 'advertencia') {
         return 'warning';
     }
@@ -65,6 +63,9 @@ async function salir() {
     const salio = await cerrarSesion();
     if (salio) {
         confirmarSalida.value = false;
+        toast.success('Cerraste sesión correctamente.', {
+            style: { borderColor: 'var(--color-danger)' },
+        });
         router.push({ name: 'catalogo' });
     }
 }
@@ -73,8 +74,8 @@ async function salir() {
 <template>
     <header class="border-b border-primary-soft bg-background">
         <div class="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-4">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-                <div class="flex flex-wrap items-center gap-2">
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
                     <RouterLink :to="{ name: 'catalogo' }" class="font-heading text-lg font-semibold text-primary">
                         EcoFARMA
                     </RouterLink>
@@ -129,7 +130,7 @@ async function salir() {
                     </NavigationMenu>
                 </div>
 
-                <div class="ml-auto flex flex-wrap items-center gap-2">
+                <div class="flex items-center gap-2">
                     <template v-if="sesion === null">
                         <Button variant="outline" size="sm" as-child>
                             <RouterLink :to="{ name: 'login' }">Ingresar</RouterLink>

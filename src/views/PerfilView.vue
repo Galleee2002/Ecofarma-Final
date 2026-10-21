@@ -38,7 +38,7 @@ function abrirPestana(pestana) {
 </script>
 
 <template>
-    <main class="pagina-formulario">
+    <main class="pagina">
         <h1 class="text-2xl font-bold text-primary">Mi perfil</h1>
 
         <Alert v-if="errorPerfil !== ''" variant="danger">

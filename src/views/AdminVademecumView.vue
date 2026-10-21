@@ -30,7 +30,7 @@ onMounted(function () {
 </script>
 
 <template>
-    <main class="pagina-formulario">
+    <main class="pagina-media">
         <h1 class="text-2xl font-bold text-primary">Alta del vademécum</h1>
 
         <NavAdmin />

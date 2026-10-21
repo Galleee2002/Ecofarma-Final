@@ -80,7 +80,7 @@ async function alCancelar() {
 </script>
 
 <template>
-    <main class="pagina-formulario">
+    <main class="pagina">
         <RouterLink :to="{ name: 'perfil' }" class="text-sm text-muted">Volver al perfil</RouterLink>
 
         <h1 class="text-2xl font-bold text-primary">Chat</h1>
@@ -112,37 +112,43 @@ async function alCancelar() {
             <p v-if="solicitud.medicamentos" class="text-lg font-semibold text-primary">{{ solicitud.medicamentos.nombre_comercial }}</p>
             <p v-if="nombreOtro !== ''" class="text-sm text-muted">Con {{ nombreOtro }}</p>
 
-            <ListaMensajes :mensajes="mensajes" :user-id="sesion.user.id" />
+            <div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+                <div class="flex flex-col gap-4">
+                    <ListaMensajes :mensajes="mensajes" :user-id="sesion.user.id" />
 
-            <Alert v-if="cuentaSuspendida" variant="warning">
-                <p>Tu cuenta está suspendida y no podés enviar mensajes.</p>
-            </Alert>
-            <Alert v-else-if="!puedeEscribir" variant="muted">
-                <p>Esta solicitud ya no admite mensajes nuevos. Podés leer los anteriores.</p>
-            </Alert>
+                    <Alert v-if="cuentaSuspendida" variant="warning">
+                        <p>Tu cuenta está suspendida y no podés enviar mensajes.</p>
+                    </Alert>
+                    <Alert v-else-if="!puedeEscribir" variant="muted">
+                        <p>Esta solicitud ya no admite mensajes nuevos. Podés leer los anteriores.</p>
+                    </Alert>
 
-            <FormularioEncuentro :enviando="enviando" :deshabilitado="!puedeEscribir" @proponer="alEnviar" />
+                    <FormularioMensaje
+                        :enviando="enviando"
+                        :deshabilitado="!puedeEscribir"
+                        :error="errorEnvio"
+                        @enviar="alEnviar"
+                    />
+                </div>
 
-            <FormularioMensaje
-                :enviando="enviando"
-                :deshabilitado="!puedeEscribir"
-                :error="errorEnvio"
-                @enviar="alEnviar"
-            />
+                <div class="flex flex-col gap-4">
+                    <FormularioEncuentro :enviando="enviando" :deshabilitado="!puedeEscribir" @proponer="alEnviar" />
 
-            <FormularioConfirmarEntrega
-                v-if="puedeEscribir && esDonante"
-                :confirmando="confirmando"
-                :error="errorConfirmar"
-                @confirmar="alConfirmar"
-            />
+                    <FormularioConfirmarEntrega
+                        v-if="puedeEscribir && esDonante"
+                        :confirmando="confirmando"
+                        :error="errorConfirmar"
+                        @confirmar="alConfirmar"
+                    />
 
-            <PanelCancelarSolicitud
-                v-if="puedeEscribir"
-                :cancelando="cancelando"
-                :error="errorCancelar"
-                @cancelar="alCancelar"
-            />
+                    <PanelCancelarSolicitud
+                        v-if="puedeEscribir"
+                        :cancelando="cancelando"
+                        :error="errorCancelar"
+                        @cancelar="alCancelar"
+                    />
+                </div>
+            </div>
         </template>
     </main>
 </template>
