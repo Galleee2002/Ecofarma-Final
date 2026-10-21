@@ -114,7 +114,7 @@ async function solicitar() {
 <template>
     <Card>
         <CardHeader>
-            <h2 class="text-lg text-primary">Solicitar este medicamento</h2>
+            <h2 class="text-xl text-primary">Solicitar este medicamento</h2>
         </CardHeader>
         <CardContent class="flex flex-col gap-4">
             <Alert v-if="errorPerfil !== ''" variant="danger">
@@ -175,8 +175,8 @@ async function solicitar() {
                     <p>{{ mensajeCrear }}</p>
                 </Alert>
 
-                <Button type="button" :disabled="!puedeSolicitar" @click="solicitar">
-                    {{ creando ? 'Enviando...' : 'Solicitar' }}
+                <Button type="button" :cargando="creando" :disabled="!puedeSolicitar" @click="solicitar">
+                    Solicitar
                 </Button>
             </template>
         </CardContent>

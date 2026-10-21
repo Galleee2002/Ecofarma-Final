@@ -1,9 +1,17 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -60,6 +68,7 @@ function copiarDatos(donacion) {
 }
 
 const datos = ref(copiarDatos(props.donacion));
+const confirmarRechazo = ref(false);
 
 function textoEstado(estado) {
     if (textosEstado[estado]) {
@@ -127,16 +136,31 @@ function aprobar() {
     emit('aprobar', props.donacion.id, datos.value);
 }
 
+function pedirRechazo() {
+    confirmarRechazo.value = true;
+}
+
 function rechazar() {
     emit('rechazar', props.donacion.id, datos.value);
 }
+
+watch(
+    function () {
+        return props.guardando;
+    },
+    function (valor, anterior) {
+        if (confirmarRechazo.value && anterior === true && valor === false) {
+            confirmarRechazo.value = false;
+        }
+    },
+);
 </script>
 
 <template>
     <Card>
         <CardHeader class="flex flex-col gap-1">
             <h2 class="text-lg text-primary">{{ donacion.nombre_comercial }}</h2>
-            <p class="text-muted">Donante: {{ nombreDonante() }}</p>
+            <p class="text-sm text-muted">Donante: {{ nombreDonante() }}</p>
             <Badge :variant="varianteEstado(donacion.estado)">{{ textoEstado(donacion.estado) }}</Badge>
         </CardHeader>
         <CardContent class="flex flex-col gap-4">
@@ -212,8 +236,8 @@ function rechazar() {
                     <Textarea :id="'moderar-descripcion-' + donacion.id" v-model="datos.descripcion" rows="3" />
                 </div>
 
-                <Button type="submit" variant="outline" :disabled="guardando">
-                    {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+                <Button type="submit" variant="outline" :cargando="guardando">
+                    Guardar cambios
                 </Button>
             </form>
 
@@ -233,18 +257,37 @@ function rechazar() {
                         </SelectItem>
                     </SelectContent>
                 </Select>
-                <Button type="button" :disabled="guardando" @click="aprobar">
-                    {{ guardando ? 'Guardando...' : 'Aprobar' }}
+                <Button type="button" :cargando="guardando" @click="aprobar">
+                    Aprobar
                 </Button>
             </div>
 
             <div class="flex flex-col gap-2">
                 <Label :for="'moderar-motivo-' + donacion.id">Motivo del rechazo</Label>
                 <Textarea :id="'moderar-motivo-' + donacion.id" v-model="datos.motivo_rechazo" rows="2" />
-                <Button type="button" variant="destructive" :disabled="guardando" @click="rechazar">
-                    {{ guardando ? 'Guardando...' : 'Rechazar' }}
+                <Button type="button" variant="destructive" :disabled="guardando" @click="pedirRechazo">
+                    Rechazar
                 </Button>
             </div>
         </CardContent>
     </Card>
+
+    <Dialog v-model:open="confirmarRechazo">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Rechazar donación</DialogTitle>
+                <DialogDescription>
+                    {{ donacion.nombre_comercial }} no va a publicarse en el catálogo.
+                </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+                <Button type="button" variant="outline" :disabled="guardando" @click="confirmarRechazo = false">
+                    Cancelar
+                </Button>
+                <Button type="button" variant="destructive" :cargando="guardando" @click="rechazar">
+                    Rechazar
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>

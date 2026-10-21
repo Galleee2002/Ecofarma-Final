@@ -17,10 +17,10 @@ Se abandonó Laravel: el frontend consume Supabase directo con `supabase-js` y R
 
 ## 2. Estado
 
-Las fases 1 a 9 están cerradas en funcionalidad. La interfaz de esas pantallas es un wireframe bajo/medio: los componentes de shadcn/vue y los tokens ya están puestos, y la composición (jerarquía, espaciado, agrupación) sigue siendo la de una prueba. Ese es el trabajo actual, en la sección 5. La landing (Fase 10) sigue sin maquetar.
+Las fases 1 a 9 están cerradas en funcionalidad. La capa visual compartida ya define escala tipográfica, radios, sombras, bordes y superficie, y las pantallas usan esa jerarquía y el aire de página. Sigue pendiente el pulido de fidelidad alta de cada pantalla (sección 5) y la landing (Fase 10).
 
 - [x] Entorno inicial con Vue + Tailwind y conexión a Supabase vía variables `VITE_SUPABASE_*`.
-- [x] Tokens de diseño en Tailwind (paleta y tipografías).
+- [x] Tokens de diseño en Tailwind: paleta, tipografías (28, 22, 18, 16, 14 y 12 px), radios, sombras, bordes y superficie.
 - [x] Base de datos limpia: eliminar las tablas que habían creado las migraciones de Laravel.
 - [x] Inicializar `supabase/` con Supabase CLI (`supabase init` + `supabase link`).
 - [x] Migraciones SQL de las 5 tablas del dominio (5 de 5), aplicadas al proyecto remoto.
@@ -359,7 +359,7 @@ Decisiones tomadas:
 - La consulta de `profiles` ya la permite el RLS del admin. El email vive en `auth.users`, así que listar y las escrituras van en la Edge Function `gestionar-usuarios` con `service_role`, el mismo patrón que `alta-medicamento-habilitado` (`verify_jwt = false` y validación del JWT con `auth.getUser`).
 - `/admin/usuarios` usa `meta.requiereSesion` y `meta.requiereAdmin`. El guard de la Fase 8 cubre la ruta. Suspender no cierra `/admin` ni las Edge Functions de admin: solo cambia `profiles.is_validado`. Para sacar el acceso de admin hay que revocar el rol. Rol e `is_validado` son independientes.
 - `gestionar-usuarios` rechaza actuar sobre la propia cuenta (403) y rechaza revocar si quedaría cero admins (409). No banea en Auth ni cierra la sesión de la otra persona.
-- La búsqueda por nombre, email o DNI y los filtros por estado y rol se hacen en memoria, como el catálogo. La confirmación de cada acción es un segundo paso en la fila, sin modal.
+- La búsqueda por nombre, email o DNI y los filtros por estado y rol se hacen en memoria, como el catálogo. Suspender, rehabilitar, promover y revocar se confirman en un diálogo.
 - Edge Function `gestionar-usuarios` aplicada al proyecto remoto. No hubo migración nueva en esta fase.
 
 - [x] Vista para consultar `profiles`, con búsqueda por nombre, email o DNI y filtros por estado y rol.
@@ -376,7 +376,7 @@ Decisiones tomadas:
 
 ## 5. Fidelidad visual de las pantallas actuales
 
-Trabajo actual. Las fases 1 a 9 funcionan y sus pantallas ya usan `src/components/ui`. La lectura sigue siendo de wireframe bajo/medio. Hay que subirlas a fidelidad alta con lo que ya está: tokens, fuentes y los componentes que cada pantalla usa. El inventario de abajo es el mapa. El detalle de qué componente traer y cuál no está en `docs/shadcn/vue-implementacion.md`.
+Trabajo actual. Las fases 1 a 9 funcionan. `src/style.css` ya tiene la escala, los radios, las sombras, el borde y la superficie blanca de tarjetas y diálogos. Los controles de `src/components/ui` usan esos tokens, con hover, focus, disabled, carga (`cargando` en el botón), error (`aria-invalid` y Alert) y éxito (Alert y Badge). La barra usa Navigation Menu y las confirmaciones de cerrar sesión, cancelar solicitud, rechazar donación y acciones de cuenta usan Dialog. Cada vista usa `pagina`, `pagina-media` o `pagina-formulario`. Falta el pulido fino de cada pantalla hasta que se lea como terminada. La landing no entra. El detalle de componentes está en `docs/shadcn/vue-implementacion.md`.
 
 ### Qué se conserva
 
@@ -385,7 +385,7 @@ Trabajo actual. Las fases 1 a 9 funcionan y sus pantallas ya usan `src/component
 - Tokens, fuentes y alias de `src/style.css`.
 - Mensajes en español con el color del token (`danger`, `success`, `warning`, `muted`).
 - El `<datalist>` de `/donar`.
-- Las confirmaciones en la misma pantalla del chat y de la gestión de usuarios.
+- Los mismos campos, validaciones y llamadas a Supabase. Las confirmaciones destructivas (cerrar sesión, cancelar solicitud, rechazar donación y acciones de cuenta) van en Dialog.
 
 ### Qué se trabaja
 

@@ -29,8 +29,8 @@ onMounted(function () {
 </script>
 
 <template>
-    <main class="mx-auto flex max-w-md flex-col gap-4 p-6">
-        <h1 class="text-2xl text-primary">Donar un medicamento</h1>
+    <main class="pagina-formulario">
+        <h1 class="text-2xl font-bold text-primary">Donar un medicamento</h1>
 
         <Alert v-if="errorPerfil !== ''" variant="danger">
             <p>{{ errorPerfil }}</p>

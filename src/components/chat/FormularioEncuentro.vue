@@ -22,6 +22,7 @@ const dia = ref('');
 const hora = ref('');
 const lugar = ref('');
 const error = ref('');
+const enviado = ref(false);
 
 function fechaDeHoy() {
     const hoy = new Date();
@@ -38,6 +39,7 @@ function formatearDia(valor) {
 
 function proponer() {
     error.value = '';
+    enviado.value = true;
     const lugarTexto = lugar.value.trim();
 
     if (dia.value === '' || hora.value === '' || lugarTexto === '') {
@@ -62,7 +64,7 @@ function proponer() {
 
 <template>
     <form class="flex flex-col gap-2" @submit.prevent="proponer">
-        <p class="text-primary">Proponer encuentro</p>
+        <p class="text-sm font-semibold text-primary">Proponer encuentro</p>
 
         <Alert v-if="error !== ''" variant="danger">
             <p>{{ error }}</p>
@@ -70,21 +72,39 @@ function proponer() {
 
         <div class="flex flex-col gap-1">
             <Label for="encuentro-dia">Día</Label>
-            <Input id="encuentro-dia" v-model="dia" type="date" :disabled="deshabilitado || enviando" />
+            <Input
+                id="encuentro-dia"
+                v-model="dia"
+                type="date"
+                :disabled="deshabilitado || enviando"
+                :aria-invalid="enviado && (dia === '' || dia < fechaDeHoy())"
+            />
         </div>
 
         <div class="flex flex-col gap-1">
             <Label for="encuentro-hora">Hora</Label>
-            <Input id="encuentro-hora" v-model="hora" type="time" :disabled="deshabilitado || enviando" />
+            <Input
+                id="encuentro-hora"
+                v-model="hora"
+                type="time"
+                :disabled="deshabilitado || enviando"
+                :aria-invalid="enviado && hora === ''"
+            />
         </div>
 
         <div class="flex flex-col gap-1">
             <Label for="encuentro-lugar">Lugar</Label>
-            <Input id="encuentro-lugar" v-model="lugar" type="text" :disabled="deshabilitado || enviando" />
+            <Input
+                id="encuentro-lugar"
+                v-model="lugar"
+                type="text"
+                :disabled="deshabilitado || enviando"
+                :aria-invalid="enviado && lugar.trim() === ''"
+            />
         </div>
 
-        <Button type="submit" :disabled="deshabilitado || enviando">
-            {{ enviando ? 'Enviando...' : 'Proponer encuentro' }}
+        <Button type="submit" :cargando="enviando" :disabled="deshabilitado">
+            Proponer encuentro
         </Button>
     </form>
 </template>

@@ -34,8 +34,8 @@ watch(
 </script>
 
 <template>
-    <main class="mx-auto flex max-w-5xl flex-col gap-6 p-6">
-        <RouterLink to="/catalogo" class="text-secondary">Volver al catálogo</RouterLink>
+    <main class="pagina">
+        <RouterLink to="/catalogo" class="text-sm text-secondary">Volver al catálogo</RouterLink>
 
         <p v-if="cargando" class="text-muted">Cargando medicamento...</p>
 
@@ -44,7 +44,7 @@ watch(
         </Alert>
 
         <template v-else-if="medicamento !== null">
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
                 <DetalleMedicamento :medicamento="medicamento" />
                 <PanelSolicitar :medicamento-id="medicamento.id" :requiere-receta="requiereReceta" />
             </div>

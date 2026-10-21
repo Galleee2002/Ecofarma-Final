@@ -65,7 +65,7 @@ function reintentar() {
         <p>Todavía no publicaste donaciones.</p>
     </Alert>
 
-    <ul v-else class="flex flex-col gap-4">
+    <ul v-else class="flex flex-col gap-6">
         <li v-for="donacion in donaciones" :key="donacion.id">
             <Card>
                 <CardHeader>
@@ -73,8 +73,8 @@ function reintentar() {
                 </CardHeader>
                 <CardContent class="flex flex-col gap-1">
                     <p>{{ donacion.principio_activo }} {{ donacion.concentracion }}</p>
-                    <p>Cantidad: {{ donacion.cantidad_disponible }}</p>
-                    <p class="text-icon">Vence: {{ formatearFecha(donacion.fecha_vencimiento) }}</p>
+                    <p class="text-sm">Cantidad: {{ donacion.cantidad_disponible }}</p>
+                    <p class="text-sm text-icon">Vence: {{ formatearFecha(donacion.fecha_vencimiento) }}</p>
                     <Badge :variant="varianteEstado(donacion.estado)">{{ textoEstado(donacion.estado) }}</Badge>
                     <Alert
                         v-if="donacion.estado === 'rechazado' && donacion.motivo_rechazo"
@@ -85,7 +85,7 @@ function reintentar() {
                     <RouterLink
                         v-if="donacion.estado === 'reservado' && donacion.solicitud_id"
                         :to="{ name: 'chat-solicitud', params: { solicitudId: donacion.solicitud_id } }"
-                        class="text-secondary"
+                        class="text-sm text-secondary"
                     >
                         Abrir chat
                     </RouterLink>

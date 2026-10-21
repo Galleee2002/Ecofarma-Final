@@ -45,15 +45,15 @@ function enviar() {
     <form class="flex flex-col gap-4" novalidate @submit.prevent="enviar">
         <dl class="flex flex-col gap-2">
             <div>
-                <dt class="font-semibold">Nombre</dt>
+                <dt class="text-sm font-semibold text-muted">Nombre</dt>
                 <dd>{{ perfil.name }}</dd>
             </div>
             <div>
-                <dt class="font-semibold">Email</dt>
+                <dt class="text-sm font-semibold text-muted">Email</dt>
                 <dd>{{ email }}</dd>
             </div>
             <div>
-                <dt class="font-semibold">DNI</dt>
+                <dt class="text-sm font-semibold text-muted">DNI</dt>
                 <dd>{{ perfil.dni }}</dd>
             </div>
         </dl>
@@ -81,8 +81,8 @@ function enviar() {
             <p>{{ mensaje }}</p>
         </Alert>
 
-        <Button type="submit" :disabled="cargando">
-            {{ cargando ? 'Guardando...' : 'Guardar cambios' }}
+        <Button type="submit" :cargando="cargando">
+            Guardar cambios
         </Button>
     </form>
 </template>

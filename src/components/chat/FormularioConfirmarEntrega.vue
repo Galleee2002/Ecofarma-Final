@@ -49,11 +49,12 @@ function confirmar() {
                         inputmode="numeric"
                         maxlength="6"
                         :disabled="confirmando"
+                        :aria-invalid="codigo.trim() !== '' && !codigoValido"
                     />
                 </div>
 
-                <Button type="submit" :disabled="confirmando || !codigoValido">
-                    {{ confirmando ? 'Confirmando...' : 'Confirmar entrega' }}
+                <Button type="submit" :cargando="confirmando" :disabled="!codigoValido">
+                    Confirmar entrega
                 </Button>
             </form>
         </CardContent>

@@ -246,8 +246,8 @@ function enviar() {
             <p>{{ mensaje }}</p>
         </Alert>
 
-        <Button type="submit" :disabled="cargando || cuentaSuspendida">
-            {{ cargando ? 'Publicando...' : 'Publicar donación' }}
+        <Button type="submit" :cargando="cargando" :disabled="cuentaSuspendida">
+            Publicar donación
         </Button>
     </form>
 </template>

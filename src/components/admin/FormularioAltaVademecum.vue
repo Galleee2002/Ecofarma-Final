@@ -88,8 +88,8 @@ function enviar() {
             <p>{{ mensaje }}</p>
         </Alert>
 
-        <Button type="submit" :disabled="cargando">
-            {{ cargando ? 'Guardando...' : 'Agregar al vademécum' }}
+        <Button type="submit" :cargando="cargando">
+            Agregar al vademécum
         </Button>
     </form>
 </template>

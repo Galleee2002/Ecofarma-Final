@@ -80,10 +80,10 @@ async function alCancelar() {
 </script>
 
 <template>
-    <main class="mx-auto flex max-w-md flex-col gap-4 p-6">
-        <RouterLink :to="{ name: 'perfil' }" class="text-muted">Volver al perfil</RouterLink>
+    <main class="pagina-formulario">
+        <RouterLink :to="{ name: 'perfil' }" class="text-sm text-muted">Volver al perfil</RouterLink>
 
-        <h1 class="text-2xl text-primary">Chat</h1>
+        <h1 class="text-2xl font-bold text-primary">Chat</h1>
 
         <Alert v-if="mensajeConfirmar !== ''" variant="success">
             <p>{{ mensajeConfirmar }}</p>
@@ -109,8 +109,8 @@ async function alCancelar() {
                 </ul>
             </Alert>
 
-            <p v-if="solicitud.medicamentos">{{ solicitud.medicamentos.nombre_comercial }}</p>
-            <p v-if="nombreOtro !== ''">Con {{ nombreOtro }}</p>
+            <p v-if="solicitud.medicamentos" class="text-lg font-semibold text-primary">{{ solicitud.medicamentos.nombre_comercial }}</p>
+            <p v-if="nombreOtro !== ''" class="text-sm text-muted">Con {{ nombreOtro }}</p>
 
             <ListaMensajes :mensajes="mensajes" :user-id="sesion.user.id" />
 

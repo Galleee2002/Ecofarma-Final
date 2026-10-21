@@ -1,12 +1,31 @@
 <script setup>
+import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import {
+    NavigationMenu,
+    NavigationMenuContent,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu';
 import { useAuth } from '../../composables/useAuth';
 
 const route = useRoute();
 const router = useRouter();
 const { sesion, perfil, errorPerfil, mensajeExito, tipoMensaje, cargando, error, cerrarSesion, ocultarMensajeExito } = useAuth();
+
+const confirmarSalida = ref(false);
 
 function varianteAviso() {
     if (tipoMensaje.value === 'cierre') {
@@ -38,16 +57,14 @@ function enlaceActivo(nombre) {
     return false;
 }
 
-function claseEnlace(nombre) {
-    if (enlaceActivo(nombre)) {
-        return 'rounded-md bg-primary-soft px-2.5 py-1.5 text-sm text-secondary';
-    }
-    return 'rounded-md px-2.5 py-1.5 text-sm text-foreground hover:bg-primary/10';
+function pedirSalida() {
+    confirmarSalida.value = true;
 }
 
 async function salir() {
     const salio = await cerrarSesion();
     if (salio) {
+        confirmarSalida.value = false;
         router.push({ name: 'catalogo' });
     }
 }
@@ -55,28 +72,64 @@ async function salir() {
 
 <template>
     <header class="border-b border-primary-soft bg-background">
-        <div class="mx-auto flex max-w-5xl flex-col gap-2 px-6 py-4">
-            <nav class="flex flex-wrap items-center justify-between gap-4">
-                <div class="flex flex-none flex-wrap items-center gap-2">
-                    <RouterLink :to="{ name: 'catalogo' }" class="font-heading text-lg text-primary">
+        <div class="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center gap-2">
+                    <RouterLink :to="{ name: 'catalogo' }" class="font-heading text-lg font-semibold text-primary">
                         EcoFARMA
                     </RouterLink>
-                    <RouterLink :to="{ name: 'catalogo' }" :class="claseEnlace('catalogo')">Catálogo</RouterLink>
 
-                    <template v-if="sesion !== null">
-                        <RouterLink :to="{ name: 'donar' }" :class="claseEnlace('donar')">Donar</RouterLink>
-                        <RouterLink :to="{ name: 'perfil' }" :class="claseEnlace('perfil')">Mi perfil</RouterLink>
-                        <RouterLink
-                            v-if="perfil !== null && perfil.rol === 'admin'"
-                            :to="{ name: 'admin-donaciones' }"
-                            :class="claseEnlace('admin-donaciones')"
-                        >
-                            Moderación
-                        </RouterLink>
-                    </template>
+                    <NavigationMenu class="flex-none">
+                        <NavigationMenuList>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink as-child :active="enlaceActivo('catalogo')">
+                                    <RouterLink :to="{ name: 'catalogo' }">Catálogo</RouterLink>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+
+                            <template v-if="sesion !== null">
+                                <NavigationMenuItem>
+                                    <NavigationMenuLink as-child :active="enlaceActivo('donar')">
+                                        <RouterLink :to="{ name: 'donar' }">Donar</RouterLink>
+                                    </NavigationMenuLink>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem>
+                                    <NavigationMenuLink as-child :active="enlaceActivo('perfil')">
+                                        <RouterLink :to="{ name: 'perfil' }">Mi perfil</RouterLink>
+                                    </NavigationMenuLink>
+                                </NavigationMenuItem>
+                                <NavigationMenuItem v-if="perfil !== null && perfil.rol === 'admin'">
+                                    <NavigationMenuTrigger
+                                        :class="enlaceActivo('admin-donaciones') ? 'bg-primary-soft text-secondary' : ''"
+                                    >
+                                        Moderación
+                                    </NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <ul class="flex w-52 flex-col gap-1 p-2">
+                                            <li>
+                                                <NavigationMenuLink as-child :active="route.name === 'admin-donaciones'">
+                                                    <RouterLink :to="{ name: 'admin-donaciones' }">Donaciones</RouterLink>
+                                                </NavigationMenuLink>
+                                            </li>
+                                            <li>
+                                                <NavigationMenuLink as-child :active="route.name === 'admin-vademecum'">
+                                                    <RouterLink :to="{ name: 'admin-vademecum' }">Vademécum</RouterLink>
+                                                </NavigationMenuLink>
+                                            </li>
+                                            <li>
+                                                <NavigationMenuLink as-child :active="route.name === 'admin-usuarios'">
+                                                    <RouterLink :to="{ name: 'admin-usuarios' }">Usuarios</RouterLink>
+                                                </NavigationMenuLink>
+                                            </li>
+                                        </ul>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                            </template>
+                        </NavigationMenuList>
+                    </NavigationMenu>
                 </div>
 
-                <div class="ml-auto flex flex-none flex-wrap items-center gap-2">
+                <div class="ml-auto flex flex-wrap items-center gap-2">
                     <template v-if="sesion === null">
                         <Button variant="outline" size="sm" as-child>
                             <RouterLink :to="{ name: 'login' }">Ingresar</RouterLink>
@@ -87,13 +140,13 @@ async function salir() {
                     </template>
 
                     <template v-else>
-                        <span class="text-icon">Hola, {{ nombreUsuario() }}</span>
-                        <Button type="button" variant="destructive" size="sm" :disabled="cargando" @click="salir">
-                            {{ cargando ? 'Cerrando sesión...' : 'Cerrar sesión' }}
+                        <span class="text-sm text-icon">Hola, {{ nombreUsuario() }}</span>
+                        <Button type="button" variant="destructive" size="sm" @click="pedirSalida">
+                            Cerrar sesión
                         </Button>
                     </template>
                 </div>
-            </nav>
+            </div>
 
             <Alert
                 v-if="mensajeExito !== ''"
@@ -113,4 +166,21 @@ async function salir() {
             </Alert>
         </div>
     </header>
+
+    <Dialog v-model:open="confirmarSalida">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Cerrar sesión</DialogTitle>
+                <DialogDescription>Vas a salir de EcoFARMA en este dispositivo.</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+                <Button type="button" variant="outline" :disabled="cargando" @click="confirmarSalida = false">
+                    Cancelar
+                </Button>
+                <Button type="button" variant="destructive" :cargando="cargando" @click="salir">
+                    Cerrar sesión
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>

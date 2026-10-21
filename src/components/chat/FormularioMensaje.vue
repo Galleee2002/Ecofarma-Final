@@ -47,8 +47,8 @@ function enviar() {
             <Input id="chat-mensaje" v-model="texto" type="text" :disabled="deshabilitado || enviando" />
         </div>
 
-        <Button type="submit" :disabled="deshabilitado || enviando || texto.trim() === ''">
-            {{ enviando ? 'Enviando...' : 'Enviar' }}
+        <Button type="submit" :cargando="enviando" :disabled="deshabilitado || texto.trim() === ''">
+            Enviar
         </Button>
     </form>
 </template>

@@ -15,8 +15,8 @@ async function registrar(datos) {
 </script>
 
 <template>
-    <main class="mx-auto flex max-w-md flex-col gap-4 p-6">
-        <h1 class="text-2xl text-primary">Crear cuenta</h1>
+    <main class="pagina-formulario">
+        <h1 class="text-2xl font-bold text-primary">Crear cuenta</h1>
         <FormularioRegistro :cargando="cargando" :error="error" @registrar="registrar" />
         <p>
             ¿Ya tenés cuenta?

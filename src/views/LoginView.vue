@@ -23,8 +23,8 @@ async function ingresar(email, password) {
 </script>
 
 <template>
-    <main class="mx-auto flex max-w-md flex-col gap-4 p-6">
-        <h1 class="text-2xl text-primary">Ingresar</h1>
+    <main class="pagina-formulario">
+        <h1 class="text-2xl font-bold text-primary">Ingresar</h1>
         <FormularioLogin :cargando="cargando" :error="error" @ingresar="ingresar" />
         <p>
             ¿No tenés cuenta?

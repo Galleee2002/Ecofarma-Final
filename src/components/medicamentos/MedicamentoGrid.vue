@@ -37,7 +37,7 @@ function reintentar() {
         <p>No encontramos medicamentos disponibles que coincidan con tu búsqueda.</p>
     </Alert>
 
-    <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <MedicamentoCard v-for="medicamento in medicamentos" :key="medicamento.id" :medicamento="medicamento" />
     </div>
 </template>

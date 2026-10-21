@@ -49,7 +49,7 @@ watch(function () {
 
 <template>
     <div ref="contenedor">
-        <ScrollArea class="h-80 rounded border">
+        <ScrollArea class="h-80 rounded-lg border border-border bg-surface">
             <div class="flex flex-col gap-2 p-3">
                 <Alert v-if="mensajes.length === 0" variant="muted">
                     <p>Todavía no hay mensajes. Proponé el día, la hora y el lugar con el formulario de encuentro.</p>
@@ -58,8 +58,8 @@ watch(function () {
                 <article
                     v-for="mensaje in mensajes"
                     :key="mensaje.id"
-                    class="flex max-w-[85%] flex-col gap-1 rounded border p-2"
-                    :class="esPropio(mensaje) ? 'self-end border-primary' : 'self-start border-muted'"
+                    class="flex max-w-[85%] flex-col gap-1 rounded-lg border p-3 shadow-sm"
+                    :class="esPropio(mensaje) ? 'self-end border-primary bg-primary-soft' : 'self-start border-border bg-surface'"
                 >
                     <p>{{ mensaje.mensaje }}</p>
                     <p class="text-sm text-muted">{{ formatearFecha(mensaje.created_at) }}</p>

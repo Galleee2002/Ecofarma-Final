@@ -63,7 +63,7 @@ function reintentar() {
         <p>Todavía no hiciste solicitudes.</p>
     </Alert>
 
-    <ul v-else class="flex flex-col gap-4">
+    <ul v-else class="flex flex-col gap-6">
         <li v-for="solicitud in solicitudes" :key="solicitud.id">
             <Card>
                 <CardHeader v-if="solicitud.medicamentos">
@@ -71,18 +71,18 @@ function reintentar() {
                 </CardHeader>
                 <CardContent class="flex flex-col gap-1">
                     <p v-if="solicitud.medicamentos">{{ solicitud.medicamentos.principio_activo }}</p>
-                    <p v-if="solicitud.es_para_tercero">Para: {{ solicitud.nombre_destinatario_final }}</p>
-                    <p>Solicitado el {{ formatearFecha(solicitud.created_at) }}</p>
+                    <p v-if="solicitud.es_para_tercero" class="text-sm">Para: {{ solicitud.nombre_destinatario_final }}</p>
+                    <p class="text-sm text-muted">Solicitado el {{ formatearFecha(solicitud.created_at) }}</p>
                     <Badge :variant="varianteEstado(solicitud.estado)">{{ textoEstado(solicitud.estado) }}</Badge>
-                    <p v-if="solicitud.fecha_entrega">Entregado el {{ formatearFecha(solicitud.fecha_entrega) }}</p>
-                    <p v-if="solicitud.codigo">Código de retiro: <strong>{{ solicitud.codigo }}</strong></p>
+                    <p v-if="solicitud.fecha_entrega" class="text-sm text-muted">Entregado el {{ formatearFecha(solicitud.fecha_entrega) }}</p>
+                    <p v-if="solicitud.codigo" class="text-sm">Código de retiro: <strong>{{ solicitud.codigo }}</strong></p>
                     <Alert v-if="solicitud.errorCodigo" variant="warning">
                         <p>Código no disponible. Recargá la página para intentar de nuevo.</p>
                     </Alert>
                     <RouterLink
                         v-if="solicitud.estado === 'pendiente_coordinacion' || solicitud.estado === 'en_camino'"
                         :to="{ name: 'chat-solicitud', params: { solicitudId: solicitud.id } }"
-                        class="text-secondary"
+                        class="text-sm text-secondary"
                     >
                         Abrir chat
                     </RouterLink>

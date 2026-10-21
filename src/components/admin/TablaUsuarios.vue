@@ -1,7 +1,15 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import {
     Table,
     TableBody,
@@ -73,24 +81,71 @@ function cancelarConfirmacion() {
     pendiente.value = null;
 }
 
-function confirmar() {
+const dialogoAbierto = computed({
+    get() {
+        return pendiente.value !== null;
+    },
+    set(valor) {
+        if (valor === false && props.guardando === false) {
+            pendiente.value = null;
+        }
+    },
+});
+
+function usuarioPendiente() {
     if (pendiente.value === null) {
-        return;
+        return null;
     }
 
-    emit('accion', pendiente.value.id, pendiente.value.accion);
-    pendiente.value = null;
-}
-
-function hayPendiente(usuario) {
-    if (pendiente.value === null) {
-        return false;
+    for (let i = 0; i < props.usuarios.length; i++) {
+        if (props.usuarios[i].id === pendiente.value.id) {
+            return props.usuarios[i];
+        }
     }
-    return pendiente.value.id === usuario.id;
+
+    return null;
 }
 
-function varianteConfirmar(usuario) {
-    if (pendiente.value === null || pendiente.value.id !== usuario.id) {
+function tituloAccion() {
+    if (pendiente.value === null) {
+        return '';
+    }
+    if (pendiente.value.accion === 'suspender') {
+        return 'Suspender cuenta';
+    }
+    if (pendiente.value.accion === 'rehabilitar') {
+        return 'Rehabilitar cuenta';
+    }
+    if (pendiente.value.accion === 'revocar') {
+        return 'Quitar administrador';
+    }
+    return 'Hacer administrador';
+}
+
+function textoAccion() {
+    const usuario = usuarioPendiente();
+    let nombre = 'esta persona';
+    if (usuario !== null && usuario.name) {
+        nombre = usuario.name;
+    }
+
+    if (pendiente.value === null) {
+        return '';
+    }
+    if (pendiente.value.accion === 'suspender') {
+        return nombre + ' no va a poder ingresar hasta que rehabilites la cuenta.';
+    }
+    if (pendiente.value.accion === 'rehabilitar') {
+        return nombre + ' va a poder volver a ingresar a EcoFARMA.';
+    }
+    if (pendiente.value.accion === 'revocar') {
+        return nombre + ' deja de administrar donaciones, el vademécum y las cuentas.';
+    }
+    return nombre + ' va a poder moderar donaciones, el vademécum y las cuentas.';
+}
+
+function varianteAccion() {
+    if (pendiente.value === null) {
         return 'default';
     }
     if (pendiente.value.accion === 'suspender' || pendiente.value.accion === 'revocar') {
@@ -98,6 +153,25 @@ function varianteConfirmar(usuario) {
     }
     return 'default';
 }
+
+function confirmar() {
+    if (pendiente.value === null) {
+        return;
+    }
+
+    emit('accion', pendiente.value.id, pendiente.value.accion);
+}
+
+watch(
+    function () {
+        return props.guardando;
+    },
+    function (valor, anterior) {
+        if (pendiente.value !== null && anterior === true && valor === false) {
+            pendiente.value = null;
+        }
+    },
+);
 </script>
 
 <template>
@@ -125,27 +199,7 @@ function varianteConfirmar(usuario) {
                 </TableCell>
                 <TableCell class="whitespace-normal">
                     <div class="flex flex-col gap-2">
-                        <div v-if="hayPendiente(usuario)" class="flex flex-wrap gap-2">
-                            <Button
-                                type="button"
-                                size="sm"
-                                :variant="varianteConfirmar(usuario)"
-                                :disabled="guardando"
-                                @click="confirmar"
-                            >
-                                Confirmar
-                            </Button>
-                            <Button
-                                type="button"
-                                size="sm"
-                                variant="ghost"
-                                :disabled="guardando"
-                                @click="cancelarConfirmacion"
-                            >
-                                Cancelar
-                            </Button>
-                        </div>
-                        <div v-else class="flex flex-wrap gap-2">
+                        <div class="flex flex-wrap gap-2">
                             <Button
                                 v-if="usuario.is_validado === true"
                                 type="button"
@@ -186,10 +240,27 @@ function varianteConfirmar(usuario) {
                                 Hacer administrador
                             </Button>
                         </div>
-                        <p v-if="esPropia(usuario)" class="text-muted">Es tu cuenta</p>
+                        <p v-if="esPropia(usuario)" class="text-sm text-muted">Es tu cuenta</p>
                     </div>
                 </TableCell>
             </TableRow>
         </TableBody>
     </Table>
+
+    <Dialog v-model:open="dialogoAbierto">
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>{{ tituloAccion() }}</DialogTitle>
+                <DialogDescription>{{ textoAccion() }}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+                <Button type="button" variant="outline" :disabled="guardando" @click="cancelarConfirmacion">
+                    Cancelar
+                </Button>
+                <Button type="button" :variant="varianteAccion()" :cargando="guardando" @click="confirmar">
+                    Confirmar
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>

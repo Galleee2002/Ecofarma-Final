@@ -61,7 +61,7 @@ function rechazar(id, datos) {
         <p>{{ vacio }}</p>
     </Alert>
 
-    <ul v-else class="flex flex-col gap-4">
+    <ul v-else class="flex flex-col gap-6">
         <li v-for="donacion in donaciones" :key="donacion.id">
             <TarjetaModeracion
                 :donacion="donacion"
