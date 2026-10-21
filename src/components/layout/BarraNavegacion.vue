@@ -25,14 +25,24 @@ function nombreUsuario() {
     return sesion.value.user.email;
 }
 
-function claseEnlace(nombre) {
+function enlaceActivo(nombre) {
     if (route.name === nombre) {
-        return 'text-secondary';
+        return true;
     }
     if (nombre === 'catalogo' && route.name === 'medicamento-detalle') {
-        return 'text-secondary';
+        return true;
     }
-    return 'text-primary';
+    if (nombre === 'admin-donaciones' && (route.name === 'admin-vademecum' || route.name === 'admin-usuarios')) {
+        return true;
+    }
+    return false;
+}
+
+function claseEnlace(nombre) {
+    if (enlaceActivo(nombre)) {
+        return 'rounded-md bg-primary-soft px-2.5 py-1.5 text-sm text-secondary';
+    }
+    return 'rounded-md px-2.5 py-1.5 text-sm text-foreground hover:bg-primary/10';
 }
 
 async function salir() {
@@ -44,56 +54,63 @@ async function salir() {
 </script>
 
 <template>
-    <header class="mx-auto flex max-w-5xl flex-col gap-2 p-6 pb-0">
-        <nav class="flex flex-wrap items-center gap-4">
-            <RouterLink :to="{ name: 'catalogo' }" :class="claseEnlace('catalogo')">Catálogo</RouterLink>
-
-            <template v-if="sesion === null">
-                <RouterLink :to="{ name: 'login' }" :class="claseEnlace('login')">Ingresar</RouterLink>
-                <RouterLink :to="{ name: 'registro' }" :class="claseEnlace('registro')">Registrarse</RouterLink>
-            </template>
-
-            <template v-else>
-                <RouterLink :to="{ name: 'donar' }" :class="claseEnlace('donar')">Donar</RouterLink>
-                <RouterLink :to="{ name: 'perfil' }" :class="claseEnlace('perfil')">Mi perfil</RouterLink>
-                <template v-if="perfil !== null && perfil.rol === 'admin'">
-                    <RouterLink :to="{ name: 'admin-donaciones' }" :class="claseEnlace('admin-donaciones')">
-                        Moderación
+    <header class="border-b border-primary-soft bg-background">
+        <div class="mx-auto flex max-w-5xl flex-col gap-2 px-6 py-4">
+            <nav class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-none flex-wrap items-center gap-2">
+                    <RouterLink :to="{ name: 'catalogo' }" class="font-heading text-lg text-primary">
+                        EcoFARMA
                     </RouterLink>
-                    <RouterLink :to="{ name: 'admin-vademecum' }" :class="claseEnlace('admin-vademecum')">
-                        Vademécum
-                    </RouterLink>
-                    <RouterLink :to="{ name: 'admin-usuarios' }" :class="claseEnlace('admin-usuarios')">
-                        Usuarios
-                    </RouterLink>
-                </template>
-                <span class="text-icon">Hola, {{ nombreUsuario() }}</span>
-                <Button
-                    type="button"
-                    class="border-danger bg-danger text-primary-foreground hover:border-danger hover:bg-danger/90 hover:text-primary-foreground"
-                    :disabled="cargando"
-                    @click="salir"
-                >
-                    {{ cargando ? 'Cerrando sesión...' : 'Cerrar sesión' }}
-                </Button>
-            </template>
-        </nav>
+                    <RouterLink :to="{ name: 'catalogo' }" :class="claseEnlace('catalogo')">Catálogo</RouterLink>
 
-        <Alert
-            v-if="mensajeExito !== ''"
-            :variant="varianteAviso()"
-            class="flex items-start justify-between gap-2"
-        >
-            <p>{{ mensajeExito }}</p>
-            <Button type="button" variant="ghost" @click="ocultarMensajeExito">Cerrar</Button>
-        </Alert>
+                    <template v-if="sesion !== null">
+                        <RouterLink :to="{ name: 'donar' }" :class="claseEnlace('donar')">Donar</RouterLink>
+                        <RouterLink :to="{ name: 'perfil' }" :class="claseEnlace('perfil')">Mi perfil</RouterLink>
+                        <RouterLink
+                            v-if="perfil !== null && perfil.rol === 'admin'"
+                            :to="{ name: 'admin-donaciones' }"
+                            :class="claseEnlace('admin-donaciones')"
+                        >
+                            Moderación
+                        </RouterLink>
+                    </template>
+                </div>
 
-        <Alert v-if="errorPerfil !== ''" variant="danger">
-            <p>{{ errorPerfil }}</p>
-        </Alert>
+                <div class="ml-auto flex flex-none flex-wrap items-center gap-2">
+                    <template v-if="sesion === null">
+                        <Button variant="outline" size="sm" as-child>
+                            <RouterLink :to="{ name: 'login' }">Ingresar</RouterLink>
+                        </Button>
+                        <Button size="sm" as-child>
+                            <RouterLink :to="{ name: 'registro' }">Registrarse</RouterLink>
+                        </Button>
+                    </template>
 
-        <Alert v-if="error !== ''" variant="danger">
-            <p>{{ error }}</p>
-        </Alert>
+                    <template v-else>
+                        <span class="text-icon">Hola, {{ nombreUsuario() }}</span>
+                        <Button type="button" variant="destructive" size="sm" :disabled="cargando" @click="salir">
+                            {{ cargando ? 'Cerrando sesión...' : 'Cerrar sesión' }}
+                        </Button>
+                    </template>
+                </div>
+            </nav>
+
+            <Alert
+                v-if="mensajeExito !== ''"
+                :variant="varianteAviso()"
+                class="flex items-start justify-between gap-2"
+            >
+                <p>{{ mensajeExito }}</p>
+                <Button type="button" variant="ghost" @click="ocultarMensajeExito">Cerrar</Button>
+            </Alert>
+
+            <Alert v-if="errorPerfil !== ''" variant="danger">
+                <p>{{ errorPerfil }}</p>
+            </Alert>
+
+            <Alert v-if="error !== ''" variant="danger">
+                <p>{{ error }}</p>
+            </Alert>
+        </div>
     </header>
 </template>

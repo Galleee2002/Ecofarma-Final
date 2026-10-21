@@ -393,7 +393,7 @@ La composición de cada pantalla: jerarquía, espaciado, agrupación de la infor
 
 Orden, de la cáscara hacia las pantallas de uso:
 
-- [ ] Barra de navegación, en todas las rutas (`components/layout/BarraNavegacion`).
+- [x] Barra de navegación, en todas las rutas (`components/layout/BarraNavegacion`).
 - [ ] Catálogo, `/catalogo`.
 - [ ] Detalle y solicitud, `/medicamento/:id`.
 - [ ] Ingreso y registro, `/login` y `/registro`.
