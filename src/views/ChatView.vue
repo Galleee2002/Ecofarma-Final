@@ -114,8 +114,6 @@ async function alCancelar() {
 
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
                 <div class="flex flex-col gap-4">
-                    <ListaMensajes :mensajes="mensajes" :user-id="sesion.user.id" />
-
                     <Alert v-if="cuentaSuspendida" variant="warning">
                         <p>Tu cuenta está suspendida y no podés enviar mensajes.</p>
                     </Alert>
@@ -123,12 +121,15 @@ async function alCancelar() {
                         <p>Esta solicitud ya no admite mensajes nuevos. Podés leer los anteriores.</p>
                     </Alert>
 
-                    <FormularioMensaje
-                        :enviando="enviando"
-                        :deshabilitado="!puedeEscribir"
-                        :error="errorEnvio"
-                        @enviar="alEnviar"
-                    />
+                    <div class="overflow-hidden rounded-lg border border-border bg-surface">
+                        <ListaMensajes :mensajes="mensajes" :user-id="sesion.user.id" />
+                        <FormularioMensaje
+                            :enviando="enviando"
+                            :deshabilitado="!puedeEscribir"
+                            :error="errorEnvio"
+                            @enviar="alEnviar"
+                        />
+                    </div>
                 </div>
 
                 <div class="flex flex-col gap-4">

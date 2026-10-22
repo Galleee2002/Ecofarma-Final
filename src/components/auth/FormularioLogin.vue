@@ -1,4 +1,5 @@
 <script setup>
+import { EyeIcon, EyeOffIcon } from '@lucide/vue';
 import { ref } from 'vue';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ const emit = defineEmits(['ingresar']);
 
 const email = ref('');
 const password = ref('');
+const mostrarPassword = ref(false);
 const enviado = ref(false);
 
 function campoVacio(valor) {
@@ -41,7 +43,27 @@ function enviar() {
 
         <div class="flex flex-col gap-1">
             <Label for="login-password">Contraseña</Label>
-            <Input id="login-password" v-model="password" type="password" autocomplete="current-password" :aria-invalid="campoVacio(password)" />
+            <div class="relative">
+                <Input
+                    id="login-password"
+                    v-model="password"
+                    :type="mostrarPassword ? 'text' : 'password'"
+                    class="pr-10"
+                    autocomplete="current-password"
+                    :aria-invalid="campoVacio(password)"
+                />
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    class="absolute top-0 right-0 text-icon shadow-none"
+                    :aria-label="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                    @click="mostrarPassword = !mostrarPassword"
+                >
+                    <EyeOffIcon v-if="mostrarPassword" />
+                    <EyeIcon v-else />
+                </Button>
+            </div>
         </div>
 
         <Alert v-if="error !== ''" variant="danger">

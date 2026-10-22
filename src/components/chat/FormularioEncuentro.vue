@@ -23,6 +23,47 @@ const hora = ref('');
 const lugar = ref('');
 const error = ref('');
 const enviado = ref(false);
+const horarioAbierto = ref(false);
+
+const horas = [];
+const minutos = [];
+for (let numero = 0; numero < 24; numero++) {
+    horas.push(String(numero).padStart(2, '0'));
+}
+for (let numero = 0; numero < 60; numero++) {
+    minutos.push(String(numero).padStart(2, '0'));
+}
+
+function parteHora() {
+    if (hora.value === '') {
+        return '';
+    }
+    return hora.value.split(':')[0];
+}
+
+function parteMinuto() {
+    if (hora.value === '') {
+        return '';
+    }
+    return hora.value.split(':')[1];
+}
+
+function elegirHora(valor) {
+    const minuto = parteMinuto() === '' ? '00' : parteMinuto();
+    hora.value = valor + ':' + minuto;
+}
+
+function elegirMinuto(valor) {
+    const horaTexto = parteHora() === '' ? '00' : parteHora();
+    hora.value = horaTexto + ':' + valor;
+}
+
+function cerrarHorario(evento) {
+    if (evento.currentTarget.contains(evento.relatedTarget)) {
+        return;
+    }
+    horarioAbierto.value = false;
+}
 
 function fechaDeHoy() {
     const hoy = new Date();
@@ -83,13 +124,49 @@ function proponer() {
 
         <div class="flex flex-col gap-1">
             <Label for="encuentro-hora">Hora</Label>
-            <Input
-                id="encuentro-hora"
-                v-model="hora"
-                type="time"
-                :disabled="deshabilitado || enviando"
-                :aria-invalid="enviado && hora === ''"
-            />
+            <div class="relative" @focusout="cerrarHorario">
+                <button
+                    id="encuentro-hora"
+                    type="button"
+                    class="flex h-9 w-full items-center rounded-md border border-input bg-surface px-3 text-base shadow-sm outline-none hover:border-primary/40 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive"
+                    :class="hora === '' ? 'text-muted' : ''"
+                    :disabled="deshabilitado || enviando"
+                    :aria-invalid="enviado && hora === ''"
+                    :aria-expanded="horarioAbierto"
+                    @click="horarioAbierto = !horarioAbierto"
+                >
+                    {{ hora === '' ? '--:--' : hora }}
+                </button>
+                <div
+                    v-if="horarioAbierto"
+                    class="absolute z-10 mt-1 flex gap-2 rounded-md border border-input bg-surface p-2 shadow-md"
+                >
+                    <ul class="h-40 overflow-y-auto">
+                        <li v-for="valor in horas" :key="valor">
+                            <button
+                                type="button"
+                                class="w-12 rounded-md px-2 py-1 text-center"
+                                :class="parteHora() === valor ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10'"
+                                @click="elegirHora(valor)"
+                            >
+                                {{ valor }}
+                            </button>
+                        </li>
+                    </ul>
+                    <ul class="h-40 overflow-y-auto">
+                        <li v-for="valor in minutos" :key="valor">
+                            <button
+                                type="button"
+                                class="w-12 rounded-md px-2 py-1 text-center"
+                                :class="parteMinuto() === valor ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10'"
+                                @click="elegirMinuto(valor)"
+                            >
+                                {{ valor }}
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <div class="flex flex-col gap-1">

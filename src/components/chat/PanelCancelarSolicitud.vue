@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -37,13 +36,9 @@ function confirmar() {
 </script>
 
 <template>
-    <Card>
-        <CardContent>
-            <Button type="button" variant="destructive" @click="pedir">
-                Cancelar solicitud
-            </Button>
-        </CardContent>
-    </Card>
+    <Button type="button" variant="destructive" @click="pedir">
+        Cancelar solicitud
+    </Button>
 
     <Dialog v-model:open="abierto">
         <DialogContent>

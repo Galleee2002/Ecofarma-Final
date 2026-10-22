@@ -49,7 +49,7 @@ watch(function () {
 
 <template>
     <div ref="contenedor">
-        <ScrollArea class="h-80 rounded-lg border border-border bg-surface">
+        <ScrollArea class="h-80">
             <div class="flex flex-col gap-2 p-3">
                 <Alert v-if="mensajes.length === 0" variant="muted">
                     <p>Todavía no hay mensajes. Proponé el día, la hora y el lugar con el formulario de encuentro.</p>

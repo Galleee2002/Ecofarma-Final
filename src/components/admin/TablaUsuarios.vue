@@ -198,49 +198,46 @@ watch(
                     <Badge :variant="varianteEstado(usuario)">{{ textoEstado(usuario) }}</Badge>
                 </TableCell>
                 <TableCell class="whitespace-normal">
-                    <div class="flex flex-col gap-2">
-                        <div class="flex flex-wrap gap-2">
-                            <Button
-                                v-if="usuario.is_validado === true"
-                                type="button"
-                                size="sm"
-                                variant="destructive"
-                                :disabled="guardando || esPropia(usuario)"
-                                @click="pedirConfirmacion(usuario.id, 'suspender')"
-                            >
-                                Suspender
-                            </Button>
-                            <Button
-                                v-else
-                                type="button"
-                                size="sm"
-                                :disabled="guardando || esPropia(usuario)"
-                                @click="pedirConfirmacion(usuario.id, 'rehabilitar')"
-                            >
-                                Rehabilitar
-                            </Button>
-                            <Button
-                                v-if="usuario.rol === 'admin'"
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                :disabled="guardando || esPropia(usuario)"
-                                @click="pedirConfirmacion(usuario.id, 'revocar')"
-                            >
-                                Quitar administrador
-                            </Button>
-                            <Button
-                                v-else
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                :disabled="guardando || esPropia(usuario)"
-                                @click="pedirConfirmacion(usuario.id, 'promover')"
-                            >
-                                Hacer administrador
-                            </Button>
-                        </div>
-                        <p v-if="esPropia(usuario)" class="text-sm text-muted">Es tu cuenta</p>
+                    <div class="flex flex-wrap gap-2">
+                        <Button
+                            v-if="usuario.is_validado === true"
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            :disabled="guardando || esPropia(usuario)"
+                            @click="pedirConfirmacion(usuario.id, 'suspender')"
+                        >
+                            Suspender
+                        </Button>
+                        <Button
+                            v-else
+                            type="button"
+                            size="sm"
+                            :disabled="guardando || esPropia(usuario)"
+                            @click="pedirConfirmacion(usuario.id, 'rehabilitar')"
+                        >
+                            Rehabilitar
+                        </Button>
+                        <Button
+                            v-if="usuario.rol === 'admin'"
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            :disabled="guardando || esPropia(usuario)"
+                            @click="pedirConfirmacion(usuario.id, 'revocar')"
+                        >
+                            Quitar administrador
+                        </Button>
+                        <Button
+                            v-else
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            :disabled="guardando || esPropia(usuario)"
+                            @click="pedirConfirmacion(usuario.id, 'promover')"
+                        >
+                            Hacer administrador
+                        </Button>
                     </div>
                 </TableCell>
             </TableRow>

@@ -1,9 +1,9 @@
 <script setup>
+import { SendIcon } from '@lucide/vue';
 import { ref } from 'vue';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 defineProps({
     enviando: {
@@ -37,18 +37,32 @@ function enviar() {
 </script>
 
 <template>
-    <form class="flex flex-col gap-2" @submit.prevent="enviar">
+    <form class="flex flex-col gap-2 border-t border-border p-3" @submit.prevent="enviar">
         <Alert v-if="error !== ''" variant="danger">
             <p>{{ error }}</p>
         </Alert>
 
-        <div class="flex flex-col gap-1">
-            <Label for="chat-mensaje">Mensaje</Label>
-            <Input id="chat-mensaje" v-model="texto" type="text" :disabled="deshabilitado || enviando" />
+        <div class="flex items-center gap-2">
+            <Input
+                id="chat-mensaje"
+                v-model="texto"
+                type="text"
+                aria-label="Mensaje"
+                placeholder="Escriba aquí su mensaje..."
+                class="flex-1"
+                :disabled="deshabilitado || enviando"
+            />
+            <Button
+                type="submit"
+                variant="ghost"
+                size="icon"
+                class="text-icon"
+                aria-label="Enviar"
+                :cargando="enviando"
+                :disabled="deshabilitado || texto.trim() === ''"
+            >
+                <SendIcon />
+            </Button>
         </div>
-
-        <Button type="submit" :cargando="enviando" :disabled="deshabilitado || texto.trim() === ''">
-            Enviar
-        </Button>
     </form>
 </template>
