@@ -29,7 +29,7 @@ La funcionalidad de las fases 2 a 9 ya está. Estas pantallas se maquetan con lo
 - [x] **Perfil** — `/perfil`. `PerfilView` con las pestañas Mis datos (`FormularioPerfil`), Mis donaciones (`ListaMisDonaciones`) y Mis solicitudes (`ListaMisSolicitudes`).
 - [x] **Publicar donación** — `/donar`. `DonarView` y `FormularioDonacion`. El `<datalist>` del vademécum se conserva.
 - [x] **Chat** — `/solicitud/:solicitudId/chat`. `ChatView` y `components/chat/` (`ListaMensajes`, `FormularioMensaje`, `FormularioEncuentro`, `FormularioConfirmarEntrega`, `PanelCancelarSolicitud`).
-- [x] **Barra de navegación** — todas las rutas. `components/layout/BarraNavegacion`. No es una pantalla, pero se maqueta junto con el resto.
+- [x] **Barra de navegación** — todas las rutas. `components/layout/BarraNavegacion`. Logo a la izquierda, enlaces al centro (Catálogo, y con sesión Donar y Mi perfil) y, con sesión, un **Dropdown menu** de perfil a la derecha: bienvenida en Title Case, Administrador si `rol = admin` (va a `/admin`) y «Cerrar sesión» a lo ancho. Moderación no es un ítem del **Navigation menu**; el subnav interno sigue en `NavAdmin`.
 - [x] **Moderación de donaciones** — `/admin/donaciones`. `AdminDonacionesView`, `NavAdmin`, `ListaModeracion` y `TarjetaModeracion`. El vínculo al vademécum usa **Select**.
 - [x] **Alta del vademécum** — `/admin/vademecum`. `AdminVademecumView`, `NavAdmin` y `FormularioAltaVademecum`.
 - [x] **Gestión de usuarios** — `/admin/usuarios`. `AdminUsuariosView`, `NavAdmin` y `TablaUsuarios`. Usa **Table** y **Select** para los filtros.
@@ -81,6 +81,7 @@ Cubren los controles de las fases 2 a 9 (catálogo, registro, login, perfil, don
 | [x] | **Scroll area** | La lista de mensajes del chat (`ListaMensajes.vue`), que ya hace scroll al final |
 | [x] | **Select** | El vínculo al vademécum al aprobar una donación (`TarjetaModeracion.vue`) y los filtros de estado y rol en `/admin/usuarios`. No reemplaza el `<datalist>` de `/donar`. |
 | [x] | **Table** | La lista de cuentas en `/admin/usuarios` (`TablaUsuarios.vue`). |
+| [x] | **Dropdown menu** | El menú de perfil en `BarraNavegacion.vue`. Copiado en `src/components/ui/dropdown-menu`. El CLI intentó tocar `src/style.css` (Inter, `dark` y alias de `--font-heading`); ese cambio se revirtió para conservar tokens y fuentes. |
 
 ### Pagination
 
@@ -195,7 +196,7 @@ La fase 10 (landing) es la última del tablero. No anticipar componentes de mark
 |---|---|
 | **Form** | Arrastra `vee-validate` y Zod. La validación ya vive en los composables (`useAuth`, `useDonaciones`, `useSolicitudes`). Con Input, Label, Textarea y Checkbox alcanza, y el proyecto pide sintaxis básica sin librerías de más. |
 | **Combobox** o **Command** para el vademécum al donar | `FormularioDonacion.vue` usa `<datalist>` a propósito. El donante puede escribir un valor que no está en `medicamentos_habilitados`; en ese caso la Edge Function `publicar-medicamento` deja la donación en `pendiente_revision`. Un select cerrado perdería ese comportamiento. El **Select** de shadcn sí se usa en la moderación, donde el admin elige una fila existente. |
-| **Navigation menu**, **Dropdown menu**, **Sheet** | `BarraNavegacion.vue` es un `nav` simple (catálogo, donar, perfil, cerrar sesión). |
+| **Sheet** | La barra no usa un panel lateral. Los links van en **Navigation menu** y la cuenta, con sesión, en **Dropdown menu**. |
 | **Calendar** y selector de fecha de shadcn | Las fechas y horas usan `input type="date"` y `input type="time"` (vencimiento de la donación, día y hora del encuentro). |
 | **Avatar** | No hay fotos de perfil. Las imágenes son fotos de envase y de receta. |
 

@@ -48,7 +48,7 @@ function abrirPestana(pestana) {
         <p v-else-if="perfil === null" class="text-muted">Cargando tus datos...</p>
 
         <Tabs v-else :model-value="pestanaActiva" class="flex-col gap-4" @update:model-value="abrirPestana">
-            <TabsList variant="line" class="w-full">
+            <TabsList class="w-full">
                 <TabsTrigger value="datos">Mis datos</TabsTrigger>
                 <TabsTrigger value="donaciones">Mis donaciones</TabsTrigger>
                 <TabsTrigger value="solicitudes">Mis solicitudes</TabsTrigger>

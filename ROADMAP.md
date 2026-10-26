@@ -30,7 +30,7 @@ Las fases 1 a 9 están cerradas en funcionalidad. La capa visual compartida ya d
 - [x] Migración `realtime_solicitud_mensajes`: `solicitud_mensajes` en la publicación `supabase_realtime` (Postgres Changes), aplicada al proyecto remoto.
 - [x] `supabase/seed.sql` con el vademécum Remediar, 2 usuarios de prueba y 5 donaciones `disponible`, aplicado al proyecto remoto.
 - [x] Catálogo público en `/catalogo`: composable `useMedicamentos` con la consulta a Supabase, búsqueda y manejo de errores, y los componentes de búsqueda, grilla y card.
-- [x] Registro, login y logout en `/registro` y `/login`: composable `useAuth`, formularios en `components/auth/` y `BarraNavegacion` con el usuario y «Cerrar sesión».
+- [x] Registro, login y logout en `/registro` y `/login`: composable `useAuth`, formularios en `components/auth/` y `BarraNavegacion` con desplegable de perfil y «Cerrar sesión» adentro.
 - [x] Migración `validar_registro`: `handle_new_user` rechaza el alta sin DDJJ aceptada o sin datos obligatorios, aplicada al proyecto remoto.
 - [x] Fase 4: sesión persistida en el guard, rutas protegidas con `meta.requiereSesion` / `meta.soloInvitados`, y `/perfil` con edición de datos y pestañas «Mis donaciones» y «Mis solicitudes» (composables `usePerfil`, `useDonaciones`, `useSolicitudes`).
 - [x] Fase 5: formulario de donación en `/donar` con sugerencias del vademécum (`useVademecum`), bucket `fotos-envases` (migración `bucket_fotos_envases`) y Edge Function `publicar-medicamento` en JavaScript. Migración y función aplicadas al proyecto remoto.
@@ -378,7 +378,7 @@ Decisiones tomadas:
 
 ## 5. Fidelidad visual de las pantallas actuales
 
-Trabajo actual. Las fases 1 a 9 funcionan. `src/style.css` ya tiene la escala, los radios, las sombras, el borde y la superficie blanca de tarjetas y diálogos. Los controles de `src/components/ui` usan esos tokens, con hover, focus, disabled, carga (`cargando` en el botón), error (`aria-invalid` y Alert) y éxito (Sonner al ingresar, cerrar sesión, registrarse y donar; Alert y Badge en el resto). La barra usa Navigation Menu y las confirmaciones de cerrar sesión, cancelar solicitud, rechazar donación y acciones de cuenta usan Dialog. Cada vista usa `pagina`, `pagina-media` o `pagina-formulario`. Falta el pulido fino de cada pantalla hasta que se lea como terminada. La landing no entra. El detalle de componentes está en `docs/shadcn/vue-implementacion.md`.
+Trabajo actual. Las fases 1 a 9 funcionan. `src/style.css` ya tiene la escala, los radios, las sombras, el borde y la superficie blanca de tarjetas y diálogos. Los controles de `src/components/ui` usan esos tokens, con hover, focus, disabled, carga (`cargando` en el botón), error (`aria-invalid` y Alert) y éxito (Sonner al ingresar, cerrar sesión, registrarse y donar; Alert y Badge en el resto). La barra usa Navigation Menu para los links y Dropdown Menu para la cuenta; las confirmaciones de cerrar sesión, cancelar solicitud, rechazar donación y acciones de cuenta usan Dialog. Cada vista usa `pagina`, `pagina-media` o `pagina-formulario`. Falta el pulido fino de cada pantalla hasta que se lea como terminada. La landing no entra. El detalle de componentes está en `docs/shadcn/vue-implementacion.md`.
 
 ### Qué se conserva
 
@@ -419,7 +419,7 @@ Rutas actuales en `src/`. Todo consume Supabase con el cliente único de `src/li
 | Catálogo público | `/catalogo` | `CatalogoView`, `components/medicamentos/` (`MedicamentoSearch`, `MedicamentoGrid`, `MedicamentoCard`) | `useMedicamentos` | `select` de `medicamentos` con `estado = 'disponible'` y `fecha_vencimiento >= hoy` |
 | Registro | `/registro` | `RegistroView`, `components/auth/FormularioRegistro` | `useAuth` | `auth.signUp` con metadatos (`name`, `dni`, `telefono`, `direccion`, `localidad`, `acepto_ddjj`); el trigger `handle_new_user` crea el perfil |
 | Login | `/login` | `LoginView`, `components/auth/FormularioLogin` | `useAuth` | `auth.signInWithPassword`; acepta `?redirect=` |
-| Sesión y logout | todas | `components/layout/BarraNavegacion` | `useAuth` | `auth.onAuthStateChange` (`INITIAL_SESSION`), `auth.signOut`, `select` del propio perfil en `profiles` |
+| Sesión y logout | todas | `components/layout/BarraNavegacion` | `useAuth` | `auth.onAuthStateChange` (`INITIAL_SESSION`), `auth.signOut`, `select` del propio perfil en `profiles`. Con sesión, el desplegable de perfil muestra la bienvenida, Administrador si `rol = admin` (ruta `/admin` → `admin-donaciones`) y «Cerrar sesión». `NavAdmin` sigue siendo el subnav interno de `/admin/*`. |
 | Mis datos | `/perfil` | `PerfilView`, `components/perfil/FormularioPerfil` | `usePerfil` | `update` de `profiles` (solo `telefono`, `direccion`, `localidad`) |
 | Mis donaciones | `/perfil` | `components/perfil/ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id`; si está `reservado`, `select` de la solicitud en `pendiente_coordinacion` o `en_camino` |
 | Mis solicitudes | `/perfil` | `components/perfil/ListaMisSolicitudes` | `useSolicitudes` | `select` de `solicitudes` por `receptor_id` (columnas explícitas) y `rpc('obtener_codigo_confirmacion')` |
