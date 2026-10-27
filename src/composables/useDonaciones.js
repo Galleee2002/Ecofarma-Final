@@ -19,13 +19,16 @@ function validarDonacion(datos, fotos) {
     const camposObligatorios = [
         datos.nombre_comercial,
         datos.principio_activo,
+        datos.concentracion,
+        datos.forma_farmaceutica,
+        datos.lote,
         String(datos.cantidad_disponible),
         datos.fecha_vencimiento,
     ];
 
     for (const campo of camposObligatorios) {
         if (campo.trim() === '') {
-            return 'Completá el nombre comercial, el principio activo, la cantidad y la fecha de vencimiento.';
+            return 'Completá el nombre comercial, el principio activo, la concentración, la forma farmacéutica, el lote, la cantidad y la fecha de vencimiento.';
         }
     }
 

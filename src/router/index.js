@@ -48,25 +48,29 @@ const routes = [
     },
     {
         path: '/admin',
-        redirect: { name: 'admin-donaciones' },
-    },
-    {
-        path: '/admin/donaciones',
-        name: 'admin-donaciones',
-        component: () => import('../views/AdminDonacionesView.vue'),
+        component: () => import('../views/AdminLayout.vue'),
         meta: { requiereSesion: true, requiereAdmin: true },
-    },
-    {
-        path: '/admin/vademecum',
-        name: 'admin-vademecum',
-        component: () => import('../views/AdminVademecumView.vue'),
-        meta: { requiereSesion: true, requiereAdmin: true },
-    },
-    {
-        path: '/admin/usuarios',
-        name: 'admin-usuarios',
-        component: () => import('../views/AdminUsuariosView.vue'),
-        meta: { requiereSesion: true, requiereAdmin: true },
+        children: [
+            {
+                path: '',
+                redirect: { name: 'admin-donaciones' },
+            },
+            {
+                path: 'donaciones',
+                name: 'admin-donaciones',
+                component: () => import('../views/AdminDonacionesView.vue'),
+            },
+            {
+                path: 'vademecum',
+                name: 'admin-vademecum',
+                component: () => import('../views/AdminVademecumView.vue'),
+            },
+            {
+                path: 'usuarios',
+                name: 'admin-usuarios',
+                component: () => import('../views/AdminUsuariosView.vue'),
+            },
+        ],
     },
 ];
 

@@ -46,9 +46,12 @@ function validarDatos(datos) {
   if (
     limpiarTexto(datos.nombre_comercial) === '' ||
     limpiarTexto(datos.principio_activo) === '' ||
+    limpiarTexto(datos.concentracion) === '' ||
+    limpiarTexto(datos.forma_farmaceutica) === '' ||
+    limpiarTexto(datos.lote) === '' ||
     limpiarTexto(datos.fecha_vencimiento) === ''
   ) {
-    return 'Completá el nombre comercial, el principio activo, la cantidad y la fecha de vencimiento.';
+    return 'Completá el nombre comercial, el principio activo, la concentración, la forma farmacéutica, el lote, la cantidad y la fecha de vencimiento.';
   }
 
   const cantidad = Number(datos.cantidad_disponible);
@@ -67,10 +70,10 @@ function armarCampos(datos) {
   return {
     nombre_comercial: limpiarTexto(datos.nombre_comercial),
     principio_activo: limpiarTexto(datos.principio_activo),
-    concentracion: textoONull(limpiarTexto(datos.concentracion)),
-    forma_farmaceutica: textoONull(limpiarTexto(datos.forma_farmaceutica)),
+    concentracion: limpiarTexto(datos.concentracion),
+    forma_farmaceutica: limpiarTexto(datos.forma_farmaceutica),
     cantidad_disponible: Number(datos.cantidad_disponible),
-    lote: textoONull(limpiarTexto(datos.lote)),
+    lote: limpiarTexto(datos.lote),
     fecha_vencimiento: limpiarTexto(datos.fecha_vencimiento),
     descripcion: textoONull(limpiarTexto(datos.descripcion)),
   };

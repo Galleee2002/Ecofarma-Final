@@ -1,11 +1,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { Alert } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useModeracion } from '../composables/useModeracion';
+import { usePaginacion } from '../composables/usePaginacion';
 import { useVademecum } from '../composables/useVademecum';
 import ListaModeracion from '../components/admin/ListaModeracion.vue';
-import NavAdmin from '../components/admin/NavAdmin.vue';
+import PaginadorLista from '../components/admin/PaginadorLista.vue';
 
 const {
     donaciones,
@@ -23,7 +25,7 @@ const {
 
 const { filas, error: errorVademecum, cargarSugerencias } = useVademecum();
 
-const pestanaActiva = ref('pendientes');
+const filtroEstado = ref('pendiente_revision');
 
 const pendientes = computed(function () {
     return donaciones.value.filter(function (donacion) {
@@ -43,11 +45,41 @@ const rechazados = computed(function () {
     });
 });
 
+const donacionesFiltradas = computed(function () {
+    if (filtroEstado.value === 'pendiente_revision') {
+        return pendientes.value;
+    }
+    if (filtroEstado.value === 'disponible') {
+        return disponibles.value;
+    }
+    if (filtroEstado.value === 'rechazado') {
+        return rechazados.value;
+    }
+    return donaciones.value;
+});
+
+const { pagina, total, visibles } = usePaginacion(donacionesFiltradas, function () {
+    return filtroEstado.value;
+});
+
 function varianteErrorAccion() {
     if (tipoErrorAccion.value === 'advertencia') {
         return 'warning';
     }
     return 'danger';
+}
+
+function mensajeVacio() {
+    if (filtroEstado.value === 'pendiente_revision') {
+        return 'No hay donaciones pendientes de revisión.';
+    }
+    if (filtroEstado.value === 'disponible') {
+        return 'No hay donaciones disponibles para moderar.';
+    }
+    if (filtroEstado.value === 'rechazado') {
+        return 'No hay donaciones rechazadas.';
+    }
+    return 'No hay donaciones para moderar.';
 }
 
 onMounted(function () {
@@ -57,10 +89,8 @@ onMounted(function () {
 </script>
 
 <template>
-    <main class="pagina-media">
+    <main class="flex flex-col gap-6">
         <h1 class="text-2xl font-bold text-primary">Moderación de donaciones</h1>
-
-        <NavAdmin />
 
         <Alert v-if="errorVademecum !== ''" variant="warning">
             <p>{{ errorVademecum }}</p>
@@ -74,57 +104,39 @@ onMounted(function () {
             <p>{{ mensajeAccion }}</p>
         </Alert>
 
-        <Tabs :model-value="pestanaActiva" class="flex-col gap-4" @update:model-value="pestanaActiva = $event">
-            <TabsList variant="line" class="w-full">
-                <TabsTrigger value="pendientes">Pendientes ({{ pendientes.length }})</TabsTrigger>
-                <TabsTrigger value="disponibles">Disponibles</TabsTrigger>
-                <TabsTrigger value="rechazados">Rechazados</TabsTrigger>
-            </TabsList>
+        <div class="flex flex-col gap-1">
+            <Label for="donaciones-estado">Estado</Label>
+            <Select v-model="filtroEstado">
+                <SelectTrigger id="donaciones-estado" class="w-56">
+                    <SelectValue placeholder="Pendientes" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                    <SelectItem value="pendiente_revision">Pendientes ({{ pendientes.length }})</SelectItem>
+                    <SelectItem value="disponible">Disponibles ({{ disponibles.length }})</SelectItem>
+                    <SelectItem value="rechazado">Rechazados ({{ rechazados.length }})</SelectItem>
+                    <SelectItem value="todos">Todos ({{ donaciones.length }})</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
 
-            <TabsContent value="pendientes">
-                <ListaModeracion
-                    :donaciones="pendientes"
-                    :filas-vademecum="filas"
-                    :cargando="cargando"
-                    :error="error"
-                    :guardando="guardando"
-                    vacio="No hay donaciones pendientes de revisión."
-                    @reintentar="cargarDonaciones"
-                    @corregir="corregirDonacion"
-                    @aprobar="aprobarDonacion"
-                    @rechazar="rechazarDonacion"
-                />
-            </TabsContent>
+        <ListaModeracion
+            :donaciones="visibles"
+            :filas-vademecum="filas"
+            :cargando="cargando"
+            :error="error"
+            :guardando="guardando"
+            :vacio="mensajeVacio()"
+            @reintentar="cargarDonaciones"
+            @corregir="corregirDonacion"
+            @aprobar="aprobarDonacion"
+            @rechazar="rechazarDonacion"
+        />
 
-            <TabsContent value="disponibles">
-                <ListaModeracion
-                    :donaciones="disponibles"
-                    :filas-vademecum="filas"
-                    :cargando="cargando"
-                    :error="error"
-                    :guardando="guardando"
-                    vacio="No hay donaciones disponibles para moderar."
-                    @reintentar="cargarDonaciones"
-                    @corregir="corregirDonacion"
-                    @aprobar="aprobarDonacion"
-                    @rechazar="rechazarDonacion"
-                />
-            </TabsContent>
-
-            <TabsContent value="rechazados">
-                <ListaModeracion
-                    :donaciones="rechazados"
-                    :filas-vademecum="filas"
-                    :cargando="cargando"
-                    :error="error"
-                    :guardando="guardando"
-                    vacio="No hay donaciones rechazadas."
-                    @reintentar="cargarDonaciones"
-                    @corregir="corregirDonacion"
-                    @aprobar="aprobarDonacion"
-                    @rechazar="rechazarDonacion"
-                />
-            </TabsContent>
-        </Tabs>
+        <PaginadorLista
+            v-if="!cargando && error === '' && total > 0"
+            :pagina="pagina"
+            :total="total"
+            @update:pagina="pagina = $event"
+        />
     </main>
 </template>

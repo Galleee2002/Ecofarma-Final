@@ -1,37 +1,29 @@
 # Base de datos de EcoFARMA
 
-Este documento explica, de forma simple, cómo está armada la base de datos de EcoFARMA y cómo se protege la información de los usuarios.
+Cómo está armada la base y cómo se protege. El detalle de columnas, tipos y claves está en `ROADMAP.md` (sección 4). Las reglas para tocarla están en `AGENTS.md`.
 
 ---
 
-## 1. ¿Dónde se guardan los datos?
+## 1. Dónde se guardan los datos
 
-EcoFARMA usa **Supabase**, un servicio que ofrece una base de datos **PostgreSQL** junto con otras herramientas:
+EcoFARMA usa **Supabase** (PostgreSQL) más estas piezas:
 
-- **Auth:** registro e inicio de sesión de usuarios.
-- **Storage:** almacenamiento de archivos (fotos de envases y recetas).
-- **Realtime:** mensajes en tiempo real (el chat).
-- **Edge Functions:** pequeños programas que corren en el servidor para tareas delicadas.
+- **Auth:** registro e inicio de sesión. El email y la contraseña no están en las tablas de abajo.
+- **Storage:** fotos de envases y recetas. Las tablas guardan solo la URL.
+- **Realtime:** el chat, sin recargar la página.
+- **Edge Functions:** programas en el servidor para las acciones que no pueden quedar en el navegador.
 
-La aplicación web (el **frontend**, hecho con Vue) se conecta directamente a Supabase. Por eso la seguridad no depende del frontend: la base de datos misma decide quién puede ver o modificar cada dato.
+La aplicación (Vue) se conecta directo a Supabase. La base decide quién ve o cambia cada fila.
 
----
+Hay 5 tablas:
 
-## 2. Las tablas
-
-Una **tabla** es como una planilla de cálculo: cada **fila** es un registro (por ejemplo, un medicamento) y cada **columna** es un dato de ese registro (nombre, vencimiento, etc.).
-
-EcoFARMA tiene 5 tablas:
-
-| Tabla | ¿Qué guarda? |
+| Tabla | Qué guarda |
 |---|---|
-| `profiles` | Los datos de cada usuario |
-| `medicamentos_habilitados` | El listado oficial de medicamentos permitidos (vademécum) |
-| `medicamentos` | Los medicamentos que donan los usuarios |
-| `solicitudes` | Los pedidos de un usuario para recibir un medicamento |
-| `solicitud_mensajes` | Los mensajes del chat de cada solicitud |
-
-### Cómo se relacionan
+| `profiles` | Datos de cada usuario, aparte del email y la contraseña |
+| `medicamentos_habilitados` | Vademécum oficial (Programa Remediar) |
+| `medicamentos` | Donaciones publicadas |
+| `solicitudes` | Pedidos para recibir un medicamento |
+| `solicitud_mensajes` | Mensajes del chat de cada pedido |
 
 ```mermaid
 erDiagram
@@ -43,323 +35,230 @@ erDiagram
     profiles ||--o{ solicitud_mensajes : "escribe"
 ```
 
-En palabras:
+Un usuario dona muchos medicamentos y hace muchas solicitudes. Una donación puede coincidir con una fila del vademécum. Cada solicitud pide un medicamento y tiene su chat.
 
-- Un **usuario** puede donar muchos **medicamentos**.
-- Un **usuario** puede hacer muchas **solicitudes**.
-- Cada **medicamento** donado puede coincidir con un medicamento del **vademécum**.
-- Cada **solicitud** pide un **medicamento** y tiene su propio **chat**.
+Todas las tablas tienen `id` y `created_at`. `updated_at` está en todas menos en el chat, porque los mensajes no se editan.
 
-### 2.1 `profiles` — Usuarios
+---
 
-El email y la contraseña los guarda Supabase Auth en una tabla interna (`auth.users`). En `profiles` se guarda el resto de los datos de la persona.
+## 2. Qué significa cada tabla
 
-| Columna | Significado |
-|---|---|
-| `id` | Identificador del usuario (el mismo que usa Supabase Auth) |
-| `name` | Nombre |
-| `dni` | DNI (no se puede repetir) |
-| `telefono`, `direccion`, `localidad` | Datos de contacto |
-| `rol` | `user` (usuario común) o `admin` (administrador) |
-| `is_validado` | Si la cuenta está habilitada. Arranca en `true`; el admin la pone en `false` para suspenderla |
-| `acepto_ddjj` | Si aceptó la Declaración Jurada (DDJJ) |
-| `fecha_aceptacion_ddjj` | Cuándo la aceptó |
+### `profiles`
 
-**Dato importante:** el perfil se crea solo. Cuando alguien se registra, un **trigger** (una acción automática de la base de datos) crea su fila en `profiles` con los datos del formulario. El rol siempre arranca como `user`: nadie puede registrarse como administrador.
-
-El trigger también controla el registro: si la persona no aceptó los Términos y la DDJJ, o le falta el nombre, DNI, teléfono, dirección o localidad, cancela el alta y la cuenta no se crea. Así la regla se cumple aunque alguien intente registrarse sin pasar por el formulario de la aplicación.
-
-### 2.2 `medicamentos_habilitados` — Vademécum
-
-Es el listado oficial de medicamentos esenciales del **Programa Remediar**. Sirve para comprobar si un medicamento donado está permitido.
+El perfil se crea solo al registrarse, con un trigger sobre `auth.users`. El rol arranca en `user`. Si la persona no aceptó la DDJJ, o le falta nombre, DNI, teléfono, dirección o localidad, el trigger cancela el alta.
 
 | Columna | Significado |
 |---|---|
-| `principio_activo` | La droga (por ejemplo, ibuprofeno) |
-| `concentracion` | Cantidad de droga (por ejemplo, 400 mg) |
+| `name`, `dni` | Nombre y DNI. El DNI no se repite |
+| `telefono`, `direccion`, `localidad` | Contacto |
+| `rol` | `user` o `admin` |
+| `is_validado` | Cuenta habilitada. Arranca en `true`. El admin la pasa a `false` para suspenderla |
+| `acepto_ddjj`, `fecha_aceptacion_ddjj` | Si aceptó la Declaración Jurada, y cuándo |
+
+El usuario puede editar nombre, DNI, teléfono, dirección y localidad. El email se cambia por Auth, no por una columna de esta tabla. No puede cambiar `rol`, `is_validado` ni la DDJJ.
+
+### `medicamentos_habilitados`
+
+Listado de referencia para aceptar o retener una donación. Remediar usa nombres genéricos, así que la marca es opcional.
+
+| Columna | Significado |
+|---|---|
+| `principio_activo` | La droga |
+| `concentracion` | Cantidad de droga |
 | `forma_farmaceutica` | Comprimido, jarabe, etc. |
-| `nombre_comercial` | Marca (opcional, porque Remediar usa nombres genéricos) |
-| `presentacion` | Por ejemplo, caja x 20 comprimidos |
+| `nombre_comercial` | Marca, si la hay |
+| `presentacion` | Por ejemplo, caja por 20 |
 | `requiere_receta` | `true` en antibióticos y psicofármacos |
 
-### 2.3 `medicamentos` — Donaciones
+La coincidencia de una donación usa principio activo, concentración y forma. No usa la marca.
 
-Cada fila es un medicamento que un usuario publicó para donar.
+### `medicamentos`
+
+Una fila es una donación. Concentración, forma farmacéutica y lote son obligatorios.
 
 | Columna | Significado |
 |---|---|
-| `user_id` | Quién lo donó |
-| `medicamento_habilitado_id` | Con qué medicamento del vademécum coincidió (vacío si no coincidió) |
+| `user_id` | Quién donó |
+| `medicamento_habilitado_id` | Fila del vademécum con la que coincidió. Vacío si no coincidió |
 | `nombre_comercial`, `principio_activo`, `concentracion`, `forma_farmaceutica` | Datos del medicamento |
-| `cantidad_disponible` | Cuántas unidades hay (no puede ser negativa) |
-| `lote` | Número de lote del envase |
-| `fecha_vencimiento` | Fecha de vencimiento |
-| `fotos_envase` | Hasta 3 fotos del envase |
+| `cantidad_disponible` | Unidades. No puede ser negativa |
+| `lote` | Lote del envase |
+| `fecha_vencimiento` | Vencimiento |
+| `fotos_envase` | Hasta 3 URLs de fotos |
 | `descripcion` | Comentario opcional |
-| `estado` | En qué situación está la donación (ver abajo) |
-| `motivo_rechazo` | Por qué el admin la rechazó, si corresponde |
+| `estado` | Situación de la donación |
+| `motivo_rechazo` | Por qué el admin la rechazó, si aplica |
 
-Estados posibles de un medicamento:
+Estados: `disponible` (se ve en el catálogo), `pendiente_revision` (no coincidió y espera al admin), `reservado` (alguien lo pidió), `entregado`, `rechazado`.
 
-- `disponible`: se ve en el catálogo.
-- `pendiente_revision`: no coincidió con el vademécum y espera que un admin lo revise.
-- `reservado`: alguien lo solicitó.
-- `entregado`: ya se entregó.
-- `rechazado`: el admin no lo aprobó.
+### `solicitudes`
 
-### 2.4 `solicitudes` — Pedidos
-
-Cada fila es el pedido de un usuario (el **receptor**) para recibir un medicamento.
+El pedido de un receptor. No se puede borrar el medicamento mientras exista el pedido.
 
 | Columna | Significado |
 |---|---|
 | `medicamento_id` | Qué medicamento pide |
 | `receptor_id` | Quién lo pide |
-| `es_para_tercero` | Si lo pide para otra persona |
-| `nombre_destinatario_final` | Nombre de esa otra persona (obligatorio si es para un tercero) |
+| `es_para_tercero`, `nombre_destinatario_final` | Si es para otra persona, y el nombre de esa persona |
 | `receta_medica_url` | Foto de la receta, si hace falta |
-| `codigo_confirmacion` | Código de 6 dígitos para confirmar la entrega en persona |
-| `acepto_ddjj_receptor` | Si el receptor aceptó la Declaración Jurada |
-| `estado` | En qué situación está el pedido (ver abajo) |
+| `codigo_confirmacion` | Seis dígitos para la entrega en persona. El frontend no puede leer esta columna |
+| `acepto_ddjj_receptor`, `fecha_aceptacion_ddjj` | DDJJ del receptor |
+| `estado` | Situación del pedido |
 | `fecha_entrega` | Cuándo se entregó |
 
-Estados posibles de una solicitud:
+Estados: `pendiente_coordinacion` (están acordando el encuentro), `en_camino` (previsto; hoy ninguna acción lo asigna), `completado`, `cancelado`.
 
-- `pendiente_coordinacion`: donante y receptor están acordando el encuentro por chat.
-- `en_camino`: ya acordaron y se va a hacer la entrega.
-- `completado`: el medicamento se entregó.
-- `cancelado`: el pedido se canceló.
+El código lo ve solo el receptor. En el encuentro se lo dice al donante, y el donante lo carga en la app.
 
-**¿Cómo funciona el código de 6 dígitos?** Solo el receptor lo ve. Cuando se encuentran, el receptor se lo dice al donante, y el donante lo ingresa en la app para confirmar la entrega. Así se comprueba que el medicamento llegó a la persona correcta.
+### `solicitud_mensajes`
 
-### 2.5 `solicitud_mensajes` — Chat
+Un mensaje del chat. Solo participan el donante y el receptor de esa solicitud. El texto no puede ir vacío.
 
-Cada fila es un mensaje del chat de una solicitud. Solo participan el donante y el receptor.
-
-| Columna | Significado |
-|---|---|
-| `solicitud_id` | A qué solicitud pertenece |
-| `user_id` | Quién escribió el mensaje |
-| `mensaje` | El texto (no puede estar vacío) |
-| `created_at` | Cuándo se envió |
-
-**¿Cómo llegan los mensajes en tiempo real?** La tabla está conectada a **Supabase Realtime**: cada vez que se guarda un mensaje nuevo, Supabase se lo avisa al instante a quienes tienen el chat abierto, sin que tengan que recargar la página. Antes de enviar el aviso, Realtime aplica las mismas políticas RLS de lectura (ver sección 5), así que solo lo reciben el donante y el receptor de esa solicitud.
-
-### Columnas que tienen todas las tablas
-
-- `id`: identificador único de cada fila.
-- `created_at`: fecha en que se creó la fila.
-- `updated_at`: fecha de la última modificación (se actualiza sola). El chat no la tiene porque los mensajes no se editan.
+Realtime avisa el mensaje nuevo a quien tiene el chat abierto y, antes, aplica las mismas reglas de lectura de la sección 4.
 
 ---
 
-## 3. Seguridad: dos "candados"
+## 3. Dos candados
 
-Como el frontend se conecta directo a la base de datos, hace falta que la base controle quién puede hacer qué. PostgreSQL usa **dos candados**, y para acceder a un dato hay que pasar los dos:
+Para tocar un dato hay que pasar los dos:
 
-1. **Permisos de tabla (GRANT):** ¿esta persona puede usar esta tabla? ¿Para leer, para escribir o para nada?
-2. **Políticas RLS:** de esta tabla, ¿qué filas puede ver o modificar?
+1. **GRANT:** ¿este rol puede usar esta tabla, y para qué operación?
+2. **RLS:** de esa tabla, ¿qué filas?
 
-Un ejemplo para entenderlo: el **GRANT** es la llave de la puerta de un edificio, y las **políticas RLS** deciden a qué departamentos podés entrar una vez adentro. Si no tenés la llave del edificio, no importa qué departamentos tengas permitidos: no entrás.
+El GRANT es la llave del edificio. La política RLS dice a qué departamentos se entra adentro.
 
-### Los tipos de usuario de la base de datos (roles)
-
-Supabase identifica a quien hace cada consulta con un **rol**:
-
-| Rol | ¿Quién es? |
+| Rol | Quién es |
 |---|---|
-| `anon` | Un visitante que no inició sesión |
-| `authenticated` | Un usuario que inició sesión |
-| `service_role` | El servidor (las Edge Functions). Ignora las políticas RLS, por eso nunca se usa desde el frontend |
+| `anon` | Visitante sin sesión |
+| `authenticated` | Usuario con sesión |
+| `service_role` | Las Edge Functions. Ignora RLS. No se usa en el frontend |
 
----
+En EcoFARMA los permisos de `anon` y `authenticated` no vienen dados: cada tabla nueva necesita su `GRANT`. Eso está en la migración `table_grants`. `service_role` los recibe por defecto.
 
-## 4. Primer candado: permisos de tabla (GRANT)
+Operaciones: `select` (leer), `insert` (crear), `update` (modificar), `delete` (borrar).
 
-`GRANT` es la instrucción de PostgreSQL que da permisos. Por ejemplo:
+### Permisos
 
-```sql
-grant select on public.medicamentos to anon, authenticated;
-```
-
-Significa: "los visitantes y los usuarios logueados pueden **leer** (`select`) la tabla `medicamentos`".
-
-Las operaciones posibles son:
-
-- `select`: leer.
-- `insert`: crear filas nuevas.
-- `update`: modificar filas.
-- `delete`: borrar filas.
-
-En muchos proyectos de Supabase estos permisos se dan automáticamente. **En EcoFARMA no**, así que se dan a mano, tabla por tabla. Eso es lo que hace la migración `table_grants`.
-
-### Permisos que tiene cada rol
-
-| Tabla | Visitante (`anon`) | Usuario logueado (`authenticated`) |
+| Tabla | Visitante | Usuario con sesión |
 |---|---|---|
-| `profiles` | Nada | Leer. Modificar solo `telefono`, `direccion` y `localidad` |
+| `profiles` | Nada | Leer. Modificar `name`, `dni`, `telefono`, `direccion` y `localidad` |
 | `medicamentos_habilitados` | Leer | Leer |
 | `medicamentos` | Leer | Leer |
-| `solicitudes` | Nada | Leer todas las columnas **menos** `codigo_confirmacion` |
-| `solicitud_mensajes` | Nada | Leer y enviar mensajes |
+| `solicitudes` | Nada | Leer todas las columnas menos `codigo_confirmacion` |
+| `solicitud_mensajes` | Nada | Leer y crear mensajes |
 
-El servidor (`service_role`) tiene permiso para todo en todas las tablas, porque lo usan las Edge Functions.
-
-### Permisos por columna
-
-Algunos permisos no se dan sobre la tabla entera sino sobre **columnas puntuales**:
-
-- En `profiles`, el usuario solo puede modificar `telefono`, `direccion` y `localidad`. No puede cambiar su `rol` (para hacerse admin), su `dni` ni `is_validado` (para quitarse una suspensión).
-- En `solicitudes`, el usuario no puede leer `codigo_confirmacion`. Si pudiera, el donante vería el código y confirmaría la entrega sin haber visto al receptor. El receptor lo obtiene con una función especial (ver sección 6).
+El usuario no puede modificar `rol`, `is_validado` ni la DDJJ. Si pudiera leer `codigo_confirmacion`, el donante confirmaría la entrega sin el receptor. El receptor lo pide con `obtener_codigo_confirmacion` (sección 5).
 
 ---
 
-## 5. Segundo candado: políticas RLS
+## 4. Políticas RLS
 
-**RLS** significa *Row Level Security* (seguridad a nivel de fila). Una vez que el rol pasó el primer candado, las políticas RLS deciden **qué filas** puede ver o modificar.
+RLS está activo en todas las tablas. Si no hay política para una operación, esa operación no devuelve ni cambia filas.
 
-Todas las tablas tienen RLS activado. Si una tabla tiene RLS activado y no hay ninguna política para una operación, esa operación queda **bloqueada**: no se devuelve ni se modifica ninguna fila.
+**`profiles`.** Cada uno ve y edita el propio. El admin ve todos.
 
-### Políticas de cada tabla
+**`medicamentos_habilitados`.** Cualquiera lo lee, con o sin sesión.
 
-**`profiles`**
+**`medicamentos`.** Cualquiera ve los disponibles y no vencidos. El donante ve todas las suyas. El receptor ve las que pidió. El admin ve todas. Con sesión esas reglas se suman: por eso el catálogo filtra otra vez en la consulta.
 
-- Cada usuario ve **su propio perfil**. El admin ve todos.
-- Cada usuario puede editar **solo su propio perfil** (y solo las columnas permitidas).
+**`solicitudes`.** Las leen los dos participantes y el admin. No hay política de alta: solo las crea la Edge Function `crear-solicitud`.
 
-**`medicamentos_habilitados`**
-
-- Cualquiera puede ver el vademécum, aunque no haya iniciado sesión.
-
-**`medicamentos`**
-
-- Cualquiera puede ver los medicamentos **disponibles y no vencidos** (el catálogo público).
-- El donante ve **todas sus donaciones**, en cualquier estado.
-- El receptor ve los medicamentos **que solicitó**, aunque ya no estén disponibles.
-- El admin ve **todos**.
-
-**`solicitudes`**
-
-- La ven solo **los dos participantes** (donante y receptor) y el admin.
-
-**`solicitud_mensajes`**
-
-- Los mensajes los leen solo **los dos participantes** de la solicitud.
-- Para enviar un mensaje hay que cumplir todo esto:
-  - ser participante de la solicitud;
-  - enviarlo con tu propio usuario (no se puede escribir en nombre de otro);
-  - tener la cuenta habilitada (`is_validado = true`);
-  - que la solicitud siga activa (`pendiente_coordinacion` o `en_camino`).
+**`solicitud_mensajes`.** Leen los dos participantes. Para escribir hace falta ser participante, usar el propio usuario, tener `is_validado = true` y que la solicitud esté en `pendiente_coordinacion` o `en_camino`.
 
 ---
 
-## 6. Funciones auxiliares
+## 5. Funciones
 
-Algunas comprobaciones se repiten en varias políticas, así que se guardaron como **funciones** dentro de la base de datos:
+Comprobaciones que usan varias políticas. Son `security definer`: corren con permisos elevados y, adentro, controlan quién pregunta.
 
-| Función | ¿Qué responde? |
+| Función | Responde |
 |---|---|
-| `es_admin()` | ¿El usuario actual es administrador? |
-| `es_participante(solicitud)` | ¿El usuario actual es el donante o el receptor de esa solicitud? |
-| `solicito_medicamento(medicamento)` | ¿El usuario actual pidió ese medicamento? |
+| `es_admin()` | Si el usuario actual es administrador |
+| `es_participante(solicitud)` | Si es el donante o el receptor |
+| `solicito_medicamento(medicamento)` | Si pidió ese medicamento |
+| `participantes_solicitud(solicitud)` | Solo el nombre de las dos personas |
+| `obtener_codigo_confirmacion(solicitud)` | El código de 6 dígitos, solo si pregunta el receptor |
 
-Y dos funciones que el frontend puede llamar directamente:
-
-| Función | ¿Para qué sirve? |
-|---|---|
-| `participantes_solicitud(solicitud)` | Devuelve solo el **nombre** del donante y del receptor. Así cada uno sabe con quién habla, sin ver el DNI, teléfono ni dirección del otro |
-| `obtener_codigo_confirmacion(solicitud)` | Devuelve el código de 6 dígitos, **solo si quien pregunta es el receptor** |
-
-Estas funciones son *security definer*: se ejecutan con permisos elevados para poder consultar las tablas sin chocar con las propias políticas, pero cada una controla adentro quién está preguntando.
-
-### Archivos en Storage
-
-Las fotos no se guardan en las tablas: se suben a **Storage** y la tabla `medicamentos` guarda solo sus URLs en `fotos_envase`.
-
-- **Bucket `fotos-envases`:** es **público**, porque el catálogo muestra las fotos sin iniciar sesión y la foto de un envase no es un dato sensible. Acepta solo imágenes JPG, PNG o WEBP de hasta 5 MB.
-- Cada usuario guarda sus fotos en una carpeta con su id (`<user_id>/foto.jpg`). Las políticas sobre `storage.objects` solo le permiten **subir**, **ver** y **borrar** archivos dentro de su propia carpeta. No hay política para **reemplazar** fotos.
-- **Bucket `recetas-medicas`:** es **privado**, porque las recetas son datos de salud. Mismos límites de tamaño y tipos de imagen. Cada usuario solo sube, ve y borra archivos en su propia carpeta. La tabla `solicitudes` guarda la URL en `receta_medica_url`; la creación del pedido la hace la Edge Function `crear-solicitud`.
+Las dos últimas las llama el frontend con `rpc`.
 
 ---
 
-## 7. ¿Qué puede cambiar el frontend y qué no?
+## 6. Archivos
 
-El frontend puede **leer** casi todo lo que le corresponde a cada usuario, pero **modifica muy poco** por su cuenta:
+Las fotos no van en las tablas.
 
-| Acción | ¿Quién la hace? |
+| Bucket | Acceso | Qué guarda |
+|---|---|---|
+| `fotos-envases` | Público | Fotos de envase. El catálogo las muestra sin sesión |
+| `recetas-medicas` | Privado | Recetas |
+
+Los dos aceptan JPG, PNG o WEBP de hasta 5 MB. Cada usuario sube, ve y borra solo en su carpeta (`<user_id>/…`). No se reemplaza un archivo: no hay política de `update`.
+
+---
+
+## 7. Qué hace el frontend y qué hace el servidor
+
+| Acción | Quién |
 |---|---|
-| Editar teléfono, dirección y localidad del perfil | El frontend, directo a la base |
-| Enviar mensajes en el chat | El frontend, directo a la base |
-| Publicar un medicamento | Edge Function `publicar-medicamento` |
-| Crear una solicitud | Edge Function `crear-solicitud` |
-| Confirmar una entrega con el código | Edge Function `confirmar-entrega` |
-| Cancelar una solicitud y liberar el medicamento | Edge Function `cancelar-solicitud` |
-| Aprobar o rechazar donaciones, suspender usuarios | Edge Functions de administración |
+| Editar nombre, DNI, teléfono, dirección y localidad | Frontend, sobre `profiles` |
+| Cambiar el email | Frontend, con `auth.updateUser` |
+| Enviar un mensaje | Frontend, sobre `solicitud_mensajes` |
+| Publicar una donación | `publicar-medicamento` |
+| Crear una solicitud | `crear-solicitud` |
+| Confirmar la entrega | `confirmar-entrega` |
+| Cancelar y liberar el medicamento | `cancelar-solicitud` |
+| Aprobar, corregir o rechazar | `moderar-donacion` |
+| Sumar una fila al vademécum | `alta-medicamento-habilitado` |
+| Listar cuentas, suspender, rehabilitar, promover o revocar | `gestionar-usuarios` |
 
-**¿Por qué las acciones importantes van por Edge Functions?** Porque tienen reglas que no se pueden dejar en manos del navegador del usuario. Por ejemplo, al crear una solicitud hay que comprobar si el medicamento requiere receta, generar el código de 6 dígitos y reservar el medicamento. Si eso lo hiciera el frontend, un usuario con conocimientos técnicos podría saltearse los controles. En cambio, la Edge Function corre en el servidor y nadie puede modificarla.
-
-Por eso, por ejemplo, la tabla `solicitudes` **no tiene ninguna política para crear filas**: desde el frontend es imposible insertar una solicitud directamente.
+Esas funciones corren en el servidor porque comprueban reglas que el navegador podría saltear: receta, código, reserva del medicamento, rol de admin.
 
 ---
 
 ## 8. Migraciones
 
-Los cambios en la base de datos se escriben en archivos SQL llamados **migraciones**, guardados en `supabase/migrations/`. Cada archivo se aplica una sola vez y en orden, así cualquier copia de la base queda igual.
+Cada archivo de `supabase/migrations/` se aplica una vez, en orden.
 
-| Migración | ¿Qué hace? |
+| Migración | Qué hace |
 |---|---|
-| `create_profiles` | Crea la tabla de usuarios y el trigger que crea el perfil al registrarse |
-| `create_medicamentos_habilitados` | Crea el vademécum |
-| `create_medicamentos` | Crea la tabla de donaciones |
-| `create_solicitudes` | Crea la tabla de pedidos |
-| `create_solicitud_mensajes` | Crea la tabla del chat |
-| `rls_policies` | Crea las funciones auxiliares, las políticas RLS y los permisos por columna |
-| `table_grants` | Da los permisos de tabla a los roles (primer candado) |
-| `realtime_solicitud_mensajes` | Activa los avisos en tiempo real del chat |
-| `validar_registro` | Hace que el trigger de registro rechace altas sin DDJJ aceptada o sin datos obligatorios |
-| `bucket_fotos_envases` | Crea el bucket de Storage `fotos-envases` y sus políticas |
-| `bucket_recetas_medicas` | Crea el bucket de Storage `recetas-medicas` (privado) y sus políticas |
+| `create_profiles` | Tabla de usuarios y trigger de alta |
+| `create_medicamentos_habilitados` | Vademécum |
+| `create_medicamentos` | Donaciones |
+| `create_solicitudes` | Pedidos |
+| `create_solicitud_mensajes` | Chat |
+| `rls_policies` | Funciones, políticas RLS y permisos por columna |
+| `table_grants` | GRANT de tabla para los roles de la API |
+| `realtime_solicitud_mensajes` | Avisos en tiempo real del chat |
+| `validar_registro` | El trigger rechaza altas sin DDJJ o sin datos obligatorios |
+| `bucket_fotos_envases` | Bucket público de fotos de envase |
+| `bucket_recetas_medicas` | Bucket privado de recetas |
+| `editar_nombre_dni_perfil` | El usuario también puede modificar `name` y `dni` |
+| `concentracion_forma_lote_obligatorios` | Esas tres columnas de `medicamentos` pasan a `NOT NULL` |
 
 ---
 
-## 9. Datos semilla (seed)
+## 9. Datos de prueba
 
-El archivo `supabase/seed.sql` carga datos de ejemplo para poder probar la aplicación sin cargar todo a mano. En una base local se ejecuta automáticamente al reiniciarla (`pnpm supabase db reset`), después de las migraciones. En este proyecto se aplicó al proyecto remoto con `pnpm supabase db push --include-seed`.
+`supabase/seed.sql` es solo para desarrollo. Las contraseñas están en el archivo: no cargarlo en producción. En local corre con `pnpm supabase db reset`. Se puede ejecutar de nuevo sin duplicar filas.
 
-Carga cuatro cosas:
+Carga el vademécum Remediar (`requiere_receta = true` en antibióticos y psicofármacos) y dos usuarios. No inserta donaciones: el catálogo arranca vacío.
 
-1. **El vademécum:** unos 60 medicamentos del listado del Programa Remediar. Los antibióticos y los psicofármacos quedan marcados con `requiere_receta = true`.
-2. **Dos usuarios de prueba:**
+| Email | Rol | Contraseña |
+|---|---|---|
+| `admin@ecofarma.test` | Administrador | `EcoFarma2026!` |
+| `donante@ecofarma.test` | Usuario | `EcoFarma2026!` |
 
-   | Email | Rol | Contraseña |
-   |---|---|---|
-   | `admin@ecofarma.test` | Administrador | `EcoFarma2026!` |
-   | `donante@ecofarma.test` | Usuario (donante) | `EcoFarma2026!` |
-
-   Se crean como usuarios de Supabase Auth, así el trigger les arma el perfil igual que a cualquier persona que se registra. Después, el seed le asigna el rol `admin` al primero.
-3. **Cinco donaciones disponibles** del donante, cada una vinculada a su medicamento del vademécum. Una de ellas (amoxicilina) es un antibiótico, para poder probar el pedido con receta.
-4. **Dos medicamentos de control**, que nunca deben aparecer en el catálogo público:
-   - Uno en estado `pendiente_revision` y sin vínculo al vademécum, como una donación que espera la revisión del administrador.
-   - Uno `disponible` pero vencido hace 30 días, para comprobar que el catálogo oculta los medicamentos vencidos.
-
-Las fechas de vencimiento se calculan a partir del día en que se carga el seed, para que las donaciones disponibles nunca aparezcan vencidas. El seed se puede correr más de una vez sin duplicar datos.
-
-**Importante:** como las contraseñas están escritas en el archivo, este seed es solo para desarrollo. No debe cargarse en la base de producción.
+Se crean en Auth para que el trigger arme el perfil. Después el seed pone `rol = 'admin'` al primero.
 
 ---
 
 ## Glosario
 
-- **Base de datos:** lugar donde se guarda la información de forma ordenada.
-- **Tabla:** conjunto de datos del mismo tipo, organizado en filas y columnas.
-- **Fila (registro):** un elemento de la tabla, por ejemplo un medicamento.
-- **Columna (campo):** un dato de cada fila, por ejemplo la fecha de vencimiento.
-- **Clave primaria (`id`):** valor único que identifica cada fila.
-- **Clave foránea:** columna que apunta a una fila de otra tabla, por ejemplo `user_id` apunta a un usuario.
-- **Trigger:** acción que la base de datos ejecuta sola cuando pasa algo (por ejemplo, cuando alguien se registra).
-- **Rol:** identidad con la que se conecta alguien a la base de datos.
-- **GRANT:** instrucción que da permisos sobre una tabla.
-- **RLS:** reglas que deciden qué filas puede ver o modificar cada usuario.
-- **Edge Function:** programa que corre en el servidor para hacer tareas que no deben quedar en el navegador.
-- **Migración:** archivo con los cambios a aplicar en la estructura de la base de datos.
-- **Frontend:** la parte de la aplicación que el usuario ve y usa en el navegador.
+- **Tabla:** filas del mismo tipo. Cada fila es un registro. Cada columna es un dato.
+- **Clave primaria:** el `id` que identifica la fila.
+- **Clave foránea:** una columna que apunta a una fila de otra tabla.
+- **Trigger:** acción que la base ejecuta sola, por ejemplo al registrarse alguien.
+- **GRANT:** permiso sobre una tabla o sobre columnas.
+- **RLS:** reglas de qué filas puede ver o cambiar cada uno.
+- **Edge Function:** programa del servidor para reglas que no deben vivir en el navegador.
+- **Migración:** archivo SQL con un cambio de estructura, aplicado una sola vez.

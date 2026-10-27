@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue';
 import { Alert } from '@/components/ui/alert';
 import { useVademecum } from '../composables/useVademecum';
 import FormularioAltaVademecum from '../components/admin/FormularioAltaVademecum.vue';
-import NavAdmin from '../components/admin/NavAdmin.vue';
 
 const {
     error,
@@ -30,10 +29,8 @@ onMounted(function () {
 </script>
 
 <template>
-    <main class="pagina-media">
+    <main class="flex max-w-3xl flex-col gap-6">
         <h1 class="text-2xl font-bold text-primary">Alta del vademécum</h1>
-
-        <NavAdmin />
 
         <Alert v-if="error !== ''" variant="warning">
             <p>{{ error }}</p>

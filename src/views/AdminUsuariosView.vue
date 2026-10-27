@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import NavAdmin from '../components/admin/NavAdmin.vue';
+import PaginadorLista from '../components/admin/PaginadorLista.vue';
 import TablaUsuarios from '../components/admin/TablaUsuarios.vue';
 import { useAuth } from '../composables/useAuth';
+import { usePaginacion } from '../composables/usePaginacion';
 import { useUsuariosAdmin } from '../composables/useUsuariosAdmin';
 
 const { perfil } = useAuth();
@@ -65,6 +66,10 @@ const usuariosFiltrados = computed(function () {
     });
 });
 
+const { pagina, total, visibles } = usePaginacion(usuariosFiltrados, function () {
+    return busqueda.value + '\n' + filtroEstado.value + '\n' + filtroRol.value;
+});
+
 function varianteErrorAccion() {
     if (tipoErrorAccion.value === 'advertencia') {
         return 'warning';
@@ -78,10 +83,8 @@ onMounted(function () {
 </script>
 
 <template>
-    <main class="pagina">
+    <main class="flex flex-col gap-6">
         <h1 class="text-2xl font-bold text-primary">Gestión de usuarios</h1>
-
-        <NavAdmin />
 
         <Alert v-if="errorAccion !== ''" :variant="varianteErrorAccion()">
             <p>{{ errorAccion }}</p>
@@ -144,12 +147,14 @@ onMounted(function () {
             <p>No hay cuentas que coincidan con la búsqueda.</p>
         </Alert>
 
-        <TablaUsuarios
-            v-else
-            :usuarios="usuariosFiltrados"
-            :usuario-actual-id="usuarioActualId"
-            :guardando="guardando"
-            @accion="aplicarAccion"
-        />
+        <template v-else>
+            <TablaUsuarios
+                :usuarios="visibles"
+                :usuario-actual-id="usuarioActualId"
+                :guardando="guardando"
+                @accion="aplicarAccion"
+            />
+            <PaginadorLista :pagina="pagina" :total="total" @update:pagina="pagina = $event" />
+        </template>
     </main>
 </template>

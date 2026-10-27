@@ -70,17 +70,38 @@ function valoresUnicos(filas, campo) {
     return valores;
 }
 
-const filasDelPrincipioActivo = computed(function () {
-    const texto = datos.value.principio_activo.trim().toLowerCase();
+function filtrarPorCampo(filas, campo, texto) {
+    if (texto === '') {
+        return filas;
+    }
 
-    const coincidentes = props.sugerencias.filter(function (fila) {
-        return fila.principio_activo.toLowerCase() === texto;
-    });
+    const coincidentes = [];
+    for (const fila of filas) {
+        const valor = fila[campo];
+        if (valor && valor.toLowerCase() === texto) {
+            coincidentes.push(fila);
+        }
+    }
 
     if (coincidentes.length === 0) {
-        return props.sugerencias;
+        return filas;
     }
     return coincidentes;
+}
+
+const filasDelPrincipioActivo = computed(function () {
+    const texto = datos.value.principio_activo.trim().toLowerCase();
+    return filtrarPorCampo(props.sugerencias, 'principio_activo', texto);
+});
+
+const filasDeLaConcentracion = computed(function () {
+    const texto = datos.value.concentracion.trim().toLowerCase();
+    return filtrarPorCampo(filasDelPrincipioActivo.value, 'concentracion', texto);
+});
+
+const filasDeLaForma = computed(function () {
+    const texto = datos.value.forma_farmaceutica.trim().toLowerCase();
+    return filtrarPorCampo(filasDeLaConcentracion.value, 'forma_farmaceutica', texto);
 });
 
 const principiosActivos = computed(function () {
@@ -92,7 +113,11 @@ const concentraciones = computed(function () {
 });
 
 const formasFarmaceuticas = computed(function () {
-    return valoresUnicos(filasDelPrincipioActivo.value, 'forma_farmaceutica');
+    return valoresUnicos(filasDeLaConcentracion.value, 'forma_farmaceutica');
+});
+
+const nombresComerciales = computed(function () {
+    return valoresUnicos(filasDeLaForma.value, 'nombre_comercial');
 });
 
 function formatearFecha(fecha) {
@@ -173,11 +198,6 @@ function enviar() {
         </Alert>
 
         <div class="flex flex-col gap-1">
-            <Label for="donacion-nombre">Nombre comercial</Label>
-            <Input id="donacion-nombre" v-model="datos.nombre_comercial" type="text" />
-        </div>
-
-        <div class="flex flex-col gap-1">
             <Label for="donacion-principio">Principio activo</Label>
             <Input
                 id="donacion-principio"
@@ -192,7 +212,7 @@ function enviar() {
         </div>
 
         <div class="flex flex-col gap-1">
-            <Label for="donacion-concentracion">Concentración (opcional)</Label>
+            <Label for="donacion-concentracion">Concentración</Label>
             <Input
                 id="donacion-concentracion"
                 v-model="datos.concentracion"
@@ -206,7 +226,7 @@ function enviar() {
         </div>
 
         <div class="flex flex-col gap-1">
-            <Label for="donacion-forma">Forma farmacéutica (opcional)</Label>
+            <Label for="donacion-forma">Forma farmacéutica</Label>
             <Input
                 id="donacion-forma"
                 v-model="datos.forma_farmaceutica"
@@ -220,12 +240,27 @@ function enviar() {
         </div>
 
         <div class="flex flex-col gap-1">
+            <Label for="donacion-nombre">Nombre comercial</Label>
+            <Input
+                id="donacion-nombre"
+                v-model="datos.nombre_comercial"
+                type="text"
+                list="lista-nombres"
+                autocomplete="off"
+            />
+            <datalist id="lista-nombres">
+                <option v-for="valor in nombresComerciales" :key="valor" :value="valor" />
+            </datalist>
+            <p class="text-sm text-muted">Si no conocés la marca, escribí la que figura en el envase o el principio activo.</p>
+        </div>
+
+        <div class="flex flex-col gap-1">
             <Label for="donacion-cantidad">Cantidad</Label>
             <Input id="donacion-cantidad" v-model="datos.cantidad_disponible" type="number" min="1" step="1" />
         </div>
 
         <div class="flex flex-col gap-1">
-            <Label for="donacion-lote">Lote (opcional)</Label>
+            <Label for="donacion-lote">Lote</Label>
             <Input id="donacion-lote" v-model="datos.lote" type="text" />
         </div>
 

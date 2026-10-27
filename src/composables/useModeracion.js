@@ -22,13 +22,16 @@ function validarCorreccion(datos) {
     const camposObligatorios = [
         textoOVacio(datos.nombre_comercial),
         textoOVacio(datos.principio_activo),
+        textoOVacio(datos.concentracion),
+        textoOVacio(datos.forma_farmaceutica),
+        textoOVacio(datos.lote),
         textoOVacio(datos.cantidad_disponible),
         textoOVacio(datos.fecha_vencimiento),
     ];
 
     for (const campo of camposObligatorios) {
         if (campo.trim() === '') {
-            return 'Completá el nombre comercial, el principio activo, la cantidad y la fecha de vencimiento.';
+            return 'Completá el nombre comercial, el principio activo, la concentración, la forma farmacéutica, el lote, la cantidad y la fecha de vencimiento.';
         }
     }
 

@@ -43,9 +43,12 @@ function validarDatos(datos, prefijoFotos) {
   if (
     limpiarTexto(datos.nombre_comercial) === '' ||
     limpiarTexto(datos.principio_activo) === '' ||
+    limpiarTexto(datos.concentracion) === '' ||
+    limpiarTexto(datos.forma_farmaceutica) === '' ||
+    limpiarTexto(datos.lote) === '' ||
     limpiarTexto(datos.fecha_vencimiento) === ''
   ) {
-    return 'Completá el nombre comercial, el principio activo, la cantidad y la fecha de vencimiento.';
+    return 'Completá el nombre comercial, el principio activo, la concentración, la forma farmacéutica, el lote, la cantidad y la fecha de vencimiento.';
   }
 
   const cantidad = datos.cantidad_disponible;
@@ -152,23 +155,21 @@ Deno.serve(async function (req) {
 
   let medicamentoHabilitadoId = null;
 
-  if (concentracion !== '' && formaFarmaceutica !== '') {
-    const { data: coincidencias, error: errorVademecum } = await supabase
-      .from('medicamentos_habilitados')
-      .select('id')
-      .eq('principio_activo', principioActivo)
-      .eq('concentracion', concentracion)
-      .eq('forma_farmaceutica', formaFarmaceutica)
-      .limit(1);
+  const { data: coincidencias, error: errorVademecum } = await supabase
+    .from('medicamentos_habilitados')
+    .select('id')
+    .eq('principio_activo', principioActivo)
+    .eq('concentracion', concentracion)
+    .eq('forma_farmaceutica', formaFarmaceutica)
+    .limit(1);
 
-    if (errorVademecum) {
-      console.error(errorVademecum);
-      return responder({ error: MENSAJE_ERROR_GENERAL }, 500);
-    }
+  if (errorVademecum) {
+    console.error(errorVademecum);
+    return responder({ error: MENSAJE_ERROR_GENERAL }, 500);
+  }
 
-    if (coincidencias.length > 0) {
-      medicamentoHabilitadoId = coincidencias[0].id;
-    }
+  if (coincidencias.length > 0) {
+    medicamentoHabilitadoId = coincidencias[0].id;
   }
 
   let estado = 'pendiente_revision';
@@ -183,10 +184,10 @@ Deno.serve(async function (req) {
       medicamento_habilitado_id: medicamentoHabilitadoId,
       nombre_comercial: limpiarTexto(datos.nombre_comercial),
       principio_activo: principioActivo,
-      concentracion: textoONull(concentracion),
-      forma_farmaceutica: textoONull(formaFarmaceutica),
+      concentracion: concentracion,
+      forma_farmaceutica: formaFarmaceutica,
       cantidad_disponible: datos.cantidad_disponible,
-      lote: textoONull(limpiarTexto(datos.lote)),
+      lote: limpiarTexto(datos.lote),
       fecha_vencimiento: limpiarTexto(datos.fecha_vencimiento),
       fotos_envase: datos.fotos_envase,
       descripcion: textoONull(limpiarTexto(datos.descripcion)),
