@@ -65,12 +65,13 @@ function cerrarHorario(evento) {
     horarioAbierto.value = false;
 }
 
-function fechaDeHoy() {
-    const hoy = new Date();
-    const anio = hoy.getFullYear();
-    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-    const diaHoy = String(hoy.getDate()).padStart(2, '0');
-    return anio + '-' + mes + '-' + diaHoy;
+function fechaMinima() {
+    const maniana = new Date();
+    maniana.setDate(maniana.getDate() + 1);
+    const anio = maniana.getFullYear();
+    const mes = String(maniana.getMonth() + 1).padStart(2, '0');
+    const diaManiana = String(maniana.getDate()).padStart(2, '0');
+    return anio + '-' + mes + '-' + diaManiana;
 }
 
 function formatearDia(valor) {
@@ -88,8 +89,8 @@ function proponer() {
         return;
     }
 
-    if (dia.value < fechaDeHoy()) {
-        error.value = 'El día del encuentro no puede ser anterior a hoy.';
+    if (dia.value < fechaMinima()) {
+        error.value = 'El día del encuentro tiene que ser a partir de mañana.';
         return;
     }
 
@@ -117,8 +118,9 @@ function proponer() {
                 id="encuentro-dia"
                 v-model="dia"
                 type="date"
+                :min="fechaMinima()"
                 :disabled="deshabilitado || enviando"
-                :aria-invalid="enviado && (dia === '' || dia < fechaDeHoy())"
+                :aria-invalid="enviado && (dia === '' || dia < fechaMinima())"
             />
         </div>
 

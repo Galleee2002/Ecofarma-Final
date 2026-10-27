@@ -46,6 +46,7 @@ function validarDonacion(datos, fotos) {
         return 'Podés subir hasta 3 fotos del envase.';
     }
 
+    const nombres = [];
     for (const foto of fotos) {
         if (!TIPOS_DE_FOTO.includes(foto.type)) {
             return 'Las fotos tienen que ser imágenes JPG, PNG o WEBP.';
@@ -53,6 +54,10 @@ function validarDonacion(datos, fotos) {
         if (foto.size > TAMANIO_MAXIMO_FOTO) {
             return 'Cada foto puede pesar como máximo 5 MB.';
         }
+        if (nombres.includes(foto.name.toLowerCase())) {
+            return 'No podés subir dos fotos con el mismo nombre.';
+        }
+        nombres.push(foto.name.toLowerCase());
     }
 
     return '';
@@ -177,6 +182,7 @@ export function useDonaciones() {
 
         const rutas = [];
         const urls = [];
+        const nombres = [];
 
         for (const foto of fotos) {
             const ruta = userId + '/' + crypto.randomUUID() + '.' + obtenerExtension(foto);
@@ -193,6 +199,7 @@ export function useDonaciones() {
             const { data: datosUrl } = supabase.storage.from(BUCKET_FOTOS).getPublicUrl(ruta);
             rutas.push(ruta);
             urls.push(datosUrl.publicUrl);
+            nombres.push(foto.name);
         }
 
         const { data: respuesta, error: errorFuncion } = await supabase.functions.invoke('publicar-medicamento', {
@@ -206,6 +213,7 @@ export function useDonaciones() {
                 fecha_vencimiento: datos.fecha_vencimiento,
                 descripcion: datos.descripcion.trim(),
                 fotos_envase: urls,
+                nombres_fotos: nombres,
             },
         });
 

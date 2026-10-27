@@ -66,10 +66,26 @@ function validarDatos(datos, prefijoFotos) {
     return 'Podés subir hasta 3 fotos del envase.';
   }
 
-  for (const foto of fotos) {
+  const nombres = datos.nombres_fotos;
+  if (!Array.isArray(nombres) || nombres.length !== fotos.length) {
+    return 'Las fotos del envase no son válidas. Volvé a subirlas.';
+  }
+
+  const nombresVistos = [];
+  for (let i = 0; i < fotos.length; i++) {
+    const foto = fotos[i];
+    const nombre = nombres[i];
     if (typeof foto !== 'string' || !foto.startsWith(prefijoFotos)) {
       return 'Las fotos del envase no son válidas. Volvé a subirlas.';
     }
+    if (typeof nombre !== 'string' || nombre.trim() === '') {
+      return 'Las fotos del envase no son válidas. Volvé a subirlas.';
+    }
+    const nombreNormalizado = nombre.toLowerCase();
+    if (nombresVistos.includes(nombreNormalizado)) {
+      return 'No podés subir dos fotos con el mismo nombre.';
+    }
+    nombresVistos.push(nombreNormalizado);
   }
 
   return '';

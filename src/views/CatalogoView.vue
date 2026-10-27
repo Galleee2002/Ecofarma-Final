@@ -15,6 +15,7 @@ onMounted(cargarMedicamentos);
         <MedicamentoSearch v-model="busqueda" />
         <MedicamentoGrid
             :medicamentos="medicamentosFiltrados"
+            :busqueda="busqueda"
             :cargando="cargando"
             :error="error"
             @reintentar="cargarMedicamentos"

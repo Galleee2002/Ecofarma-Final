@@ -104,11 +104,25 @@ function formatearFecha(fecha) {
     return dia + '/' + mes + '/' + anio + ', ' + hora + ':' + minutos;
 }
 
+function yaEstaCargada(nombre) {
+    for (const foto of fotos.value) {
+        if (foto.archivo.name.toLowerCase() === nombre.toLowerCase()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function agregarFotos(evento) {
     avisoFotos.value = '';
     const archivos = evento.target.files;
+    let nombreRepetido = false;
 
     for (const archivo of archivos) {
+        if (yaEstaCargada(archivo.name)) {
+            nombreRepetido = true;
+            continue;
+        }
         if (fotos.value.length < MAXIMO_FOTOS) {
             fotos.value.push({
                 archivo: archivo,
@@ -118,6 +132,10 @@ function agregarFotos(evento) {
         } else {
             avisoFotos.value = 'Podés subir hasta 3 fotos. Solo se agregaron las primeras.';
         }
+    }
+
+    if (nombreRepetido && avisoFotos.value === '') {
+        avisoFotos.value = 'No podés subir dos fotos con el mismo nombre.';
     }
 
     evento.target.value = '';

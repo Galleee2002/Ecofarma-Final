@@ -32,12 +32,18 @@ const props = defineProps({
 const emit = defineEmits(['guardar']);
 
 const datos = ref({
+    name: props.perfil.name || '',
+    email: props.email,
+    dni: props.perfil.dni || '',
     telefono: props.perfil.telefono,
     direccion: props.perfil.direccion,
     localidad: props.perfil.localidad,
 });
 
 const editando = ref({
+    name: false,
+    email: false,
+    dni: false,
     telefono: false,
     direccion: false,
     localidad: false,
@@ -46,18 +52,30 @@ const editando = ref({
 watch(function () {
     return props.perfil;
 }, function (perfil) {
+    datos.value.name = perfil.name || '';
+    datos.value.dni = perfil.dni || '';
     datos.value.telefono = perfil.telefono;
     datos.value.direccion = perfil.direccion;
     datos.value.localidad = perfil.localidad;
 });
 
 watch(function () {
+    return props.email;
+}, function (email) {
+    datos.value.email = email;
+});
+
+watch(function () {
     return props.mensaje;
 }, function (mensaje) {
     if (mensaje !== '') {
+        editando.value.name = false;
+        editando.value.email = false;
+        editando.value.dni = false;
         editando.value.telefono = false;
         editando.value.direccion = false;
         editando.value.localidad = false;
+        datos.value.email = props.email;
     }
 });
 
@@ -68,28 +86,82 @@ function enviar() {
 
 <template>
     <form class="flex flex-col gap-4" novalidate @submit.prevent="enviar">
-        <dl class="flex flex-col gap-4">
-            <div class="flex flex-col gap-1">
-                <dt class="text-sm font-semibold text-muted">Nombre</dt>
-                <dd class="flex h-9 items-center rounded-md border border-input bg-surface px-3 text-base shadow-sm">
-                    {{ perfil.name }}
-                </dd>
-            </div>
-            <div class="flex flex-col gap-1">
-                <dt class="text-sm font-semibold text-muted">Email</dt>
-                <dd class="flex h-9 items-center rounded-md border border-input bg-surface px-3 text-base shadow-sm">
-                    {{ email }}
-                </dd>
-            </div>
-            <div class="flex flex-col gap-1">
-                <dt class="text-sm font-semibold text-muted">DNI</dt>
-                <dd class="flex h-9 items-center rounded-md border border-input bg-surface px-3 text-base shadow-sm">
-                    {{ perfil.dni }}
-                </dd>
-            </div>
-        </dl>
-
         <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1">
+                <Label for="perfil-nombre" class="text-sm font-semibold text-muted">Nombre</Label>
+                <div class="flex h-9 items-center rounded-md border border-input bg-surface pr-1 pl-3 shadow-sm">
+                    <p v-if="!editando.name" class="min-w-0 flex-1 truncate text-base">{{ datos.name }}</p>
+                    <Input
+                        v-else
+                        id="perfil-nombre"
+                        v-model="datos.name"
+                        type="text"
+                        autocomplete="name"
+                        class="h-8 flex-1 border-0 bg-transparent px-0 shadow-none"
+                    />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        class="text-icon"
+                        aria-label="Editar nombre"
+                        @click="editando.name = true"
+                    >
+                        <PencilIcon />
+                    </Button>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <Label for="perfil-email" class="text-sm font-semibold text-muted">Email</Label>
+                <div class="flex h-9 items-center rounded-md border border-input bg-surface pr-1 pl-3 shadow-sm">
+                    <p v-if="!editando.email" class="min-w-0 flex-1 truncate text-base">{{ datos.email }}</p>
+                    <Input
+                        v-else
+                        id="perfil-email"
+                        v-model="datos.email"
+                        type="email"
+                        autocomplete="email"
+                        class="h-8 flex-1 border-0 bg-transparent px-0 shadow-none"
+                    />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        class="text-icon"
+                        aria-label="Editar email"
+                        @click="editando.email = true"
+                    >
+                        <PencilIcon />
+                    </Button>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <Label for="perfil-dni" class="text-sm font-semibold text-muted">DNI</Label>
+                <div class="flex h-9 items-center rounded-md border border-input bg-surface pr-1 pl-3 shadow-sm">
+                    <p v-if="!editando.dni" class="min-w-0 flex-1 truncate text-base">{{ datos.dni }}</p>
+                    <Input
+                        v-else
+                        id="perfil-dni"
+                        v-model="datos.dni"
+                        type="text"
+                        inputmode="numeric"
+                        class="h-8 flex-1 border-0 bg-transparent px-0 shadow-none"
+                    />
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        class="text-icon"
+                        aria-label="Editar DNI"
+                        @click="editando.dni = true"
+                    >
+                        <PencilIcon />
+                    </Button>
+                </div>
+            </div>
+
             <div class="flex flex-col gap-1">
                 <Label for="perfil-telefono" class="text-sm font-semibold text-muted">Teléfono</Label>
                 <div class="flex h-9 items-center rounded-md border border-input bg-surface pr-1 pl-3 shadow-sm">

@@ -8,6 +8,10 @@ defineProps({
         type: Array,
         required: true,
     },
+    busqueda: {
+        type: String,
+        required: true,
+    },
     cargando: {
         type: Boolean,
         required: true,
@@ -31,6 +35,10 @@ function reintentar() {
     <Alert v-else-if="error !== ''" variant="danger" class="flex flex-col items-start gap-2">
         <p>{{ error }}</p>
         <Button type="button" variant="destructive" @click="reintentar">Reintentar</Button>
+    </Alert>
+
+    <Alert v-else-if="medicamentos.length === 0 && busqueda.trim() === ''" variant="muted">
+        <p>Todavía no hay medicamentos publicados.</p>
     </Alert>
 
     <Alert v-else-if="medicamentos.length === 0" variant="muted">

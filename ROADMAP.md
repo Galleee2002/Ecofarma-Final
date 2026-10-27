@@ -28,7 +28,7 @@ Las fases 1 a 9 están cerradas en funcionalidad. La capa visual compartida ya d
 - [x] Migración `table_grants` con los permisos de tabla para los roles de la API, aplicada al proyecto remoto.
 - [x] Documentación académica de la base de datos, RLS y grants en `docs/base-de-datos.md`.
 - [x] Migración `realtime_solicitud_mensajes`: `solicitud_mensajes` en la publicación `supabase_realtime` (Postgres Changes), aplicada al proyecto remoto.
-- [x] `supabase/seed.sql` con el vademécum Remediar, 2 usuarios de prueba y 5 donaciones `disponible`, aplicado al proyecto remoto.
+- [x] `supabase/seed.sql` con el vademécum Remediar y 2 usuarios de prueba. No inserta donaciones, así el catálogo arranca vacío.
 - [x] Catálogo público en `/catalogo`: composable `useMedicamentos` con la consulta a Supabase, búsqueda y manejo de errores, y los componentes de búsqueda, grilla y card.
 - [x] Registro, login y logout en `/registro` y `/login`: composable `useAuth`, formularios en `components/auth/` y `BarraNavegacion` con desplegable de perfil y «Cerrar sesión» adentro.
 - [x] Migración `validar_registro`: `handle_new_user` rechaza el alta sin DDJJ aceptada o sin datos obligatorios, aplicada al proyecto remoto.
@@ -49,7 +49,7 @@ Las fases 1 a 9 están cerradas en funcionalidad. La capa visual compartida ya d
 - `profiles.is_validado` arranca en `true`; el admin lo pasa a `false` para suspender una cuenta.
 - `profiles.rol` e `is_validado` solo los modifica un admin (RLS / Edge Function), nunca el propio usuario.
 - El chat usa Realtime Postgres Changes sobre `solicitud_mensajes`: cada suscriptor recibe solo los mensajes que su política de `select` le permite leer. Si el chat superara ~3.000 suscriptores concurrentes, conviene pasar a Broadcast.
-- El seed es solo para desarrollo (contraseñas públicas): usuarios `admin@ecofarma.test` y `donante@ecofarma.test`, contraseña `EcoFarma2026!`. Los vencimientos de las donaciones se calculan desde `current_date` para que nunca queden vencidas. Incluye 2 medicamentos de control que nunca deben verse en el catálogo: uno `pendiente_revision` sin vínculo al vademécum y uno `disponible` vencido.
+- El seed es solo para desarrollo (contraseñas públicas): usuarios `admin@ecofarma.test` y `donante@ecofarma.test`, contraseña `EcoFarma2026!`. No inserta donaciones: el catálogo queda vacío hasta que alguien publique. La coincidencia con el vademécum sigue en la Edge Function `publicar-medicamento`.
 - El catálogo filtra en la consulta por `estado = 'disponible'` y `fecha_vencimiento >= hoy` aunque la RLS ya lo haga para `anon`, porque con sesión las políticas se suman y el donante o el admin verían también otros estados. La búsqueda por nombre comercial y principio activo se hace en memoria.
 - `profiles.rol` y los `estado` de `medicamentos` y `solicitudes` son VARCHAR con un conjunto cerrado de valores, no tipos ENUM de Postgres.
 - `medicamentos`, `solicitudes` y `profiles` usan UUID como PK; `medicamentos_habilitados` y `solicitud_mensajes` usan BIGINT identity.
@@ -67,7 +67,7 @@ Las fases 1 a 9 están cerradas en funcionalidad. La capa visual compartida ya d
 - Las comprobaciones de las políticas viven en funciones `security definer` (`es_admin`, `es_participante`, `solicito_medicamento`) para evitar recursión entre las políticas de `medicamentos` y `solicitudes`.
 - `solicitudes.codigo_confirmacion` no se expone al frontend (permisos por columna): el receptor lo obtiene con `rpc('obtener_codigo_confirmacion')`, así el donante no puede confirmar la entrega sin él. Por eso en `solicitudes` las consultas listan columnas en vez de `select('*')`.
 - Los participantes de una solicitud solo ven el nombre del otro, con `rpc('participantes_solicitud')`; DNI, teléfono y dirección quedan ocultos.
-- El usuario solo edita `telefono`, `direccion` y `localidad` de su perfil (permisos por columna).
+- El usuario edita `name`, `dni`, `telefono`, `direccion` y `localidad` de su perfil (permisos por columna). El email se cambia con `auth.updateUser`. `rol`, `is_validado` y la DDJJ siguen fuera de su alcance.
 
 ### Sistema de diseño
 
@@ -209,7 +209,7 @@ Hecha. Es la base del resto y no tiene tarjeta propia en el backlog actual.
 - [x] Políticas RLS en todas las tablas (sin `insert` en `solicitudes` desde el frontend), aplicadas al proyecto remoto.
 - [x] Permisos de tabla para los roles de la API (migración `table_grants`).
 - [x] Realtime sobre `solicitud_mensajes` (migración `realtime_solicitud_mensajes`, aplicada al proyecto remoto).
-- [x] `supabase/seed.sql`: listado Remediar en `medicamentos_habilitados` (`requiere_receta = true` en antibióticos y psicofármacos), 2 usuarios (1 admin, 1 donante) y 5 medicamentos `disponible` vinculados al vademécum.
+- [x] `supabase/seed.sql`: listado Remediar en `medicamentos_habilitados` (`requiere_receta = true` en antibióticos y psicofármacos) y 2 usuarios (1 admin, 1 donante). No inserta donaciones.
 
 ### Fase 2: Catálogo público (Trello #20, Sprint Backlog)
 
@@ -257,7 +257,7 @@ Decisiones tomadas:
 - `useAuth` expone `errorPerfil` para distinguir "cargando" de "falló la consulta del perfil" y mostrar un mensaje con `danger` en vez de quedarse cargando.
 - `/perfil` tiene tres pestañas («Mis datos», «Mis donaciones», «Mis solicitudes») manejadas con un `ref` en `PerfilView`. Las listas se cargan la primera vez que se abre su pestaña.
 - Un composable por dominio: `usePerfil` (editar datos), `useDonaciones` (en la Fase 5 suma publicar) y `useSolicitudes` (en la Fase 6 suma crear). Los componentes de la vista viven en `components/perfil/`.
-- La edición de datos hace `update` directo sobre `profiles`, sin Edge Function: RLS limita al propio perfil y los permisos por columna solo dejan tocar `telefono`, `direccion` y `localidad`. El `update` devuelve la fila y reemplaza el `perfil` compartido de `useAuth`, así la barra y la vista se actualizan solas.
+- La edición de datos hace `update` directo sobre `profiles`, sin Edge Function: RLS limita al propio perfil y los permisos por columna dejan tocar `name`, `dni`, `telefono`, `direccion` y `localidad`. El email se actualiza con `auth.updateUser`. El `update` devuelve la fila y reemplaza el `perfil` compartido de `useAuth`, así la barra y la vista se actualizan solas.
 - «Mis donaciones» filtra por `user_id` y «Mis solicitudes» por `receptor_id` aunque RLS ya limite las filas, porque las políticas se suman y un admin vería todo.
 - El código de retiro se pide con `rpc('obtener_codigo_confirmacion')` solo para las solicitudes en `pendiente_coordinacion` o `en_camino`, una llamada por solicitud. Si falla el código de una, esa solicitud muestra un aviso con `warning` y el resto de la lista se ve igual.
 - «Mis solicitudes» muestra solo las solicitudes donde el usuario es receptor. Las solicitudes que recibe como donante se ven por el estado `reservado` de sus donaciones; su gestión llega con el chat (Fase 7).
@@ -265,7 +265,7 @@ Decisiones tomadas:
 - [x] Persistir la sesión en Vue: `supabase-js` guarda la sesión en `localStorage`, `useAuth` la escucha con `onAuthStateChange` y el `router.beforeEach` espera `esperarSesionInicial()` antes de decidir, para que al recargar una ruta privada el guard no vea la sesión vacía.
 - [x] Guard de rutas (`router.beforeEach`): una ruta con `meta.requiereSesion` sin sesión redirige a `/login?redirect=<ruta>`. `/perfil` es la primera ruta protegida; las de donar (Fase 5) y solicitar (Fase 6) solo agregan ese `meta`.
 - [x] `/login` y `/registro` (`meta.soloInvitados`) redirigen al catálogo si ya hay sesión.
-- [x] Vista `/perfil` para editar solo `telefono`, `direccion` y `localidad` (DNI y email fijos).
+- [x] Vista `/perfil` para editar `name`, `dni`, `email`, `telefono`, `direccion` y `localidad`.
 - [x] Pestaña «Mis donaciones», con el estado de cada publicación y el motivo si fue rechazada.
 - [x] Pestaña «Mis solicitudes», con el estado y el código de retiro de 6 dígitos. El acceso al chat se agrega en la Fase 7.
 
@@ -280,7 +280,7 @@ Decisiones tomadas:
 - Principio activo, concentración y forma farmacéutica son inputs de texto con sugerencias del vademécum (`<datalist>`), para que el donante use los mismos valores que `medicamentos_habilitados` y la Edge Function encuentre la coincidencia exacta. Puede escribir otro valor; en ese caso la donación irá a `pendiente_revision`. Las sugerencias de concentración y forma se filtran por el principio activo escrito.
 - Las sugerencias se cargan con el composable `useVademecum` (lo reutiliza el admin en la Fase 8). Si fallan, se avisa con `warning` y el formulario sigue usable.
 - Obligatorios: nombre comercial, principio activo, cantidad (entero mayor o igual a 1), fecha de vencimiento posterior a hoy y al menos 1 foto. Lote, concentración, forma farmacéutica y descripción son opcionales, como en la tabla.
-- Fotos: de 1 a 3, solo JPG, PNG o WEBP, hasta 5 MB cada una, con previsualización y botón para quitar.
+- Fotos: de 1 a 3, solo JPG, PNG o WEBP, hasta 5 MB cada una, con previsualización y botón para quitar. Dos fotos no pueden llamarse igual: lo rechaza el formulario, `useDonaciones` y `publicar-medicamento` (el cuerpo manda `nombres_fotos` junto con las URLs).
 - La validación vive en `useDonaciones` (`validarDonacion`), igual que el registro en `useAuth`, y la Edge Function la repite del lado del servidor.
 - Si el perfil tiene `is_validado = false`, el formulario muestra un aviso con `warning` y deshabilita el botón. Es una ayuda visual: la validación real queda en la Edge Function.
 - Las Edge Functions se escriben en JavaScript simple (decisión del equipo, ver `AGENTS.md`). Cada una se registra en `supabase/config.toml` con `entrypoint` a su `index.js`, porque la CLI busca `index.ts` por defecto.
@@ -420,7 +420,7 @@ Rutas actuales en `src/`. Todo consume Supabase con el cliente único de `src/li
 | Registro | `/registro` | `RegistroView`, `components/auth/FormularioRegistro` | `useAuth` | `auth.signUp` con metadatos (`name`, `dni`, `telefono`, `direccion`, `localidad`, `acepto_ddjj`); el trigger `handle_new_user` crea el perfil |
 | Login | `/login` | `LoginView`, `components/auth/FormularioLogin` | `useAuth` | `auth.signInWithPassword`; acepta `?redirect=` |
 | Sesión y logout | todas | `components/layout/BarraNavegacion` | `useAuth` | `auth.onAuthStateChange` (`INITIAL_SESSION`), `auth.signOut`, `select` del propio perfil en `profiles`. Con sesión, el desplegable de perfil muestra la bienvenida, Administrador si `rol = admin` (ruta `/admin` → `admin-donaciones`) y «Cerrar sesión». `NavAdmin` sigue siendo el subnav interno de `/admin/*`. |
-| Mis datos | `/perfil` | `PerfilView`, `components/perfil/FormularioPerfil` | `usePerfil` | `update` de `profiles` (solo `telefono`, `direccion`, `localidad`) |
+| Mis datos | `/perfil` | `PerfilView`, `components/perfil/FormularioPerfil` | `usePerfil` | `update` de `profiles` (`name`, `dni`, `telefono`, `direccion`, `localidad`) y `auth.updateUser` para el email |
 | Mis donaciones | `/perfil` | `components/perfil/ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id`; si está `reservado`, `select` de la solicitud en `pendiente_coordinacion` o `en_camino` |
 | Mis solicitudes | `/perfil` | `components/perfil/ListaMisSolicitudes` | `useSolicitudes` | `select` de `solicitudes` por `receptor_id` (columnas explícitas) y `rpc('obtener_codigo_confirmacion')` |
 | Chat de una solicitud | `/solicitud/:solicitudId/chat` | `ChatView`, `components/chat/` (`ListaMensajes`, `FormularioMensaje`, `FormularioEncuentro`, `FormularioConfirmarEntrega`, `PanelCancelarSolicitud`) | `useMensajes`, `useSolicitudes` | `select` de `solicitudes` y de `solicitud_mensajes`, `rpc('participantes_solicitud')`, `insert` de mensajes (el encuentro se propone con un mensaje armado desde el formulario), Realtime `postgres_changes`, `functions.invoke('confirmar-entrega')` y `functions.invoke('cancelar-solicitud')` |
