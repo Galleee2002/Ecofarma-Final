@@ -92,31 +92,31 @@ async function salir() {
 </script>
 
 <template>
-    <header class="border-b border-primary-soft bg-background">
+    <header class="relative z-10 border-b border-primary bg-primary">
         <div class="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-4">
             <div class="flex items-center gap-4">
                 <div class="flex flex-1 items-center">
-                    <RouterLink :to="{ name: 'catalogo' }" class="font-heading text-lg font-semibold text-primary">
-                        EcoFARMA
+                    <RouterLink :to="{ name: 'catalogo' }" aria-label="EcoFARMA" class="flex items-center">
+                        <img src="/logo.webp" alt="EcoFARMA" class="h-10 w-auto object-contain" />
                     </RouterLink>
                 </div>
 
                 <NavigationMenu class="flex-none" :viewport="false">
                     <NavigationMenuList>
                         <NavigationMenuItem>
-                            <NavigationMenuLink as-child :active="enlaceActivo('catalogo')">
+                            <NavigationMenuLink as-child :active="enlaceActivo('catalogo')" class="text-surface hover:bg-surface/10 hover:text-surface data-active:bg-surface/15 data-active:text-surface">
                                 <RouterLink :to="{ name: 'catalogo' }">Catálogo</RouterLink>
                             </NavigationMenuLink>
                         </NavigationMenuItem>
 
                         <template v-if="sesion !== null">
                             <NavigationMenuItem>
-                                <NavigationMenuLink as-child :active="enlaceActivo('donar')">
+                                <NavigationMenuLink as-child :active="enlaceActivo('donar')" class="text-surface hover:bg-surface/10 hover:text-surface data-active:bg-surface/15 data-active:text-surface">
                                     <RouterLink :to="{ name: 'donar' }">Donar</RouterLink>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <NavigationMenuLink as-child :active="enlaceActivo('perfil')">
+                                <NavigationMenuLink as-child :active="enlaceActivo('perfil')" class="text-surface hover:bg-surface/10 hover:text-surface data-active:bg-surface/15 data-active:text-surface">
                                     <RouterLink :to="{ name: 'perfil' }">Mi perfil</RouterLink>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
@@ -126,17 +126,22 @@ async function salir() {
 
                 <div class="flex flex-1 items-center justify-end gap-2">
                     <template v-if="sesion === null">
-                        <Button variant="outline" size="sm" as-child>
+                        <Button variant="secondary" size="sm" class="bg-surface text-primary hover:bg-surface/90" as-child>
                             <RouterLink :to="{ name: 'login' }">Ingresar</RouterLink>
                         </Button>
-                        <Button size="sm" as-child>
+                        <Button variant="secondary" size="sm" class="bg-surface text-primary hover:bg-surface/90" as-child>
                             <RouterLink :to="{ name: 'registro' }">Registrarse</RouterLink>
                         </Button>
                     </template>
 
                     <DropdownMenu v-else v-model:open="menuPerfilAbierto">
                         <DropdownMenuTrigger as-child>
-                            <Button variant="ghost" size="icon" class="text-icon" aria-label="Menú de perfil">
+                            <Button
+                                variant="secondary"
+                                size="icon"
+                                class="bg-surface text-primary hover:bg-surface/90"
+                                aria-label="Menú de perfil"
+                            >
                                 <CircleUserIcon />
                             </Button>
                         </DropdownMenuTrigger>

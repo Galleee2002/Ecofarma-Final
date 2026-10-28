@@ -181,7 +181,7 @@ Sin `updated_at`. Solo leen y escriben donante y receptor.
 Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. `src/style.css` y `src/components/ui` ya cubren controles, estados y confirmaciones. Cada pantalla se marca cuando se lee como terminada y el flujo sigue igual: mismos campos, mismas validaciones y las mismas llamadas a Supabase.
 
 - [x] Barra de navegación (`components/layout/BarraNavegacion`).
-- [ ] Catálogo, `/catalogo`.
+- [x] Catálogo, `/catalogo`.
 - [ ] Detalle y solicitud, `/medicamento/:id`.
 - [ ] Ingreso y registro, `/login` y `/registro`.
 - [ ] Perfil, `/perfil`.
@@ -190,6 +190,8 @@ Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. `src/st
 - [ ] Administración: `/admin/donaciones`, `/admin/vademecum` y `/admin/usuarios`.
 
 La landing no entra en esta sección.
+
+El catálogo muestra el texto introductorio, búsqueda con lupa, filtros por receta, orden por recientes o vencimiento, el total visible y tarjetas con foto, datos e iconos.
 
 ### Inventario
 

@@ -15,19 +15,32 @@ export function useMedicamentos() {
     const cargando = ref(false);
     const error = ref('');
     const busqueda = ref('');
+    const filtroReceta = ref('todos');
+    const orden = ref('recientes');
 
     const medicamentosFiltrados = computed(function () {
         const texto = busqueda.value.trim().toLowerCase();
-
-        if (texto === '') {
-            return medicamentos.value;
-        }
-
-        return medicamentos.value.filter(function (item) {
+        const filtrados = medicamentos.value.filter(function (item) {
             const nombre = item.nombre_comercial.toLowerCase();
             const principioActivo = item.principio_activo.toLowerCase();
-            return nombre.includes(texto) || principioActivo.includes(texto);
+            const requiereReceta = item.medicamentos_habilitados?.requiere_receta === true;
+            const coincideBusqueda = texto === '' || nombre.includes(texto) || principioActivo.includes(texto);
+            const coincideFiltro = filtroReceta.value === 'todos'
+                || (filtroReceta.value === 'con_receta' && requiereReceta)
+                || (filtroReceta.value === 'sin_receta' && !requiereReceta);
+
+            return coincideBusqueda && coincideFiltro;
         });
+
+        filtrados.sort(function (a, b) {
+            if (orden.value === 'recientes') {
+                return new Date(b.created_at) - new Date(a.created_at);
+            }
+
+            return a.fecha_vencimiento.localeCompare(b.fecha_vencimiento);
+        });
+
+        return filtrados;
     });
 
     async function cargarMedicamentos() {
@@ -36,10 +49,9 @@ export function useMedicamentos() {
 
         const { data, error: errorConsulta } = await supabase
             .from('medicamentos')
-            .select('id, nombre_comercial, principio_activo, concentracion, forma_farmaceutica, cantidad_disponible, fecha_vencimiento, fotos_envase')
+            .select('id, nombre_comercial, principio_activo, concentracion, forma_farmaceutica, cantidad_disponible, fecha_vencimiento, fotos_envase, created_at, medicamentos_habilitados(requiere_receta)')
             .eq('estado', 'disponible')
-            .gte('fecha_vencimiento', obtenerFechaDeHoy())
-            .order('fecha_vencimiento');
+            .gte('fecha_vencimiento', obtenerFechaDeHoy());
 
         if (errorConsulta) {
             console.error(errorConsulta);
@@ -85,6 +97,8 @@ export function useMedicamentos() {
         cargando,
         error,
         busqueda,
+        filtroReceta,
+        orden,
         medicamentosFiltrados,
         cargarMedicamentos,
         cargarMedicamentoPorId,

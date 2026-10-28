@@ -38,11 +38,11 @@ function reintentar() {
     </Alert>
 
     <Alert v-else-if="medicamentos.length === 0 && busqueda.trim() === ''" variant="muted">
-        <p>Todavía no hay medicamentos publicados.</p>
+        <p>No hay medicamentos disponibles con los filtros seleccionados.</p>
     </Alert>
 
     <Alert v-else-if="medicamentos.length === 0" variant="muted">
-        <p>No encontramos medicamentos disponibles que coincidan con tu búsqueda.</p>
+        <p>No encontramos medicamentos que coincidan con la búsqueda y los filtros seleccionados.</p>
     </Alert>
 
     <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
