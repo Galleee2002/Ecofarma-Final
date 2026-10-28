@@ -183,7 +183,8 @@ Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. `src/st
 - [x] Barra de navegación (`components/layout/BarraNavegacion`).
 - [x] Catálogo, `/catalogo`.
 - [x] Detalle y solicitud, `/medicamento/:id`.
-- [ ] Ingreso y registro, `/login` y `/registro`.
+- [x] Ingreso, `/login`.
+- [x] Registro, `/registro`.
 - [ ] Perfil, `/perfil`.
 - [ ] Publicar donación, `/donar`.
 - [ ] Chat, `/solicitud/:solicitudId/chat`.

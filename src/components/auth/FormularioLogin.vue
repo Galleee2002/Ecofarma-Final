@@ -37,8 +37,8 @@ function enviar() {
 <template>
     <form class="flex flex-col gap-4" novalidate @submit.prevent="enviar">
         <div class="flex flex-col gap-1">
-            <Label for="login-email">Email</Label>
-            <Input id="login-email" v-model="email" type="email" autocomplete="email" :aria-invalid="campoVacio(email)" />
+            <Label for="login-email">Correo electrónico</Label>
+            <Input id="login-email" v-model="email" type="email" autocomplete="email" placeholder="nombre@ejemplo.com" :aria-invalid="campoVacio(email)" />
         </div>
 
         <div class="flex flex-col gap-1">
@@ -70,8 +70,8 @@ function enviar() {
             <p>{{ error }}</p>
         </Alert>
 
-        <Button type="submit" :cargando="cargando">
-            Ingresar
+        <Button type="submit" :cargando="cargando" class="w-full">
+            Iniciar sesión
         </Button>
     </form>
 </template>
