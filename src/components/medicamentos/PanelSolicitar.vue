@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { CalendarDaysIcon, FileTextIcon, InfoIcon, PackageIcon, PillIcon } from '@lucide/vue';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +17,10 @@ const props = defineProps({
     },
     requiereReceta: {
         type: Boolean,
+        required: true,
+    },
+    medicamento: {
+        type: Object,
         required: true,
     },
 });
@@ -80,6 +84,11 @@ function quitarReceta() {
     vistaPreviaReceta.value = '';
 }
 
+function formatearFecha(fecha) {
+    const partes = fecha.split('-');
+    return partes[2] + '/' + partes[1] + '/' + partes[0];
+}
+
 async function solicitar() {
     if (sesion.value === null) {
         irALogin();
@@ -112,20 +121,50 @@ async function solicitar() {
 </script>
 
 <template>
-    <Card>
-        <CardHeader>
-            <h2 class="text-xl text-primary">Solicitar este medicamento</h2>
-        </CardHeader>
-        <CardContent class="flex flex-col gap-4">
+    <section class="flex min-w-0 flex-col gap-6 p-4 sm:p-6" aria-label="Información de la donación">
+        <div class="flex flex-col gap-2 border-b border-line pb-5">
+            <span class="inline-flex w-fit items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-sm text-success">
+                <span class="size-2 rounded-full bg-success" aria-hidden="true"></span>
+                Disponible
+            </span>
+            <h2 class="text-2xl font-bold text-primary">{{ medicamento.nombre_comercial }}</h2>
+            <p class="text-muted">{{ medicamento.principio_activo }}<span v-if="medicamento.concentracion"> · {{ medicamento.concentracion }}</span></p>
+        </div>
+
+        <dl class="grid gap-5 sm:grid-cols-2">
+            <div class="flex items-start gap-3">
+                <span class="rounded-md bg-icon/10 p-2 text-icon"><PillIcon class="size-5" aria-hidden="true" /></span>
+                <div><dt class="text-sm text-muted">Forma farmacéutica</dt><dd>{{ medicamento.forma_farmaceutica || 'No informada' }}</dd></div>
+            </div>
+            <div class="flex items-start gap-3">
+                <span class="rounded-md bg-icon/10 p-2 text-icon"><PackageIcon class="size-5" aria-hidden="true" /></span>
+                <div><dt class="text-sm text-muted">Cantidad disponible</dt><dd>{{ medicamento.cantidad_disponible }}</dd></div>
+            </div>
+            <div class="flex items-start gap-3">
+                <span class="rounded-md bg-warning/10 p-2 text-warning"><CalendarDaysIcon class="size-5" aria-hidden="true" /></span>
+                <div><dt class="text-sm text-muted">Fecha de vencimiento</dt><dd>{{ formatearFecha(medicamento.fecha_vencimiento) }}</dd></div>
+            </div>
+            <div class="flex items-start gap-3">
+                <span class="rounded-md bg-primary/10 p-2 text-primary"><FileTextIcon class="size-5" aria-hidden="true" /></span>
+                <div><dt class="text-sm text-muted">Lote</dt><dd>{{ medicamento.lote || 'No informado' }}</dd></div>
+            </div>
+        </dl>
+
+        <p v-if="medicamento.descripcion" class="border-t border-line pt-5 text-sm text-muted">{{ medicamento.descripcion }}</p>
+
+        <div class="flex flex-col gap-4 rounded-md bg-primary-soft/40 p-4 sm:p-5">
+            <div class="flex items-start gap-3 rounded-md bg-surface/70 p-3 text-sm text-primary shadow-sm">
+                <InfoIcon class="mt-0.5 size-5 shrink-0 text-secondary" aria-hidden="true" />
+                <p>Revisá los datos y las fotos antes de solicitar el medicamento.</p>
+            </div>
+            <h3 class="text-lg font-semibold text-primary">Solicitar este medicamento</h3>
             <Alert v-if="errorPerfil !== ''" variant="danger">
                 <p>{{ errorPerfil }}</p>
             </Alert>
 
             <template v-else-if="sesion === null">
-                <Alert variant="muted">
-                    <p>Para solicitar este medicamento tenés que iniciar sesión.</p>
-                </Alert>
-                <Button type="button" @click="irALogin">Iniciar sesión para solicitar</Button>
+                <p class="text-sm text-muted">Iniciá sesión para enviar tu solicitud y coordinar la entrega.</p>
+                <Button type="button" @click="irALogin">Iniciar sesión</Button>
             </template>
 
             <template v-else-if="perfil === null">
@@ -175,10 +214,8 @@ async function solicitar() {
                     <p>{{ mensajeCrear }}</p>
                 </Alert>
 
-                <Button type="button" :cargando="creando" :disabled="!puedeSolicitar" @click="solicitar">
-                    Solicitar
-                </Button>
+                <Button type="button" :cargando="creando" :disabled="!puedeSolicitar" @click="solicitar">Enviar solicitud</Button>
             </template>
-        </CardContent>
-    </Card>
+        </div>
+    </section>
 </template>

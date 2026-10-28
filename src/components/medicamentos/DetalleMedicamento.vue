@@ -1,52 +1,49 @@
 <script setup>
+import { ref, watch } from 'vue';
 import { Alert } from '@/components/ui/alert';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
-defineProps({
+const props = defineProps({
     medicamento: {
         type: Object,
         required: true,
     },
 });
 
-function formatearFecha(fecha) {
-    const partes = fecha.split('-');
-    return partes[2] + '/' + partes[1] + '/' + partes[0];
-}
+const fotoActiva = ref(0);
+
+watch(function () {
+    return props.medicamento.id;
+}, function () {
+    fotoActiva.value = 0;
+});
 </script>
 
 <template>
-    <Card>
-        <CardHeader>
-            <h1 class="text-2xl font-bold text-primary">{{ medicamento.nombre_comercial }}</h1>
-        </CardHeader>
-        <CardContent class="flex flex-col gap-4">
-            <div class="flex flex-col gap-1">
-                <p>Principio activo: {{ medicamento.principio_activo }}</p>
-                <p v-if="medicamento.concentracion">Concentración: {{ medicamento.concentracion }}</p>
-                <p v-if="medicamento.forma_farmaceutica">Forma farmacéutica: {{ medicamento.forma_farmaceutica }}</p>
-                <p>Cantidad: {{ medicamento.cantidad_disponible }}</p>
-                <p class="text-sm text-icon">Vence: {{ formatearFecha(medicamento.fecha_vencimiento) }}</p>
-                <p v-if="medicamento.lote">Lote: {{ medicamento.lote }}</p>
-                <p v-if="medicamento.descripcion">{{ medicamento.descripcion }}</p>
+    <section class="flex min-w-0 flex-col gap-4 p-4 sm:p-6" aria-label="Fotos del medicamento">
+        <template v-if="medicamento.fotos_envase.length > 0">
+            <img
+                :src="medicamento.fotos_envase[fotoActiva]"
+                :alt="'Foto ' + (fotoActiva + 1) + ' de ' + medicamento.nombre_comercial"
+                class="aspect-[4/3] w-full rounded-md bg-background object-contain"
+            />
+            <div class="flex flex-wrap gap-2" aria-label="Elegir foto del medicamento">
+                <button
+                    v-for="(foto, indice) in medicamento.fotos_envase.slice(0, 3)"
+                    :key="indice"
+                    type="button"
+                    :aria-label="'Ver foto ' + (indice + 1) + ' de ' + medicamento.nombre_comercial"
+                    :aria-pressed="fotoActiva === indice"
+                    class="size-20 overflow-hidden rounded-sm border-2 bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    :class="fotoActiva === indice ? 'border-primary' : 'border-line hover:border-primary/50'"
+                    @click="fotoActiva = indice"
+                >
+                    <img :src="foto" alt="" class="h-full w-full object-cover" />
+                </button>
             </div>
-
-            <div v-if="medicamento.fotos_envase.length > 0" class="flex flex-col gap-2">
-                <h2 class="text-xl text-primary">Fotos del envase</h2>
-                <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <img
-                        v-for="(foto, indice) in medicamento.fotos_envase"
-                        :key="indice"
-                        :src="foto"
-                        :alt="'Foto ' + (indice + 1) + ' de ' + medicamento.nombre_comercial"
-                        class="h-48 w-full rounded-lg object-cover"
-                    />
-                </div>
-            </div>
-
-            <Alert v-else variant="muted">
-                <p>Este medicamento no tiene fotos del envase.</p>
-            </Alert>
-        </CardContent>
-    </Card>
+            <p class="text-xs text-muted">Fotos del medicamento donado</p>
+        </template>
+        <Alert v-else variant="muted">
+            <p>Este medicamento no tiene fotos del envase.</p>
+        </Alert>
+    </section>
 </template>

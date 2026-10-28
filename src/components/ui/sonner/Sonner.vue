@@ -43,6 +43,7 @@ const delegatedProps = reactiveOmit(props, "class", "toastOptions", "style", "th
     :class="cn('toaster group', props.class)"
     theme="light"
     position="top-center"
+    :close-button="true"
     :rich-colors="true"
     :duration="3000"
     :style="{
@@ -93,3 +94,18 @@ const delegatedProps = reactiveOmit(props, "class", "toastOptions", "style", "th
     </template>
   </Sonner>
 </template>
+
+<style>
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] {
+  padding-right: 3rem;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-close-button] {
+  border: 0;
+  left: auto;
+  right: 0.75rem;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+</style>
