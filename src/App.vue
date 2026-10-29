@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from './composables/useAuth';
+import ToastViewport from './components/ui/ToastViewport.vue';
 
 const router = useRouter();
 const { sesion, perfil, errorPerfil, mensajeExito, tipoMensaje, cargando, error, cerrarSesion, ocultarMensajeExito } =
@@ -58,4 +59,5 @@ async function salir() {
     <p v-if="error !== ''" class="mx-auto mt-4 max-w-5xl border border-danger bg-danger/10 px-6 py-3 text-danger">{{ error }}</p>
 
     <RouterView />
+    <ToastViewport />
 </template>

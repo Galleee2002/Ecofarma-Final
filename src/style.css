@@ -3,7 +3,7 @@
 @theme {
     --font-sans: 'Source Sans Pro', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-heading: 'Noto Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Lato', ui-sans-serif, system-ui, sans-serif;
 
     --text-xs: 0.75rem;
     --text-xs--line-height: 1.4;
@@ -20,6 +20,7 @@
 
     --color-primary: #215b8d;
     --color-primary-soft: #cedceb;
+    --color-accent: var(--color-primary-soft);
     --color-secondary: #309ae6;
     --color-icon: #52806c;
     --color-success: #43b75d;
@@ -86,29 +87,32 @@
     h4,
     h5 {
         font-family: var(--font-heading);
+        font-weight: 700;
     }
 
     h1 {
         font-size: var(--text-2xl);
         line-height: var(--text-2xl--line-height);
-        font-weight: 700;
     }
 
     h2 {
         font-size: var(--text-xl);
         line-height: var(--text-xl--line-height);
-        font-weight: 600;
     }
 
     h3 {
         font-size: var(--text-lg);
         line-height: var(--text-lg--line-height);
-        font-weight: 600;
     }
 
-    h4,
+    h4 {
+        font-size: var(--text-base);
+        line-height: var(--text-base--line-height);
+    }
+
     h5 {
-        font-weight: 600;
+        font-size: var(--text-sm);
+        line-height: var(--text-sm--line-height);
     }
 
     input[type='checkbox'],

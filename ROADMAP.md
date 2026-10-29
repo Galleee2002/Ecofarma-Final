@@ -6,7 +6,7 @@ Estado del proyecto, decisiones que siguen vigentes, esquema y lo que falta. Las
 
 ## 1. Estado
 
-Las fases 1 a 9 están cerradas en funcionalidad. La interfaz es HTML nativo con las clases de Tailwind mínimas para probarla. Se quitaron shadcn/vue y los componentes de dominio. Falta el pulido de cada pantalla (sección 5) y la landing (fase 10).
+Las fases 1 a 9 están cerradas en funcionalidad. La interfaz es HTML nativo con las clases de Tailwind mínimas para probarla. Se quitaron shadcn/vue y los componentes de dominio; el rastro sigue en disco y no se reutiliza. Los tokens, fuentes y carpetas de la etapa de fundamentos visuales están cerrados (sección 3 y `docs/convenciones-visuales.md`). Falta el pulido de cada pantalla (sección 5) y la landing (fase 10).
 
 | Fase | Qué quedó |
 |---|---|
@@ -88,7 +88,7 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 
 ## 3. Sistema de diseño
 
-Tokens en `@theme` de `src/style.css`. Fuentes desde Bunny Fonts en `index.html`. La interfaz usa HTML nativo y estos tokens (`bg-primary`, `text-danger`, `border-line`).
+Tokens en `@theme` de `src/style.css`. Fuentes desde Bunny Fonts en `index.html` (Lato 400/700 y Source Sans Pro 400/600). La interfaz usa HTML nativo y estos tokens (`bg-primary`, `text-danger`, `border-line`). Cómo usarlos: `docs/convenciones-visuales.md`. Esta etapa (fundamentos visuales) está cerrada. Siguen pendientes el pulido de cada pantalla (sección 5) y la landing (fase 10).
 
 | Token | Hex | Uso |
 |---|---|---|
@@ -103,11 +103,18 @@ Tokens en `@theme` de `src/style.css`. Fuentes desde Bunny Fonts en `index.html`
 | `foreground` | `#1A1A1A` | Texto |
 | `muted` | `#6C757D` | Texto secundario e informativo |
 | `line` | `#D3E0E6` | Bordes e inputs |
-| `primary-soft` | `#CEDCEB` | Fondo suave. Alias `accent` |
+| `primary-soft` | `#CEDCEB` | Fondo suave |
+| `accent` | alias de `primary-soft` | Mismo hex; `bg-accent`, `text-accent`, `border-accent` |
 
-Escala: 28, 22, 18, 16, 14 y 12 px. `h1` en Noto Sans 700. `h2`–`h5` en Noto Sans 600. El cuerpo es Source Sans Pro 400. Radios: `0.5rem`, `0.75rem` y `1rem`.
+Escala: 28 (`h1`), 22 (`h2`), 18 (`h3`), 16 (`h4` y cuerpo), 14 (`h5`), 12 (textos auxiliares). Títulos en Lato 700 (`font-heading`). Cuerpo en Source Sans Pro 400 (`font-sans`). Bunny Fonts no sirve Lato 600: `h1`–`h5` van en 700.
+
+Radios: `sm` 0.5rem, `md` 0.75rem, `lg` 1rem.
+
+Sombras (tinte `primary`): `sm` `0 1px 2px rgb(33 91 141 / 0.08)`, `md` `0 4px 12px rgb(33 91 141 / 0.1)`, `lg` `0 12px 32px rgb(33 91 141 / 0.16)`.
 
 Cada vista usa `pagina` (64rem), `pagina-media` (48rem) o `pagina-formulario` (28rem).
+
+Carpetas previstas para la fidelidad visual: `src/components/ui/`, `layout/`, `landing/`, `medicamentos/`. Las vistas actuales no las importan. El sistema de toasts está cerrado: `BaseToast` define la presentación, `ToastViewport` se monta en `App.vue` y las vistas invocan `useToast`. Todavía no reemplaza los avisos actuales de cada pantalla. El modal reutilizable está cerrado: `BaseModal` cubre apertura con `v-model:open`, variantes default/danger/success y acciones por slot.
 
 ---
 
