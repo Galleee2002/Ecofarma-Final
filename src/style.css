@@ -1,6 +1,4 @@
-
 @import 'tailwindcss';
-@import 'tw-animate-css';
 
 @theme {
     --font-sans: 'Source Sans Pro', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
@@ -33,20 +31,6 @@
     --color-surface: #ffffff;
     --color-line: #d3e0e6;
 
-    --color-primary-foreground: var(--color-background);
-    --color-secondary-foreground: var(--color-background);
-    --color-muted-foreground: var(--color-muted);
-    --color-destructive: var(--color-danger);
-    --color-card: var(--color-surface);
-    --color-card-foreground: var(--color-foreground);
-    --color-border: var(--color-line);
-    --color-input: var(--color-line);
-    --color-ring: var(--color-primary);
-    --color-popover: var(--color-surface);
-    --color-popover-foreground: var(--color-foreground);
-    --color-accent: var(--color-primary-soft);
-    --color-accent-foreground: var(--color-foreground);
-
     --radius-sm: 0.5rem;
     --radius-md: 0.75rem;
     --radius-lg: 1rem;
@@ -54,10 +38,6 @@
     --shadow-sm: 0 1px 2px rgb(33 91 141 / 0.08);
     --shadow-md: 0 4px 12px rgb(33 91 141 / 0.1);
     --shadow-lg: 0 12px 32px rgb(33 91 141 / 0.16);
-}
-
-@utility cn-font-heading {
-    font-family: var(--font-heading);
 }
 
 @utility pagina {

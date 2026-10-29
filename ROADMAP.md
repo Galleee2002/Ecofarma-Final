@@ -1,12 +1,12 @@
 # ROADMAP — EcoFARMA (MVP)
 
-Estado del proyecto, decisiones que siguen vigentes, esquema y lo que falta. Las reglas de trabajo están en `AGENTS.md`. La protección de los datos (GRANT, RLS, Storage) está en `docs/base-de-datos.md`. Los componentes de UI están en `docs/shadcn/vue-implementacion.md`.
+Estado del proyecto, decisiones que siguen vigentes, esquema y lo que falta. Las reglas de trabajo están en `AGENTS.md`. La protección de los datos (GRANT, RLS, Storage) está en `docs/base-de-datos.md`.
 
 ---
 
 ## 1. Estado
 
-Las fases 1 a 9 están cerradas en funcionalidad. La capa visual compartida (escala, radios, sombras, superficie y aire de página) ya está. Falta el pulido de cada pantalla (sección 5) y la landing (fase 10).
+Las fases 1 a 9 están cerradas en funcionalidad. La interfaz es HTML nativo con las clases de Tailwind mínimas para probarla. Se quitaron shadcn/vue y los componentes de dominio. Falta el pulido de cada pantalla (sección 5) y la landing (fase 10).
 
 | Fase | Qué quedó |
 |---|---|
@@ -45,7 +45,7 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 - La sesión se escucha solo con `onAuthStateChange`. `INITIAL_SESSION` trae la sesión guardada. El perfil se carga con `setTimeout`, fuera del callback, y solo si cambió el usuario.
 - La escucha arranca en `router.beforeEach`, que espera `esperarSesionInicial()` antes de decidir. El guard de admin espera además `esperarPerfil()`.
 - `requiereSesion` manda a `/login?redirect=`. `soloInvitados` manda al catálogo. `requiereAdmin` manda al catálogo si el rol no es `admin`. El registro siempre va al catálogo. El ingreso vuelve al `redirect` si empieza con `/`.
-- `cargando` y `error` son de cada vista. `useAuth` comparte sesión, perfil y `errorPerfil`.
+- `cargando` y `error` son de cada vista. `useAuth` comparte sesión, perfil y `errorPerfil`. El aviso de ingreso, registro y cierre de sesión vive en `mensajeExito`.
 
 ### Donaciones
 
@@ -88,7 +88,7 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 
 ## 3. Sistema de diseño
 
-Tokens en `@theme` de `src/style.css`. Fuentes desde Bunny Fonts en `index.html`. Los alias que shadcn espera (`destructive`, `card`, `border`, `accent` y el resto) apuntan a estos tokens. El detalle está en `docs/shadcn/vue-implementacion.md`.
+Tokens en `@theme` de `src/style.css`. Fuentes desde Bunny Fonts en `index.html`. La interfaz usa HTML nativo y estos tokens (`bg-primary`, `text-danger`, `border-line`).
 
 | Token | Hex | Uso |
 |---|---|---|
@@ -99,7 +99,7 @@ Tokens en `@theme` de `src/style.css`. Fuentes desde Bunny Fonts en `index.html`
 | `danger` | `#FF3C3C` | Error y acciones destructivas |
 | `warning` | `#FFAA00` | Advertencia |
 | `background` | `#EEF4F6` | Fondo de página |
-| `surface` | `#FFFFFF` | Tarjetas, diálogos y toasts |
+| `surface` | `#FFFFFF` | Fondos de formulario y avisos |
 | `foreground` | `#1A1A1A` | Texto |
 | `muted` | `#6C757D` | Texto secundario e informativo |
 | `line` | `#D3E0E6` | Bordes e inputs |
@@ -178,13 +178,13 @@ Sin `updated_at`. Solo leen y escriben donante y receptor.
 
 ## 5. Fidelidad visual
 
-Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. `src/style.css` y `src/components/ui` ya cubren controles, estados y confirmaciones. Cada pantalla se marca cuando se lee como terminada y el flujo sigue igual: mismos campos, mismas validaciones y las mismas llamadas a Supabase.
+Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. Cada vista llama al composable y usa HTML nativo. El pulido visual de cada pantalla está pendiente.
 
-- [x] Barra de navegación (`components/layout/BarraNavegacion`).
-- [x] Catálogo, `/catalogo`.
-- [x] Detalle y solicitud, `/medicamento/:id`.
-- [x] Ingreso, `/login`.
-- [x] Registro, `/registro`.
+- [ ] Navegación (`App.vue`).
+- [ ] Catálogo, `/catalogo`.
+- [ ] Detalle y solicitud, `/medicamento/:id`.
+- [ ] Ingreso, `/login`.
+- [ ] Registro, `/registro`.
 - [ ] Perfil, `/perfil`.
 - [ ] Publicar donación, `/donar`.
 - [ ] Chat, `/solicitud/:solicitudId/chat`.
@@ -192,30 +192,28 @@ Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. `src/st
 
 La landing no entra en esta sección.
 
-El catálogo muestra el texto introductorio, búsqueda con lupa, filtros por receta, orden por recientes o vencimiento, el total visible y tarjetas con foto, datos e iconos.
-
 ### Inventario
 
 Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 
-| Funcionalidad | Ruta | Vista y componentes | Composable | Supabase |
+| Funcionalidad | Ruta | Vista | Composable | Supabase |
 |---|---|---|---|---|
-| Catálogo | `/catalogo` | `CatalogoView`, `components/medicamentos/` | `useMedicamentos` | `select` de `medicamentos` disponibles y no vencidos |
-| Registro | `/registro` | `RegistroView`, `FormularioRegistro` | `useAuth` | `auth.signUp` con metadatos; el trigger crea el perfil |
-| Ingreso | `/login` | `LoginView`, `FormularioLogin` | `useAuth` | `auth.signInWithPassword`; acepta `?redirect=` |
-| Sesión | todas | `BarraNavegacion` | `useAuth` | `onAuthStateChange`, `signOut`, `select` del perfil. El menú muestra la bienvenida, Administrador si `rol = admin` y «Cerrar sesión» |
-| Mis datos | `/perfil` | `PerfilView`, `FormularioPerfil` | `usePerfil` | `update` de `profiles` y `auth.updateUser` para el email |
-| Mis donaciones | `/perfil` | `ListaMisDonaciones` | `useDonaciones` | `select` de `medicamentos` por `user_id`; si está `reservado`, la solicitud activa |
-| Mis solicitudes | `/perfil` | `ListaMisSolicitudes` | `useSolicitudes` | `select` por `receptor_id` (sin el código) y `rpc('obtener_codigo_confirmacion')` |
-| Chat | `/solicitud/:solicitudId/chat` | `ChatView`, `components/chat/` | `useMensajes`, `useSolicitudes` | mensajes, `rpc('participantes_solicitud')`, Realtime, `confirmar-entrega`, `cancelar-solicitud` |
-| Solicitar | `/medicamento/:id` | `MedicamentoDetalleView`, `DetalleMedicamento`, `PanelSolicitar` | `useMedicamentos`, `useSolicitudes` | Storage `recetas-medicas` y `crear-solicitud` |
-| Donar | `/donar` | `DonarView`, `FormularioDonacion` | `useVademecum`, `useDonaciones` | sugerencias, bucket `fotos-envases`, `publicar-medicamento` |
-| Moderación | `/admin/donaciones` | `AdminDonacionesView`, `ListaModeracion`, `TarjetaModeracion` | `useModeracion`, `useVademecum` | `select` en revisión, disponibles y rechazados; `moderar-donacion` |
-| Vademécum | `/admin/vademecum` | `AdminVademecumView`, `FormularioAltaVademecum` | `useVademecum` | `alta-medicamento-habilitado` |
-| Cuentas | `/admin/usuarios` | `AdminUsuariosView`, `TablaUsuarios` | `useUsuariosAdmin` | `gestionar-usuarios` (`listar`, `suspender`, `rehabilitar`, `promover`, `revocar`) |
+| Catálogo | `/catalogo` | `CatalogoView` | `useMedicamentos` | `select` de `medicamentos` disponibles y no vencidos |
+| Registro | `/registro` | `RegistroView` | `useAuth` | `auth.signUp` con metadatos; el trigger crea el perfil |
+| Ingreso | `/login` | `LoginView` | `useAuth` | `auth.signInWithPassword`; acepta `?redirect=` |
+| Sesión | todas | `App.vue` | `useAuth` | `onAuthStateChange`, `signOut`, `select` del perfil. Administración si `rol = admin` y «Cerrar sesión» |
+| Mis datos | `/perfil` | `PerfilView` | `usePerfil` | `update` de `profiles` y `auth.updateUser` para el email |
+| Mis donaciones | `/perfil` | `PerfilView` | `useDonaciones` | `select` de `medicamentos` por `user_id`; si está `reservado`, la solicitud activa |
+| Mis solicitudes | `/perfil` | `PerfilView` | `useSolicitudes` | `select` por `receptor_id` (sin el código) y `rpc('obtener_codigo_confirmacion')` |
+| Chat | `/solicitud/:solicitudId/chat` | `ChatView` | `useMensajes`, `useSolicitudes` | mensajes, `rpc('participantes_solicitud')`, Realtime, `confirmar-entrega`, `cancelar-solicitud` |
+| Solicitar | `/medicamento/:id` | `MedicamentoDetalleView` | `useMedicamentos`, `useSolicitudes` | Storage `recetas-medicas` y `crear-solicitud` |
+| Donar | `/donar` | `DonarView` | `useVademecum`, `useDonaciones` | sugerencias, bucket `fotos-envases`, `publicar-medicamento` |
+| Moderación | `/admin/donaciones` | `AdminDonacionesView` | `useModeracion`, `useVademecum` | `select` en revisión, disponibles y rechazados; `moderar-donacion` |
+| Vademécum | `/admin/vademecum` | `AdminVademecumView` | `useVademecum` | `alta-medicamento-habilitado` |
+| Cuentas | `/admin/usuarios` | `AdminUsuariosView` | `useUsuariosAdmin` | `gestionar-usuarios` (`listar`, `suspender`, `rehabilitar`, `promover`, `revocar`) |
 | Guard | todas | `src/router/index.js` | `useAuth` | `requiereSesion`, `soloInvitados`, `requiereAdmin` |
 
-`NavAdmin` es el subnav de `/admin/*`. `/` redirige al catálogo. La fase 10 no suma Edge Functions.
+`AdminLayout` es el subnav de `/admin/*`. `/` redirige al catálogo. La fase 10 no suma Edge Functions.
 
 ---
 

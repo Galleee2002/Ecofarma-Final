@@ -1,6 +1,6 @@
 # EcoFARMA — Guía para agentes
 
-Reglas de trabajo. El estado, las decisiones y el esquema están en `ROADMAP.md`. Cómo se protegen los datos está en `docs/base-de-datos.md`. El inventario de componentes está en `docs/shadcn/vue-implementacion.md`. Al cerrar una fase o una pantalla de la sección 5, actualizar `ROADMAP.md`.
+Reglas de trabajo. El estado, las decisiones y el esquema están en `ROADMAP.md`. Cómo se protegen los datos está en `docs/base-de-datos.md`. Al cerrar una fase o una pantalla de la sección 5, actualizar `ROADMAP.md`.
 
 ## Stack
 
@@ -12,17 +12,15 @@ Reglas de trabajo. El estado, las decisiones y el esquema están en `ROADMAP.md`
 ## Alcance
 
 - Implementar solo lo que el usuario pide. Si hace falta un archivo o un cambio de más para que funcione, avisarlo y explicar por qué antes de hacerlo.
-- Primero datos, RLS, consultas y Edge Functions. Hasta la fidelidad visual y la landing (`ROADMAP.md`, sección 5 y fase 10), la interfaz lleva solo las clases de Tailwind mínimas para probarla.
-- Un componente nuevo de shadcn/vue solo si el usuario lo pide.
+- Primero datos, RLS, consultas y Edge Functions. Hasta la fidelidad visual y la landing (`ROADMAP.md`, sección 5 y fase 10), la interfaz lleva solo las clases de Tailwind mínimas para probarla. HTML nativo: `input`, `select`, `textarea`, `button`, `table`. Sin shadcn/vue ni librerías de UI.
 
 ## Estructura
 
 Un solo proyecto: `src/` en la raíz y `supabase/` al lado. No separar en `/frontend` y `/backend`, ni mover archivos, `.env.local` o imports.
 
 - `src/lib/supabase.js`: único cliente de Supabase en el frontend.
-- `src/views/`: una página por ruta. Llama al composable y pasa los datos por props.
+- `src/views/`: una página por ruta. Llama al composable y renderiza el formulario o la lista.
 - `src/composables/`: acceso a Supabase y validación de formularios.
-- `src/components/`: UI por dominio. `src/components/ui` es shadcn, en JavaScript.
 - `src/style.css`: Tailwind, tokens (`@theme`) y las utilidades `pagina`, `pagina-media` y `pagina-formulario`.
 - `supabase/migrations/`: una migración nueva por cambio de esquema. No editar migraciones ya aplicadas.
 - `supabase/functions/<nombre>/index.js`: Edge Functions.
@@ -51,18 +49,17 @@ Un solo proyecto: `src/` en la raíz y `supabase/` al lado. No separar en `/fron
 - `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en `.env.local`. Nunca la `service_role` key ni otros secretos.
 - Colores solo con tokens de `src/style.css` (`bg-primary`, `text-icon`, `text-danger`). Sin hex sueltos ni la paleta por defecto de Tailwind.
 - Títulos en `font-heading` (Noto Sans). Cuerpo en `font-sans` (Source Sans Pro).
-- Conservar los alias de `@theme`. Un `shadcn-vue add` puede pisar `src/style.css`: hay que revisar ese archivo y descartar fuentes nuevas, modo oscuro y hex que no estén en el tema.
 
 ### Mensajes
 
 - Texto claro en español. El error crudo (`error.message`, códigos de Postgres, stack) solo se escribe en consola.
 - Error: `danger`. Éxito: `success`. Advertencia: `warning`. Informativo: `muted`. Usar `text-*`, `border-*` y `bg-*/10`.
-- Ingreso, registro y donación publicada: toast de Sonner, arriba, 3 segundos, fondo blanco y texto negro. El borde de éxito es `success`. El de una donación en revisión es `icon`. Cerrar sesión también es un toast de éxito, con borde `danger`. Los errores y las advertencias quedan en Alert.
+- Ingreso, registro y cierre de sesión: aviso en `App.vue` con `mostrarAviso`. La donación publicada o en revisión queda en la misma pantalla de `/donar`. Los errores y las advertencias quedan en el formulario.
 
 ## Código
 
 - Sin comentarios, salvo que el usuario los pida.
-- Sintaxis básica, sin librerías ni capas de más. shadcn/vue es la excepción, y solo cuando el usuario la pide.
+- Sintaxis básica, sin librerías ni capas de más.
 - No ejecutar `pnpm dev`, `pnpm build`, `pnpm preview` ni `pnpm supabase functions serve` por cuenta propia. Revisar el código y decir qué conviene probar.
 
 ## Git
