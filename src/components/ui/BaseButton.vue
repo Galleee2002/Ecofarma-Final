@@ -29,8 +29,7 @@ const clasesBase = [
     'inline-flex shrink-0 cursor-pointer items-center justify-center gap-2',
     'rounded-md border font-sans font-semibold whitespace-nowrap select-none',
     'transition duration-150 ease-out motion-reduce:transition-none',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-    'focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+    'focus-visible:outline-none focus-visible:ring-2',
     'disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50',
 ].join(' ');
 
@@ -39,6 +38,7 @@ const variantes = {
     secondary: 'border-transparent bg-primary-soft text-primary hover:brightness-95 active:brightness-90',
     outline: 'border-primary bg-transparent text-primary hover:bg-primary-soft active:bg-primary/20',
     ghost: 'border-transparent bg-transparent text-primary hover:bg-primary-soft active:bg-primary/20',
+    'on-primary': 'border-transparent bg-transparent text-surface hover:bg-surface/10 active:bg-surface/20',
 };
 
 const tamanos = {
@@ -50,7 +50,10 @@ const tamanos = {
 const clases = computed(function () {
     const variante = variantes[props.variant] ?? variantes.primary;
     const tamano = tamanos[props.size] ?? tamanos.md;
-    return [clasesBase, variante, tamano].join(' ');
+    const foco = props.variant === 'on-primary'
+        ? 'focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary'
+        : 'focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+    return [clasesBase, foco, variante, tamano].join(' ');
 });
 
 const tipoBoton = computed(function () {

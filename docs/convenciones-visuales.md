@@ -99,11 +99,11 @@ Las vistas actuales de `src/views/` llaman a composables y renderizan formulario
 
 La implementación visual se trabaja de forma incremental por componente o pantalla: analizar, definir diseño, implementar, revisar funcionalidad y compilación, inspeccionar el resultado visual y avanzar cuando esté aprobado. No generar una vista completa de una sola vez.
 
-### Navegación pública
+### Navegación
 
-La landing usa `PublicNavbar.vue`; la plataforma conserva una navegación separada en `AppNavbar.vue`. La navegación pública se compone con fondo blanco, imagotipo oficial a la izquierda, enlaces centrados y acciones de autenticación a la derecha. En móvil debe ofrecer un menú hamburguesa accesible. Se diseña la composición de escritorio y se implementa mobile-first.
+La landing y la plataforma comparten la identidad visual del navbar: fondo `primary` (`#215b8d`) y textos e iconos `surface` (`#ffffff`). `BaseNavbar.vue` proporciona la estructura visual reutilizable; `LandingNavbar.vue` y `AppNavbar.vue` definen sus enlaces y comportamientos de navegación. Ambos se implementan mobile-first, con menú hamburguesa accesible en móvil y composición horizontal en pantallas mayores. La transición del menú se hace con Vue `Transition` y debe respetar `prefers-reduced-motion`.
 
-Usar el recurso original del proyecto (`public/logo.webp`, sujeto a confirmar que corresponda al imagotipo oficial) o el recurso oficial de Figma. No reconstruir el logo con texto ni alterar sus proporciones.
+Usar el recurso original del proyecto (`public/logo.webp`) o el recurso oficial de Figma. No agregar el nombre EcoFARMA al lado del logo, reconstruir el logo con texto ni alterar sus proporciones. Sobre el fondo azul, los controles y enlaces deben conservar contraste y estados de foco visibles; los botones pueden adaptar su variante para seguir siendo legibles.
 
 ### Landing
 

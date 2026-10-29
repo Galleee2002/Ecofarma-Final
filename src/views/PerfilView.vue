@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
 import { usePerfil } from '../composables/usePerfil';
 import { useDonaciones } from '../composables/useDonaciones';
@@ -9,6 +10,8 @@ const { sesion, perfil, errorPerfil } = useAuth();
 const { cargando: guardando, error: errorGuardar, mensaje: mensajeGuardar, actualizarDatos } = usePerfil();
 const { donaciones, cargando: cargandoDonaciones, cargado: donacionesCargadas, error: errorDonaciones, cargarMisDonaciones } = useDonaciones();
 const { solicitudes, cargando: cargandoSolicitudes, cargado: solicitudesCargadas, error: errorSolicitudes, cargarMisSolicitudes } = useSolicitudes();
+const route = useRoute();
+const router = useRouter();
 
 const pestanaActiva = ref('datos');
 const datos = ref({
@@ -48,6 +51,20 @@ watch(
         datos.value.telefono = valor.telefono;
         datos.value.direccion = valor.direccion;
         datos.value.localidad = valor.localidad;
+    },
+    { immediate: true },
+);
+
+watch(
+    function () {
+        return route.query.tab;
+    },
+    function (tab) {
+        if (tab === 'donaciones' || tab === 'solicitudes') {
+            activarPestana(tab);
+        } else {
+            activarPestana('datos');
+        }
     },
     { immediate: true },
 );
@@ -97,6 +114,21 @@ function recargarSolicitudes() {
 }
 
 function abrirPestana(pestana) {
+    activarPestana(pestana);
+
+    const query = { ...route.query };
+    if (pestana === 'datos') {
+        delete query.tab;
+    } else {
+        query.tab = pestana;
+    }
+
+    if (query.tab !== route.query.tab) {
+        router.replace({ query: query });
+    }
+}
+
+function activarPestana(pestana) {
     pestanaActiva.value = pestana;
     if (pestana === 'donaciones' && !donacionesCargadas.value) {
         recargarDonaciones();
