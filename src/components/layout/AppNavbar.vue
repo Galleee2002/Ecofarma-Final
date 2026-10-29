@@ -7,25 +7,18 @@ import UserMenu from './UserMenu.vue';
 
 const route = useRoute();
 const router = useRouter();
-const { sesion, perfil, cargando, error, cerrarSesion, mostrarAviso, esperarSesionInicial, esperarPerfil } = useAuth();
+const { sesion, perfil, error, cerrarSesion, mostrarAviso, esperarSesionInicial, esperarPerfil } = useAuth();
 const authListo = ref(false);
 
 const esAdmin = computed(function () {
     return perfil.value !== null && perfil.value.rol === 'admin';
 });
 
-const enlaces = computed(function () {
-    const items = [{ etiqueta: 'Catálogo', destino: { name: 'catalogo' } }];
-
-    if (sesion.value !== null) {
-        items.push(
-            { etiqueta: 'Mis solicitudes', destino: { name: 'perfil', query: { tab: 'solicitudes' } } },
-            { etiqueta: 'Mis donaciones', destino: { name: 'perfil', query: { tab: 'donaciones' } } },
-        );
-    }
-
-    return items;
-});
+const enlaces = [
+    { id: 'inicio', etiqueta: 'Inicio', destino: { name: 'catalogo' } },
+    { id: 'donar', etiqueta: 'Donar', destino: { name: 'donar' } },
+    { id: 'recibir', etiqueta: 'Recibir', destino: { name: 'catalogo' } },
+];
 
 onMounted(async function () {
     await esperarSesionInicial();
@@ -36,10 +29,13 @@ onMounted(async function () {
 });
 
 function enlaceActivo(enlace) {
-    if (enlace.destino.name === 'catalogo') {
+    if (enlace.id === 'inicio') {
         return route.name === 'catalogo' || route.name === 'medicamento-detalle';
     }
-    return route.name === 'perfil' && route.query.tab === enlace.destino.query.tab;
+    if (enlace.id === 'donar') {
+        return route.name === 'donar';
+    }
+    return false;
 }
 
 async function salir() {
@@ -61,7 +57,7 @@ async function salir() {
         <template #desktop-navigation>
             <RouterLink
                 v-for="enlace in enlaces"
-                :key="enlace.etiqueta"
+                :key="enlace.id"
                 :to="enlace.destino"
                 class="inline-flex min-h-10 items-center rounded-md px-3 py-2 font-semibold text-surface transition hover:bg-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none"
                 :class="enlaceActivo(enlace) ? 'bg-secondary/30' : ''"
@@ -73,12 +69,6 @@ async function salir() {
 
         <template #actions>
             <template v-if="authListo && sesion !== null">
-                <RouterLink
-                    :to="{ name: 'donar' }"
-                    class="inline-flex min-h-10 items-center rounded-md bg-surface px-4 py-2 font-sans text-sm font-semibold text-primary transition hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none"
-                >
-                    Donar medicamento
-                </RouterLink>
                 <UserMenu :es-admin="esAdmin" @logout="salir" />
             </template>
             <template v-else-if="authListo">
@@ -97,20 +87,10 @@ async function salir() {
             </template>
         </template>
 
-        <template #mobile-primary-action>
-            <RouterLink
-                v-if="authListo && sesion !== null"
-                :to="{ name: 'donar' }"
-                class="inline-flex min-h-10 items-center justify-center rounded-md bg-surface px-3 py-2 text-sm font-semibold text-primary transition hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none"
-            >
-                Donar
-            </RouterLink>
-        </template>
-
         <template #mobile-navigation>
             <RouterLink
                 v-for="enlace in enlaces"
-                :key="enlace.etiqueta"
+                :key="enlace.id"
                 :to="enlace.destino"
                 class="inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold text-surface transition hover:bg-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none"
                 :class="enlaceActivo(enlace) ? 'bg-secondary/30' : ''"
@@ -122,12 +102,6 @@ async function salir() {
 
         <template #mobile-actions>
             <template v-if="authListo && sesion !== null">
-                <RouterLink
-                    :to="{ name: 'donar' }"
-                    class="inline-flex min-h-11 items-center justify-center rounded-md bg-surface px-4 py-2 font-semibold text-primary transition hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none"
-                >
-                    Donar medicamento
-                </RouterLink>
                 <UserMenu modo="mobile" :es-admin="esAdmin" @logout="salir" />
             </template>
             <template v-else-if="authListo">

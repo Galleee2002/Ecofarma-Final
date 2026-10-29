@@ -32,7 +32,7 @@ function cerrarMenu() {
 </script>
 
 <template>
-    <header class="relative z-40 bg-primary text-surface uppercase" @keydown.esc="cerrarMenu">
+    <header class="relative z-40 bg-primary text-surface" @keydown.esc="cerrarMenu">
         <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:px-6 lg:grid lg:grid-cols-[auto_1fr_auto] lg:gap-8">
             <slot name="brand">
                 <RouterLink :to="props.logoTo" class="inline-flex shrink-0 items-center" aria-label="EcoFARMA">
