@@ -39,6 +39,7 @@ const variantes = {
     outline: 'border-primary bg-transparent text-primary hover:bg-primary-soft active:bg-primary/20',
     ghost: 'border-transparent bg-transparent text-primary hover:bg-primary-soft active:bg-primary/20',
     'on-primary': 'border-transparent bg-transparent text-surface hover:bg-surface/10 active:bg-surface/20',
+    danger: 'border-transparent bg-danger text-surface shadow-sm hover:brightness-110 hover:shadow-md active:brightness-95',
 };
 
 const tamanos = {

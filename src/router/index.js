@@ -7,6 +7,11 @@ const routes = [
         redirect: { name: 'catalogo' },
     },
     {
+        path: '/recibir',
+        name: 'recibir',
+        component: () => import('../views/CatalogoView.vue'),
+    },
+    {
         path: '/catalogo',
         name: 'catalogo',
         component: () => import('../views/CatalogoView.vue'),

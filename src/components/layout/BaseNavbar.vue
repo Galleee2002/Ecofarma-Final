@@ -27,7 +27,12 @@ function alternarMenu() {
 }
 
 function cerrarMenu() {
-    menuAbierto.value = false;
+    if (!menuAbierto.value) {
+        return;
+    }
+    queueMicrotask(function () {
+        menuAbierto.value = false;
+    });
 }
 </script>
 

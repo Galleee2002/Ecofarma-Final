@@ -45,6 +45,9 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 - La sesión se escucha solo con `onAuthStateChange`. `INITIAL_SESSION` trae la sesión guardada. El perfil se carga con `setTimeout`, fuera del callback, y solo si cambió el usuario.
 - La escucha arranca en `router.beforeEach`, que espera `esperarSesionInicial()` antes de decidir. El guard de admin espera además `esperarPerfil()`.
 - `requiereSesion` manda a `/login?redirect=`. `soloInvitados` manda al catálogo. `requiereAdmin` manda al catálogo si el rol no es `admin`. El registro siempre va al catálogo. El ingreso vuelve al `redirect` si empieza con `/`.
+- El navbar de la plataforma tiene Inicio (deshabilitado hasta la landing), Donar (`/donar`) y Recibir (`/recibir`). Recibir reutiliza `CatalogoView` y queda activo en `/recibir`, `/catalogo` y `/medicamento/:id`. `/catalogo` se mantiene como ruta compatible.
+- Mi perfil sigue en `/perfil` con las pestañas Mis datos, Mis donaciones (`?tab=donaciones`) y Mis solicitudes (`?tab=solicitudes`). Administración solo se muestra si `rol = admin`.
+- El cierre de sesión se confirma con `BaseModal`. La autenticación sigue en `useAuth` (`signOut`).
 - `cargando` y `error` son de cada vista. `useAuth` comparte sesión, perfil y `errorPerfil`. El aviso de ingreso, registro y cierre de sesión vive en `mensajeExito`.
 
 ### Donaciones
@@ -187,8 +190,8 @@ Sin `updated_at`. Solo leen y escriben donante y receptor.
 
 Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. Cada vista llama al composable y usa HTML nativo. El pulido visual de cada pantalla está pendiente.
 
-- [ ] Navegación (`App.vue`).
-- [ ] Catálogo, `/catalogo`.
+- [x] Navegación (`App.vue`). Inicio deshabilitado hasta la landing; Donar `/donar`; Recibir `/recibir` (catálogo). Cierre de sesión con `BaseModal`.
+- [ ] Catálogo, `/recibir` y `/catalogo`.
 - [ ] Detalle y solicitud, `/medicamento/:id`.
 - [ ] Ingreso, `/login`.
 - [ ] Registro, `/registro`.
@@ -205,10 +208,10 @@ Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 
 | Funcionalidad | Ruta | Vista | Composable | Supabase |
 |---|---|---|---|---|
-| Catálogo | `/catalogo` | `CatalogoView` | `useMedicamentos` | `select` de `medicamentos` disponibles y no vencidos |
+| Catálogo | `/recibir` y `/catalogo` | `CatalogoView` | `useMedicamentos` | `select` de `medicamentos` disponibles y no vencidos |
 | Registro | `/registro` | `RegistroView` | `useAuth` | `auth.signUp` con metadatos; el trigger crea el perfil |
 | Ingreso | `/login` | `LoginView` | `useAuth` | `auth.signInWithPassword`; acepta `?redirect=` |
-| Sesión | todas | `App.vue` | `useAuth` | `onAuthStateChange`, `signOut`, `select` del perfil. Administración si `rol = admin` y «Cerrar sesión» |
+| Sesión | todas | `App.vue` | `useAuth` | `onAuthStateChange`, `signOut`, `select` del perfil. Administración si `rol = admin`. «Cerrar sesión» confirma con `BaseModal` |
 | Mis datos | `/perfil` | `PerfilView` | `usePerfil` | `update` de `profiles` y `auth.updateUser` para el email |
 | Mis donaciones | `/perfil` | `PerfilView` | `useDonaciones` | `select` de `medicamentos` por `user_id`; si está `reservado`, la solicitud activa |
 | Mis solicitudes | `/perfil` | `PerfilView` | `useSolicitudes` | `select` por `receptor_id` (sin el código) y `rpc('obtener_codigo_confirmacion')` |
@@ -220,7 +223,7 @@ Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 | Cuentas | `/admin/usuarios` | `AdminUsuariosView` | `useUsuariosAdmin` | `gestionar-usuarios` (`listar`, `suspender`, `rehabilitar`, `promover`, `revocar`) |
 | Guard | todas | `src/router/index.js` | `useAuth` | `requiereSesion`, `soloInvitados`, `requiereAdmin` |
 
-`AdminLayout` es el subnav de `/admin/*`. `/` redirige al catálogo. La fase 10 no suma Edge Functions.
+`AdminLayout` es el subnav de `/admin/*`. `/` redirige al catálogo. Recibir del navbar apunta a `/recibir`. La fase 10 no suma Edge Functions.
 
 ---
 
@@ -228,5 +231,5 @@ Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 
 Última del tablero. Hoy `/` redirige al catálogo. Esta fase crea pantallas: Inicio, Información/Ayuda, Sobre nosotros, Contacto y Legales.
 
-- [ ] Rutas de esa arquitectura, más Donar y Recibir.
+- [ ] Rutas de esa arquitectura. Donar y Recibir ya están en el navbar de la plataforma; Inicio queda deshabilitado hasta esta fase.
 - [ ] Home con el propósito, cómo donar, cómo recibir, contacto y enlace al catálogo, con los tokens de la sección 3.
