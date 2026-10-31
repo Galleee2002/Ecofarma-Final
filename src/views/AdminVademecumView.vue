@@ -71,13 +71,11 @@ onMounted(cargarSugerencias);
                     label="Presentación (opcional)"
                 />
             </div>
-            <div class="rounded-md border border-line bg-surface px-4 py-3 shadow-sm">
-                <BaseCheckbox
-                    id="vademecum-receta"
-                    v-model="datos.requiere_receta"
-                    label="Requiere receta"
-                />
-            </div>
+            <BaseCheckbox
+                id="vademecum-receta"
+                v-model="datos.requiere_receta"
+                label="Requiere receta"
+            />
             <BaseAlert
                 v-if="errorAlta !== ''"
                 :variant="tipoErrorAlta === 'advertencia' ? 'warning' : 'error'"

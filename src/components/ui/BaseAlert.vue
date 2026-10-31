@@ -29,28 +29,24 @@ const emit = defineEmits(['close']);
 
 const variantes = {
     success: {
-        barra: 'border-l-success',
         icono: 'bg-success text-foreground',
         figura: Check,
         rol: 'status',
         etiqueta: 'Éxito',
     },
     error: {
-        barra: 'border-l-danger',
         icono: 'bg-danger text-surface',
         figura: X,
         rol: 'alert',
         etiqueta: 'Error',
     },
     warning: {
-        barra: 'border-l-warning',
         icono: 'bg-warning text-foreground',
         figura: TriangleAlert,
         rol: 'alert',
         etiqueta: 'Advertencia',
     },
     info: {
-        barra: 'border-l-primary',
         icono: 'bg-primary text-surface',
         figura: Info,
         rol: 'status',
@@ -60,7 +56,7 @@ const variantes = {
 
 const clasesBase = [
     'flex w-full items-start gap-3',
-    'rounded-md border border-l-4 border-line bg-surface shadow-sm',
+    'rounded-md border border-line bg-surface shadow-sm',
     'px-4 py-3.5',
 ].join(' ');
 
@@ -68,10 +64,6 @@ const clasesIconoBase = 'flex size-8 shrink-0 items-center justify-center rounde
 
 const varianteActual = computed(function () {
     return variantes[props.variant] ?? variantes.info;
-});
-
-const clases = computed(function () {
-    return [clasesBase, varianteActual.value.barra].join(' ');
 });
 
 const clasesIcono = computed(function () {
@@ -103,7 +95,7 @@ function cerrar() {
 </script>
 
 <template>
-    <div :class="clases">
+    <div :class="clasesBase">
         <div class="flex min-w-0 flex-1 items-start gap-3" :role="rol">
             <span v-if="!tieneTitulo" class="sr-only">{{ varianteActual.etiqueta }}</span>
             <span v-if="showIcon" :class="clasesIcono" aria-hidden="true">

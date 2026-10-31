@@ -264,22 +264,29 @@ onMounted(cargarUsuarios);
                     :key="usuario.id"
                     class="rounded-lg border border-line bg-surface p-4 shadow-sm"
                 >
-                    <div class="flex flex-col gap-3">
-                        <div class="flex flex-col gap-1">
-                            <p class="font-heading text-base font-bold text-foreground">{{ usuario.name }}</p>
-                            <p class="text-sm text-muted">{{ usuario.email }}</p>
-                            <p class="text-sm text-muted">DNI {{ usuario.dni }}</p>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0 flex-1">
+                                <p class="font-heading text-base font-bold text-pretty text-foreground">
+                                    {{ usuario.name }}
+                                </p>
+                                <p class="mt-1 break-words text-sm text-muted">{{ usuario.email }}</p>
+                                <p class="mt-0.5 text-sm text-muted">DNI {{ usuario.dni }}</p>
+                            </div>
+                            <BaseBadge :variant="varianteEstado(usuario)" size="sm">
+                                {{ textoEstado(usuario) }}
+                            </BaseBadge>
                         </div>
-                        <div class="flex flex-wrap gap-2">
-                            <BaseBadge :variant="varianteRol(usuario.rol)" size="sm">{{ textoRol(usuario.rol) }}</BaseBadge>
-                            <BaseBadge :variant="varianteEstado(usuario)" size="sm">{{ textoEstado(usuario) }}</BaseBadge>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
+                        <BaseBadge :variant="varianteRol(usuario.rol)" size="sm">
+                            {{ textoRol(usuario.rol) }}
+                        </BaseBadge>
+                        <div class="flex flex-col gap-2 border-t border-line pt-3">
                             <BaseButton
                                 v-for="accion in accionesDeUsuario(usuario)"
                                 :key="accion.id"
+                                class="w-full"
                                 :variant="accion.variant"
-                                size="sm"
+                                size="md"
                                 :disabled="guardando || esPropia(usuario)"
                                 @click="pedirConfirmacion(usuario.id, accion.id)"
                             >
