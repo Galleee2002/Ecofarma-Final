@@ -198,7 +198,7 @@ Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. Cada vi
 - [ ] Perfil, `/perfil`.
 - [ ] Publicar donación, `/donar`.
 - [ ] Chat, `/solicitud/:solicitudId/chat`.
-- [ ] Administración: `/admin/donaciones`, `/admin/vademecum` y `/admin/usuarios`.
+- [x] Administración: `/admin/donaciones`, `/admin/vademecum` y `/admin/usuarios`.
 
 La landing no entra en esta sección.
 

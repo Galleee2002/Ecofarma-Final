@@ -64,6 +64,7 @@ Un solo proyecto: `src/` en la raíz y `supabase/` al lado. No separar en `/fron
 - Sin comentarios, salvo que el usuario los pida.
 - Sintaxis básica, sin librerías ni capas de más.
 - No ejecutar `pnpm dev`, `pnpm build`, `pnpm preview` ni `pnpm supabase functions serve` por cuenta propia. Revisar el código y decir qué conviene probar.
+- No abrir el navegador ni usar browser actions después de cada cambio. Solo hacerlo cuando el usuario lo pida.
 
 ## Git
 

@@ -1,5 +1,13 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import { ChevronDown } from '@lucide/vue';
+import BaseAlert from '../components/ui/BaseAlert.vue';
+import BaseBadge from '../components/ui/BaseBadge.vue';
+import BaseButton from '../components/ui/BaseButton.vue';
+import BaseInput from '../components/ui/BaseInput.vue';
+import BaseModal from '../components/ui/BaseModal.vue';
+import BaseSelect from '../components/ui/BaseSelect.vue';
+import BaseTextarea from '../components/ui/BaseTextarea.vue';
 import { useModeracion } from '../composables/useModeracion';
 import { usePaginacion } from '../composables/usePaginacion';
 import { useVademecum } from '../composables/useVademecum';
@@ -23,6 +31,7 @@ const { filas, error: errorVademecum, cargarSugerencias } = useVademecum();
 const filtroEstado = ref('pendiente_revision');
 const formularios = ref({});
 const confirmarRechazoId = ref('');
+const fichaAbiertaId = ref('');
 
 const pendientes = computed(function () {
     return donaciones.value.filter(function (donacion) {
@@ -57,6 +66,35 @@ const donacionesFiltradas = computed(function () {
 
 const { pagina, total, visibles } = usePaginacion(donacionesFiltradas, function () {
     return filtroEstado.value;
+});
+
+const bandejas = computed(function () {
+    return [
+        { valor: 'pendiente_revision', etiqueta: 'Pendientes', cantidad: pendientes.value.length },
+        { valor: 'disponible', etiqueta: 'Disponibles', cantidad: disponibles.value.length },
+        { valor: 'rechazado', etiqueta: 'Rechazados', cantidad: rechazados.value.length },
+        { valor: 'todos', etiqueta: 'Todos', cantidad: donaciones.value.length },
+    ];
+});
+
+const opcionesVademecum = computed(function () {
+    return filas.value.map(function (fila) {
+        return {
+            value: String(fila.id),
+            label: etiquetaVademecum(fila),
+        };
+    });
+});
+
+const modalRechazoAbierto = computed({
+    get: function () {
+        return confirmarRechazoId.value !== '';
+    },
+    set: function (abierto) {
+        if (!abierto && !guardando.value) {
+            confirmarRechazoId.value = '';
+        }
+    },
 });
 
 function textoOVacio(valor) {
@@ -97,6 +135,19 @@ function textoEstado(estado) {
         return 'Rechazado';
     }
     return estado;
+}
+
+function varianteEstado(estado) {
+    if (estado === 'pendiente_revision') {
+        return 'warning';
+    }
+    if (estado === 'disponible') {
+        return 'success';
+    }
+    if (estado === 'rechazado') {
+        return 'danger';
+    }
+    return 'neutral';
 }
 
 function formatearFecha(fecha) {
@@ -156,6 +207,85 @@ function mensajeVacio() {
     return 'No hay donaciones para moderar.';
 }
 
+function claseBandeja(valor) {
+    const clases = [
+        'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md border px-4 font-sans text-sm',
+        'transition duration-150 ease-out motion-reduce:transition-none',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+    ];
+
+    if (filtroEstado.value === valor) {
+        clases.push('border-primary bg-primary-soft font-semibold text-primary');
+    } else {
+        clases.push('border-line bg-surface text-foreground hover:border-primary hover:bg-primary-soft/70');
+    }
+
+    return clases.join(' ');
+}
+
+function claseConteo(valor) {
+    if (filtroEstado.value === valor) {
+        return 'rounded-full bg-primary px-2 py-0.5 text-xs text-surface tabular-nums';
+    }
+    return 'rounded-full bg-muted/15 px-2 py-0.5 text-xs text-muted tabular-nums';
+}
+
+function estaAbierta(id) {
+    return fichaAbiertaId.value === id;
+}
+
+function alternarFicha(id) {
+    if (fichaAbiertaId.value === id) {
+        fichaAbiertaId.value = '';
+        return;
+    }
+    fichaAbiertaId.value = id;
+}
+
+function donacionARechazar() {
+    if (confirmarRechazoId.value === '') {
+        return null;
+    }
+    for (let i = 0; i < donaciones.value.length; i++) {
+        if (donaciones.value[i].id === confirmarRechazoId.value) {
+            return donaciones.value[i];
+        }
+    }
+    return null;
+}
+
+function textoRechazo() {
+    const donacion = donacionARechazar();
+    if (donacion === null) {
+        return 'Esta donación no va a publicarse en el catálogo.';
+    }
+    return donacion.nombre_comercial + ' no va a publicarse en el catálogo.';
+}
+
+function pedirRechazo(donacionId) {
+    confirmarRechazoId.value = donacionId;
+}
+
+function cancelarRechazo() {
+    if (guardando.value) {
+        return;
+    }
+    confirmarRechazoId.value = '';
+}
+
+async function confirmarRechazo() {
+    if (confirmarRechazoId.value === '') {
+        return;
+    }
+    const id = confirmarRechazoId.value;
+    const datos = formularios.value[id];
+    const ok = await rechazarDonacion(id, datos);
+    confirmarRechazoId.value = '';
+    if (ok) {
+        fichaAbiertaId.value = '';
+    }
+}
+
 watch(donaciones, function (lista) {
     const siguientes = {};
     for (const donacion of lista) {
@@ -168,6 +298,10 @@ watch(donaciones, function (lista) {
     formularios.value = siguientes;
 });
 
+watch(filtroEstado, function () {
+    fichaAbiertaId.value = '';
+});
+
 onMounted(function () {
     cargarDonaciones();
     cargarSugerencias();
@@ -176,123 +310,255 @@ onMounted(function () {
 
 <template>
     <main class="flex flex-col gap-6">
-        <h1 class="text-primary">Moderación de donaciones</h1>
+        <header class="flex flex-col gap-2">
+            <h1 class="text-primary">Moderación de donaciones</h1>
+            <p class="text-pretty text-muted">Revisá el envase, corregí la ficha y publicá o rechazá cada donación.</p>
+        </header>
 
-        <p v-if="errorVademecum !== ''" class="border border-warning bg-warning/10 p-3 text-warning">{{ errorVademecum }}</p>
-        <p
+        <BaseAlert v-if="errorVademecum !== ''" variant="warning" :message="errorVademecum" />
+        <BaseAlert
             v-if="errorAccion !== ''"
-            class="p-3"
-            :class="tipoErrorAccion === 'advertencia' ? 'border border-warning bg-warning/10 text-warning' : 'border border-danger bg-danger/10 text-danger'"
-        >
-            {{ errorAccion }}
-        </p>
-        <p v-if="mensajeAccion !== ''" class="border border-success bg-success/10 p-3 text-success">{{ mensajeAccion }}</p>
+            :variant="tipoErrorAccion === 'advertencia' ? 'warning' : 'error'"
+            :message="errorAccion"
+        />
+        <BaseAlert v-if="mensajeAccion !== ''" variant="success" :message="mensajeAccion" />
 
-        <div class="flex flex-col gap-1">
-            <label for="donaciones-estado">Estado</label>
-            <select id="donaciones-estado" v-model="filtroEstado" class="w-56 border border-line bg-surface px-3 py-2">
-                <option value="pendiente_revision">Pendientes ({{ pendientes.length }})</option>
-                <option value="disponible">Disponibles ({{ disponibles.length }})</option>
-                <option value="rechazado">Rechazados ({{ rechazados.length }})</option>
-                <option value="todos">Todos ({{ donaciones.length }})</option>
-            </select>
+        <div
+            id="donaciones-estado"
+            class="-mx-1 flex flex-nowrap gap-2 overflow-x-auto px-1 pb-1"
+            role="tablist"
+            aria-label="Estado de las donaciones"
+        >
+            <button
+                v-for="bandeja in bandejas"
+                :key="bandeja.valor"
+                type="button"
+                role="tab"
+                :aria-selected="filtroEstado === bandeja.valor ? 'true' : 'false'"
+                :class="claseBandeja(bandeja.valor)"
+                @click="filtroEstado = bandeja.valor"
+            >
+                <span>{{ bandeja.etiqueta }}</span>
+                <span :class="claseConteo(bandeja.valor)">{{ bandeja.cantidad }}</span>
+            </button>
         </div>
 
         <p v-if="cargando" class="text-muted">Cargando donaciones...</p>
-        <div v-else-if="error !== ''" class="flex flex-col items-start gap-2 border border-danger bg-danger/10 p-3 text-danger">
-            <p>{{ error }}</p>
-            <button type="button" @click="cargarDonaciones">Reintentar</button>
+        <div v-else-if="error !== ''" class="flex flex-col items-start gap-3">
+            <BaseAlert variant="error" :message="error" />
+            <BaseButton variant="outline" @click="cargarDonaciones">Reintentar</BaseButton>
         </div>
-        <p v-else-if="visibles.length === 0" class="border border-line bg-muted/10 p-3 text-muted">{{ mensajeVacio() }}</p>
-        <ul v-else class="flex flex-col gap-6">
-            <li v-for="donacion in visibles" :key="donacion.id" class="border border-line bg-surface p-4">
-                <h2 class="text-primary">{{ donacion.nombre_comercial }}</h2>
-                <p class="text-muted">Donante: {{ nombreDonante(donacion) }}</p>
-                <p>{{ textoEstado(donacion.estado) }}</p>
-                <p class="text-icon">Vence: {{ formatearFecha(donacion.fecha_vencimiento) }}</p>
-
-                <div v-if="fotos(donacion).length > 0" class="mt-2 flex flex-wrap gap-2">
-                    <img
-                        v-for="(foto, indice) in fotos(donacion)"
-                        :key="indice"
-                        :src="foto"
-                        :alt="'Foto ' + (indice + 1) + ' de ' + donacion.nombre_comercial"
-                        class="h-24 w-24 object-cover"
+        <BaseAlert v-else-if="visibles.length === 0" variant="info" :message="mensajeVacio()" />
+        <TransitionGroup v-else name="ficha-lista" tag="ul" class="flex flex-col gap-4">
+            <li
+                v-for="donacion in visibles"
+                :key="donacion.id"
+                class="overflow-hidden rounded-lg border border-line bg-surface shadow-sm"
+            >
+                <button
+                    type="button"
+                    class="flex w-full items-start gap-3 p-4 text-left transition duration-150 ease-out hover:bg-primary-soft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset motion-reduce:transition-none"
+                    :aria-expanded="estaAbierta(donacion.id) ? 'true' : 'false'"
+                    :aria-controls="'ficha-' + donacion.id"
+                    @click="alternarFicha(donacion.id)"
+                >
+                    <div class="min-w-0 flex-1">
+                        <h2 class="text-balance text-primary">{{ donacion.nombre_comercial }}</h2>
+                        <p class="mt-1 text-sm text-muted">Donante: {{ nombreDonante(donacion) }}</p>
+                        <p class="text-sm text-icon">Vence: {{ formatearFecha(donacion.fecha_vencimiento) }}</p>
+                    </div>
+                    <BaseBadge :variant="varianteEstado(donacion.estado)" size="sm">
+                        {{ textoEstado(donacion.estado) }}
+                    </BaseBadge>
+                    <ChevronDown
+                        class="mt-1 shrink-0 text-icon transition duration-150 ease-out motion-reduce:transition-none"
+                        :class="estaAbierta(donacion.id) ? 'rotate-180' : ''"
+                        :size="20"
+                        aria-hidden="true"
                     />
-                </div>
-                <p v-else class="mt-2 text-muted">Esta donación no tiene fotos del envase.</p>
-                <p v-if="donacion.estado === 'rechazado' && donacion.motivo_rechazo" class="mt-2 border border-warning bg-warning/10 p-3 text-warning">
-                    Motivo del rechazo: {{ donacion.motivo_rechazo }}
-                </p>
+                </button>
 
-                <form v-if="formularios[donacion.id]" class="mt-4 flex flex-col gap-3" novalidate @submit.prevent="corregirDonacion(donacion.id, formularios[donacion.id])">
-                    <div class="flex flex-col gap-1">
-                        <label :for="'moderar-nombre-' + donacion.id">Nombre comercial</label>
-                        <input :id="'moderar-nombre-' + donacion.id" v-model="formularios[donacion.id].nombre_comercial" type="text" class="border border-line bg-surface px-3 py-2" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label :for="'moderar-principio-' + donacion.id">Principio activo</label>
-                        <input :id="'moderar-principio-' + donacion.id" v-model="formularios[donacion.id].principio_activo" type="text" class="border border-line bg-surface px-3 py-2" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label :for="'moderar-concentracion-' + donacion.id">Concentración</label>
-                        <input :id="'moderar-concentracion-' + donacion.id" v-model="formularios[donacion.id].concentracion" type="text" class="border border-line bg-surface px-3 py-2" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label :for="'moderar-forma-' + donacion.id">Forma farmacéutica</label>
-                        <input :id="'moderar-forma-' + donacion.id" v-model="formularios[donacion.id].forma_farmaceutica" type="text" class="border border-line bg-surface px-3 py-2" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label :for="'moderar-cantidad-' + donacion.id">Cantidad</label>
-                        <input :id="'moderar-cantidad-' + donacion.id" v-model="formularios[donacion.id].cantidad_disponible" type="number" min="1" step="1" class="border border-line bg-surface px-3 py-2" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label :for="'moderar-lote-' + donacion.id">Lote</label>
-                        <input :id="'moderar-lote-' + donacion.id" v-model="formularios[donacion.id].lote" type="text" class="border border-line bg-surface px-3 py-2" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label :for="'moderar-vencimiento-' + donacion.id">Fecha de vencimiento</label>
-                        <input :id="'moderar-vencimiento-' + donacion.id" v-model="formularios[donacion.id].fecha_vencimiento" type="date" :min="fechaMinima" class="border border-line bg-surface px-3 py-2" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label :for="'moderar-descripcion-' + donacion.id">Descripción</label>
-                        <textarea :id="'moderar-descripcion-' + donacion.id" v-model="formularios[donacion.id].descripcion" rows="3" class="border border-line bg-surface px-3 py-2"></textarea>
-                    </div>
-                    <button type="submit" class="border border-line bg-surface px-4 py-2" :disabled="guardando">Guardar cambios</button>
-                </form>
+                <Transition name="ficha">
+                    <div v-if="estaAbierta(donacion.id) && formularios[donacion.id]" :id="'ficha-' + donacion.id" class="border-t border-line px-4 pb-5 pt-4">
+                        <div class="flex flex-col gap-6">
+                            <section class="flex flex-col gap-3">
+                                <p class="font-sans text-xs font-semibold tracking-[0.14em] text-primary uppercase">
+                                    Evidencia
+                                </p>
+                                <div v-if="fotos(donacion).length > 0" class="flex flex-wrap gap-3">
+                                    <img
+                                        v-for="(foto, indice) in fotos(donacion)"
+                                        :key="indice"
+                                        :src="foto"
+                                        :alt="'Foto ' + (indice + 1) + ' de ' + donacion.nombre_comercial"
+                                        class="size-32 rounded-md object-cover shadow-sm sm:size-40"
+                                    />
+                                </div>
+                                <p v-else class="text-sm text-muted">Esta donación no tiene fotos del envase.</p>
+                                <BaseAlert
+                                    v-if="donacion.estado === 'rechazado' && donacion.motivo_rechazo"
+                                    variant="warning"
+                                    :message="'Motivo del rechazo: ' + donacion.motivo_rechazo"
+                                />
+                            </section>
 
-                <div v-if="formularios[donacion.id]" class="mt-4 flex flex-col gap-2">
-                    <label :for="'moderar-vademecum-' + donacion.id">Medicamento del vademécum</label>
-                    <select :id="'moderar-vademecum-' + donacion.id" v-model="formularios[donacion.id].medicamento_habilitado_id" class="border border-line bg-surface px-3 py-2">
-                        <option value="">Elegí una fila del vademécum</option>
-                        <option v-for="fila in filas" :key="fila.id" :value="String(fila.id)">{{ etiquetaVademecum(fila) }}</option>
-                    </select>
-                    <button type="button" class="bg-primary px-4 py-2 text-surface" :disabled="guardando" @click="aprobarDonacion(donacion.id, formularios[donacion.id])">
-                        Aprobar
-                    </button>
-                </div>
+                            <form class="flex flex-col gap-4" novalidate @submit.prevent="corregirDonacion(donacion.id, formularios[donacion.id])">
+                                <p class="font-sans text-xs font-semibold tracking-[0.14em] text-primary uppercase">
+                                    Ficha
+                                </p>
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <BaseInput
+                                        :id="'moderar-nombre-' + donacion.id"
+                                        v-model="formularios[donacion.id].nombre_comercial"
+                                        label="Nombre comercial"
+                                    />
+                                    <BaseInput
+                                        :id="'moderar-principio-' + donacion.id"
+                                        v-model="formularios[donacion.id].principio_activo"
+                                        label="Principio activo"
+                                    />
+                                    <BaseInput
+                                        :id="'moderar-concentracion-' + donacion.id"
+                                        v-model="formularios[donacion.id].concentracion"
+                                        label="Concentración"
+                                    />
+                                    <BaseInput
+                                        :id="'moderar-forma-' + donacion.id"
+                                        v-model="formularios[donacion.id].forma_farmaceutica"
+                                        label="Forma farmacéutica"
+                                    />
+                                    <BaseInput
+                                        :id="'moderar-cantidad-' + donacion.id"
+                                        v-model="formularios[donacion.id].cantidad_disponible"
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        label="Cantidad"
+                                    />
+                                    <BaseInput
+                                        :id="'moderar-lote-' + donacion.id"
+                                        v-model="formularios[donacion.id].lote"
+                                        label="Lote"
+                                    />
+                                    <BaseInput
+                                        :id="'moderar-vencimiento-' + donacion.id"
+                                        v-model="formularios[donacion.id].fecha_vencimiento"
+                                        type="date"
+                                        :min="fechaMinima"
+                                        label="Fecha de vencimiento"
+                                    />
+                                </div>
+                                <BaseTextarea
+                                    :id="'moderar-descripcion-' + donacion.id"
+                                    v-model="formularios[donacion.id].descripcion"
+                                    label="Descripción"
+                                    :rows="3"
+                                />
+                                <div>
+                                    <BaseButton type="submit" variant="outline" :loading="guardando">
+                                        Guardar cambios
+                                    </BaseButton>
+                                </div>
+                            </form>
 
-                <div v-if="formularios[donacion.id]" class="mt-4 flex flex-col gap-2">
-                    <label :for="'moderar-motivo-' + donacion.id">Motivo del rechazo</label>
-                    <textarea :id="'moderar-motivo-' + donacion.id" v-model="formularios[donacion.id].motivo_rechazo" rows="2" class="border border-line bg-surface px-3 py-2"></textarea>
-                    <button type="button" class="bg-danger px-4 py-2 text-surface" :disabled="guardando" @click="confirmarRechazoId = donacion.id">Rechazar</button>
-                    <div v-if="confirmarRechazoId === donacion.id" class="border border-danger bg-danger/10 p-3">
-                        <p>{{ donacion.nombre_comercial }} no va a publicarse en el catálogo.</p>
-                        <div class="mt-2 flex gap-2">
-                            <button type="button" class="border border-line bg-surface px-3 py-2" :disabled="guardando" @click="confirmarRechazoId = ''">Cancelar</button>
-                            <button type="button" class="bg-danger px-3 py-2 text-surface" :disabled="guardando" @click="rechazarDonacion(donacion.id, formularios[donacion.id])">
-                                Rechazar
-                            </button>
+                            <section class="flex flex-col gap-4">
+                                <p class="font-sans text-xs font-semibold tracking-[0.14em] text-primary uppercase">
+                                    Dictamen
+                                </p>
+                                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                    <div class="flex flex-col gap-3">
+                                        <BaseSelect
+                                            :id="'moderar-vademecum-' + donacion.id"
+                                            v-model="formularios[donacion.id].medicamento_habilitado_id"
+                                            label="Medicamento del vademécum"
+                                            placeholder="Elegí una fila del vademécum"
+                                            :options="opcionesVademecum"
+                                        />
+                                        <div>
+                                            <BaseButton
+                                                :loading="guardando"
+                                                @click="aprobarDonacion(donacion.id, formularios[donacion.id])"
+                                            >
+                                                Aprobar
+                                            </BaseButton>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-3">
+                                        <BaseTextarea
+                                            :id="'moderar-motivo-' + donacion.id"
+                                            v-model="formularios[donacion.id].motivo_rechazo"
+                                            label="Motivo del rechazo"
+                                            :rows="2"
+                                        />
+                                        <div>
+                                            <BaseButton
+                                                variant="danger"
+                                                :disabled="guardando"
+                                                @click="pedirRechazo(donacion.id)"
+                                            >
+                                                Rechazar
+                                            </BaseButton>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
                         </div>
                     </div>
-                </div>
+                </Transition>
             </li>
-        </ul>
+        </TransitionGroup>
 
-        <div v-if="!cargando && error === '' && total > 15" class="flex gap-2">
-            <button type="button" class="border border-line bg-surface px-3 py-1" :disabled="pagina === 1" @click="pagina = pagina - 1">Anterior</button>
-            <span>Página {{ pagina }}</span>
-            <button type="button" class="border border-line bg-surface px-3 py-1" :disabled="pagina * 15 >= total" @click="pagina = pagina + 1">Siguiente</button>
+        <div v-if="!cargando && error === '' && total > 15" class="flex flex-wrap items-center gap-3">
+            <BaseButton variant="outline" size="sm" :disabled="pagina === 1" @click="pagina = pagina - 1">
+                Anterior
+            </BaseButton>
+            <span class="font-sans text-sm text-muted tabular-nums">Página {{ pagina }}</span>
+            <BaseButton variant="outline" size="sm" :disabled="pagina * 15 >= total" @click="pagina = pagina + 1">
+                Siguiente
+            </BaseButton>
         </div>
+
+        <BaseModal
+            v-model:open="modalRechazoAbierto"
+            variant="danger"
+            title="Rechazar donación"
+            :description="textoRechazo()"
+            :locked="guardando"
+        >
+            <template #footer>
+                <BaseButton variant="outline" :disabled="guardando" @click="cancelarRechazo">Cancelar</BaseButton>
+                <BaseButton variant="danger" :loading="guardando" @click="confirmarRechazo">Rechazar</BaseButton>
+            </template>
+        </BaseModal>
     </main>
 </template>
+
+<style scoped>
+.ficha-lista-enter-active,
+.ficha-lista-leave-active,
+.ficha-enter-active,
+.ficha-leave-active {
+    transition: opacity 180ms ease-out;
+}
+
+.ficha-lista-move {
+    transition: transform 180ms ease-out;
+}
+
+.ficha-lista-enter-from,
+.ficha-lista-leave-to,
+.ficha-enter-from,
+.ficha-leave-to {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ficha-lista-enter-active,
+    .ficha-lista-leave-active,
+    .ficha-lista-move,
+    .ficha-enter-active,
+    .ficha-leave-active {
+        transition: none;
+    }
+}
+</style>

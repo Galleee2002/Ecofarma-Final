@@ -1,5 +1,11 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import BaseAlert from '../components/ui/BaseAlert.vue';
+import BaseBadge from '../components/ui/BaseBadge.vue';
+import BaseButton from '../components/ui/BaseButton.vue';
+import BaseInput from '../components/ui/BaseInput.vue';
+import BaseModal from '../components/ui/BaseModal.vue';
+import BaseSelect from '../components/ui/BaseSelect.vue';
 import { useAuth } from '../composables/useAuth';
 import { usePaginacion } from '../composables/usePaginacion';
 import { useUsuariosAdmin } from '../composables/useUsuariosAdmin';
@@ -12,11 +18,34 @@ const filtroEstado = ref('todos');
 const filtroRol = ref('todos');
 const pendiente = ref(null);
 
+const opcionesEstado = [
+    { value: 'todos', label: 'Todos' },
+    { value: 'activa', label: 'Activa' },
+    { value: 'suspendida', label: 'Suspendida' },
+];
+
+const opcionesRol = [
+    { value: 'todos', label: 'Todos' },
+    { value: 'user', label: 'Usuario' },
+    { value: 'admin', label: 'Administrador' },
+];
+
 const usuarioActualId = computed(function () {
     if (perfil.value === null) {
         return '';
     }
     return perfil.value.id;
+});
+
+const modalAbierto = computed({
+    get: function () {
+        return pendiente.value !== null;
+    },
+    set: function (abierto) {
+        if (!abierto && !guardando.value) {
+            pendiente.value = null;
+        }
+    },
 });
 
 function textoOVacio(valor) {
@@ -70,6 +99,35 @@ function textoEstado(usuario) {
         return 'Activa';
     }
     return 'Suspendida';
+}
+
+function varianteRol(rol) {
+    if (rol === 'admin') {
+        return 'info';
+    }
+    return 'neutral';
+}
+
+function varianteEstado(usuario) {
+    if (usuario.is_validado === true) {
+        return 'success';
+    }
+    return 'danger';
+}
+
+function accionesDeUsuario(usuario) {
+    const acciones = [];
+    if (usuario.is_validado === true) {
+        acciones.push({ id: 'suspender', etiqueta: 'Suspender', variant: 'danger' });
+    } else {
+        acciones.push({ id: 'rehabilitar', etiqueta: 'Rehabilitar', variant: 'outline' });
+    }
+    if (usuario.rol === 'admin') {
+        acciones.push({ id: 'revocar', etiqueta: 'Quitar administrador', variant: 'outline' });
+    } else {
+        acciones.push({ id: 'promover', etiqueta: 'Hacer administrador', variant: 'outline' });
+    }
+    return acciones;
 }
 
 function pedirConfirmacion(usuarioId, accion) {
@@ -133,6 +191,20 @@ function textoAccion() {
     return nombre + ' va a poder moderar donaciones, el vademécum y las cuentas.';
 }
 
+function esAccionDestructiva() {
+    if (pendiente.value === null) {
+        return false;
+    }
+    return pendiente.value.accion === 'suspender' || pendiente.value.accion === 'revocar';
+}
+
+function cancelarConfirmacion() {
+    if (guardando.value) {
+        return;
+    }
+    pendiente.value = null;
+}
+
 async function confirmar() {
     if (pendiente.value === null) {
         return;
@@ -148,120 +220,146 @@ onMounted(cargarUsuarios);
 
 <template>
     <main class="flex flex-col gap-6">
-        <h1 class="text-primary">Gestión de usuarios</h1>
+        <header class="flex flex-col gap-2">
+            <h1 class="text-primary">Gestión de usuarios</h1>
+            <p class="text-pretty text-muted">Buscá una cuenta para suspenderla, rehabilitarla o cambiar su rol.</p>
+        </header>
 
-        <p v-if="errorAccion !== ''" class="p-3" :class="tipoErrorAccion === 'advertencia' ? 'border border-warning bg-warning/10 text-warning' : 'border border-danger bg-danger/10 text-danger'">
-            {{ errorAccion }}
-        </p>
-        <p v-if="mensajeAccion !== ''" class="border border-success bg-success/10 p-3 text-success">{{ mensajeAccion }}</p>
+        <BaseAlert
+            v-if="errorAccion !== ''"
+            :variant="tipoErrorAccion === 'advertencia' ? 'warning' : 'error'"
+            :message="errorAccion"
+        />
+        <BaseAlert v-if="mensajeAccion !== ''" variant="success" :message="mensajeAccion" />
 
-        <div class="flex flex-col gap-1">
-            <label for="usuarios-busqueda">Buscar</label>
-            <input id="usuarios-busqueda" v-model="busqueda" type="text" class="border border-line bg-surface px-3 py-2" placeholder="Nombre, email o DNI" />
-        </div>
-        <div class="flex flex-wrap gap-4">
-            <div class="flex flex-col gap-1">
-                <label for="usuarios-estado">Estado</label>
-                <select id="usuarios-estado" v-model="filtroEstado" class="border border-line bg-surface px-3 py-2">
-                    <option value="todos">Todos</option>
-                    <option value="activa">Activa</option>
-                    <option value="suspendida">Suspendida</option>
-                </select>
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end">
+            <div class="min-w-0 w-full lg:flex-1">
+                <BaseInput
+                    id="usuarios-busqueda"
+                    v-model="busqueda"
+                    label="Buscar"
+                    placeholder="Nombre, email o DNI"
+                />
             </div>
-            <div class="flex flex-col gap-1">
-                <label for="usuarios-rol">Rol</label>
-                <select id="usuarios-rol" v-model="filtroRol" class="border border-line bg-surface px-3 py-2">
-                    <option value="todos">Todos</option>
-                    <option value="user">Usuario</option>
-                    <option value="admin">Administrador</option>
-                </select>
+            <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:max-w-md">
+                <BaseSelect id="usuarios-estado" v-model="filtroEstado" label="Estado" :options="opcionesEstado" />
+                <BaseSelect id="usuarios-rol" v-model="filtroRol" label="Rol" :options="opcionesRol" />
             </div>
         </div>
 
         <p v-if="cargando" class="text-muted">Cargando cuentas...</p>
-        <div v-else-if="error !== ''" class="flex flex-col items-start gap-2 border border-danger bg-danger/10 p-3 text-danger">
-            <p>{{ error }}</p>
-            <button type="button" @click="cargarUsuarios">Reintentar</button>
+        <div v-else-if="error !== ''" class="flex flex-col items-start gap-3">
+            <BaseAlert variant="error" :message="error" />
+            <BaseButton variant="outline" @click="cargarUsuarios">Reintentar</BaseButton>
         </div>
-        <p v-else-if="usuariosFiltrados.length === 0" class="border border-line bg-muted/10 p-3 text-muted">No hay cuentas que coincidan con la búsqueda.</p>
+        <BaseAlert
+            v-else-if="usuariosFiltrados.length === 0"
+            variant="info"
+            message="No hay cuentas que coincidan con la búsqueda."
+        />
         <template v-else>
-            <table class="w-full border-collapse bg-surface text-left">
-                <thead>
-                    <tr>
-                        <th class="border border-line p-2">Nombre</th>
-                        <th class="border border-line p-2">Email</th>
-                        <th class="border border-line p-2">DNI</th>
-                        <th class="border border-line p-2">Rol</th>
-                        <th class="border border-line p-2">Estado</th>
-                        <th class="border border-line p-2">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="usuario in visibles" :key="usuario.id">
-                        <td class="border border-line p-2">{{ usuario.name }}</td>
-                        <td class="border border-line p-2">{{ usuario.email }}</td>
-                        <td class="border border-line p-2">{{ usuario.dni }}</td>
-                        <td class="border border-line p-2">{{ textoRol(usuario.rol) }}</td>
-                        <td class="border border-line p-2">{{ textoEstado(usuario) }}</td>
-                        <td class="border border-line p-2">
-                            <div class="flex flex-wrap gap-2">
-                                <button
-                                    v-if="usuario.is_validado === true"
-                                    type="button"
-                                    class="bg-danger px-2 py-1 text-surface"
-                                    :disabled="guardando || esPropia(usuario)"
-                                    @click="pedirConfirmacion(usuario.id, 'suspender')"
-                                >
-                                    Suspender
-                                </button>
-                                <button
-                                    v-else
-                                    type="button"
-                                    class="border border-line bg-surface px-2 py-1"
-                                    :disabled="guardando || esPropia(usuario)"
-                                    @click="pedirConfirmacion(usuario.id, 'rehabilitar')"
-                                >
-                                    Rehabilitar
-                                </button>
-                                <button
-                                    v-if="usuario.rol === 'admin'"
-                                    type="button"
-                                    class="border border-line bg-surface px-2 py-1"
-                                    :disabled="guardando || esPropia(usuario)"
-                                    @click="pedirConfirmacion(usuario.id, 'revocar')"
-                                >
-                                    Quitar administrador
-                                </button>
-                                <button
-                                    v-else
-                                    type="button"
-                                    class="border border-line bg-surface px-2 py-1"
-                                    :disabled="guardando || esPropia(usuario)"
-                                    @click="pedirConfirmacion(usuario.id, 'promover')"
-                                >
-                                    Hacer administrador
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div v-if="total > 15" class="flex gap-2">
-                <button type="button" class="border border-line bg-surface px-3 py-1" :disabled="pagina === 1" @click="pagina = pagina - 1">Anterior</button>
-                <span>Página {{ pagina }}</span>
-                <button type="button" class="border border-line bg-surface px-3 py-1" :disabled="pagina * 15 >= total" @click="pagina = pagina + 1">Siguiente</button>
+            <ul class="flex flex-col gap-3 md:hidden">
+                <li
+                    v-for="usuario in visibles"
+                    :key="usuario.id"
+                    class="rounded-lg border border-line bg-surface p-4 shadow-sm"
+                >
+                    <div class="flex flex-col gap-3">
+                        <div class="flex flex-col gap-1">
+                            <p class="font-heading text-base font-bold text-foreground">{{ usuario.name }}</p>
+                            <p class="text-sm text-muted">{{ usuario.email }}</p>
+                            <p class="text-sm text-muted">DNI {{ usuario.dni }}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <BaseBadge :variant="varianteRol(usuario.rol)" size="sm">{{ textoRol(usuario.rol) }}</BaseBadge>
+                            <BaseBadge :variant="varianteEstado(usuario)" size="sm">{{ textoEstado(usuario) }}</BaseBadge>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <BaseButton
+                                v-for="accion in accionesDeUsuario(usuario)"
+                                :key="accion.id"
+                                :variant="accion.variant"
+                                size="sm"
+                                :disabled="guardando || esPropia(usuario)"
+                                @click="pedirConfirmacion(usuario.id, accion.id)"
+                            >
+                                {{ accion.etiqueta }}
+                            </BaseButton>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="hidden overflow-hidden rounded-lg border border-line bg-surface shadow-sm md:block">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-line">
+                            <th class="px-4 py-3 font-sans text-sm font-semibold text-foreground">Nombre</th>
+                            <th class="px-4 py-3 font-sans text-sm font-semibold text-foreground">Email</th>
+                            <th class="px-4 py-3 font-sans text-sm font-semibold text-foreground">DNI</th>
+                            <th class="px-4 py-3 font-sans text-sm font-semibold text-foreground">Rol</th>
+                            <th class="px-4 py-3 font-sans text-sm font-semibold text-foreground">Estado</th>
+                            <th class="px-4 py-3 font-sans text-sm font-semibold text-foreground">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="usuario in visibles" :key="usuario.id" class="border-b border-line last:border-b-0">
+                            <td class="px-4 py-3 text-foreground">{{ usuario.name }}</td>
+                            <td class="px-4 py-3 text-muted">{{ usuario.email }}</td>
+                            <td class="px-4 py-3 text-muted">{{ usuario.dni }}</td>
+                            <td class="px-4 py-3">
+                                <BaseBadge :variant="varianteRol(usuario.rol)" size="sm">{{ textoRol(usuario.rol) }}</BaseBadge>
+                            </td>
+                            <td class="px-4 py-3">
+                                <BaseBadge :variant="varianteEstado(usuario)" size="sm">{{ textoEstado(usuario) }}</BaseBadge>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-wrap gap-2">
+                                    <BaseButton
+                                        v-for="accion in accionesDeUsuario(usuario)"
+                                        :key="accion.id"
+                                        :variant="accion.variant"
+                                        size="sm"
+                                        :disabled="guardando || esPropia(usuario)"
+                                        @click="pedirConfirmacion(usuario.id, accion.id)"
+                                    >
+                                        {{ accion.etiqueta }}
+                                    </BaseButton>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div v-if="total > 15" class="flex flex-wrap items-center gap-3">
+                <BaseButton variant="outline" size="sm" :disabled="pagina === 1" @click="pagina = pagina - 1">
+                    Anterior
+                </BaseButton>
+                <span class="font-sans text-sm text-muted tabular-nums">Página {{ pagina }}</span>
+                <BaseButton variant="outline" size="sm" :disabled="pagina * 15 >= total" @click="pagina = pagina + 1">
+                    Siguiente
+                </BaseButton>
             </div>
         </template>
 
-        <div v-if="pendiente !== null" class="border border-line bg-surface p-4">
-            <p class="font-heading">{{ tituloAccion() }}</p>
-            <p>{{ textoAccion() }}</p>
-            <div class="mt-2 flex gap-2">
-                <button type="button" class="border border-line bg-surface px-3 py-2" :disabled="guardando" @click="pendiente = null">Cancelar</button>
-                <button type="button" class="bg-primary px-3 py-2 text-surface" :disabled="guardando" @click="confirmar">
-                    {{ guardando ? 'Guardando...' : 'Confirmar' }}
-                </button>
-            </div>
-        </div>
+        <BaseModal
+            v-model:open="modalAbierto"
+            :variant="esAccionDestructiva() ? 'danger' : 'default'"
+            :title="tituloAccion()"
+            :description="textoAccion()"
+            :locked="guardando"
+        >
+            <template #footer>
+                <BaseButton variant="outline" :disabled="guardando" @click="cancelarConfirmacion">Cancelar</BaseButton>
+                <BaseButton
+                    :variant="esAccionDestructiva() ? 'danger' : 'primary'"
+                    :loading="guardando"
+                    @click="confirmar"
+                >
+                    Confirmar
+                </BaseButton>
+            </template>
+        </BaseModal>
     </main>
 </template>
