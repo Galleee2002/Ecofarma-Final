@@ -1,11 +1,10 @@
 import { ref } from 'vue';
 import { supabase } from '../lib/supabase';
+import { useToast } from './useToast';
 
 const sesion = ref(null);
 const perfil = ref(null);
 const errorPerfil = ref('');
-const mensajeExito = ref('');
-const tipoMensaje = ref('exito');
 let authIniciado = false;
 
 let resolverSesionInicial;
@@ -114,8 +113,15 @@ function esperarPerfil() {
 }
 
 function mostrarAviso(texto, tipo) {
-    mensajeExito.value = texto;
-    tipoMensaje.value = tipo;
+    const { success, warning } = useToast();
+    const opciones = { duration: 3000 };
+
+    if (tipo === 'advertencia') {
+        warning(texto, opciones);
+        return;
+    }
+
+    success(texto, opciones);
 }
 
 function iniciarAuth() {
@@ -172,7 +178,6 @@ export function useAuth() {
 
     async function registrarse(datos) {
         error.value = '';
-        mensajeExito.value = '';
 
         const errorValidacion = validarRegistro(datos);
         if (errorValidacion !== '') {
@@ -209,7 +214,6 @@ export function useAuth() {
 
     async function iniciarSesion(email, password) {
         error.value = '';
-        mensajeExito.value = '';
 
         if (email.trim() === '' || password === '') {
             error.value = 'Ingresá tu email y tu contraseña.';
@@ -235,7 +239,6 @@ export function useAuth() {
 
     async function cerrarSesion() {
         error.value = '';
-        mensajeExito.value = '';
         cargando.value = true;
 
         const { error: errorLogout } = await supabase.auth.signOut();
@@ -250,16 +253,10 @@ export function useAuth() {
         return true;
     }
 
-    function ocultarMensajeExito() {
-        mensajeExito.value = '';
-    }
-
     return {
         sesion,
         perfil,
         errorPerfil,
-        mensajeExito,
-        tipoMensaje,
         cargando,
         error,
         esperarSesionInicial,
@@ -268,6 +265,5 @@ export function useAuth() {
         registrarse,
         iniciarSesion,
         cerrarSesion,
-        ocultarMensajeExito,
     };
 }

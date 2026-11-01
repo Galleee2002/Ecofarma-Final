@@ -183,7 +183,7 @@ function textoAccion() {
         return nombre + ' no va a poder ingresar hasta que rehabilites la cuenta.';
     }
     if (pendiente.value.accion === 'rehabilitar') {
-        return nombre + ' va a poder volver a ingresar a EcoFARMA.';
+        return nombre + ' va a poder volver a ingresar a ecofarma.';
     }
     if (pendiente.value.accion === 'revocar') {
         return nombre + ' deja de administrar donaciones, el vademécum y las cuentas.';

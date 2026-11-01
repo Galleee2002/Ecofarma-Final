@@ -1,5 +1,6 @@
 <script setup>
-import { computed, useId } from 'vue';
+import { computed, ref, useId } from 'vue';
+import { Eye, EyeOff } from '@lucide/vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -51,6 +52,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue']);
 
 const idAutomatico = useId();
+const mostrarTexto = ref(false);
 
 const idInput = computed(function () {
     if (props.id !== '') {
@@ -69,6 +71,20 @@ const idHint = computed(function () {
 
 const tieneError = computed(function () {
     return props.error !== '';
+});
+
+const esPassword = computed(function () {
+    return props.type === 'password';
+});
+
+const tipoVisible = computed(function () {
+    if (!esPassword.value) {
+        return props.type;
+    }
+    if (mostrarTexto.value) {
+        return 'text';
+    }
+    return 'password';
 });
 
 const descripcion = computed(function () {
@@ -95,21 +111,29 @@ const clasesBase = [
 ].join(' ');
 
 const tamanos = {
-    sm: 'min-h-8 px-3 text-sm',
-    md: 'min-h-10 px-3 text-base',
-    lg: 'min-h-12 px-4 text-lg',
+    sm: 'min-h-8 text-sm',
+    md: 'min-h-10 text-base',
+    lg: 'min-h-12 text-lg',
 };
 
 const clases = computed(function () {
     const tamano = tamanos[props.size] ?? tamanos.md;
+    const padding = esPassword.value
+        ? (props.size === 'lg' ? 'pl-4 pr-10' : 'pl-3 pr-10')
+        : (props.size === 'lg' ? 'px-4' : 'px-3');
     const estado = tieneError.value
         ? 'border-danger hover:border-danger focus:border-danger focus-visible:ring-danger'
         : 'border-line hover:border-primary focus:border-primary focus-visible:ring-primary';
-    return [clasesBase, tamano, estado].join(' ');
+    return [clasesBase, tamano, padding, estado].join(' ');
 });
 
 function actualizarValor(evento) {
+    evento.target.setCustomValidity('');
     emit('update:modelValue', evento.target.value);
+}
+
+function alternarVisibilidad() {
+    mostrarTexto.value = !mostrarTexto.value;
 }
 </script>
 
@@ -118,19 +142,32 @@ function actualizarValor(evento) {
         <label v-if="label !== ''" class="font-sans text-sm text-foreground" :for="idInput">
             {{ label }}
         </label>
-        <input
-            v-bind="$attrs"
-            :id="idInput"
-            :type="type"
-            :value="modelValue"
-            :placeholder="placeholder"
-            :disabled="disabled"
-            :required="required"
-            :class="clases"
-            :aria-invalid="tieneError ? true : undefined"
-            :aria-describedby="descripcion"
-            @input="actualizarValor"
-        />
+        <div class="relative">
+            <input
+                v-bind="$attrs"
+                :id="idInput"
+                :type="tipoVisible"
+                :value="modelValue"
+                :placeholder="placeholder"
+                :disabled="disabled"
+                :required="required"
+                :class="clases"
+                :aria-invalid="tieneError ? true : undefined"
+                :aria-describedby="descripcion"
+                @input="actualizarValor"
+            />
+            <button
+                v-if="esPassword"
+                type="button"
+                class="absolute top-1/2 right-2 inline-flex size-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted transition duration-150 ease-out hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:outline-none disabled:pointer-events-none disabled:cursor-not-allowed motion-reduce:transition-none"
+                :aria-label="mostrarTexto ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                :disabled="disabled"
+                @click="alternarVisibilidad"
+            >
+                <Eye v-if="!mostrarTexto" :size="16" aria-hidden="true" />
+                <EyeOff v-else :size="16" aria-hidden="true" />
+            </button>
+        </div>
         <p v-if="tieneError" :id="idError" class="text-xs text-danger" role="alert">
             {{ error }}
         </p>

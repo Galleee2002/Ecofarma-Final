@@ -30,7 +30,7 @@ function alCerrar(id) {
 </script>
 
 <template>
-    <div class="pointer-events-none fixed top-4 right-4 z-50 w-[min(calc(100%-2rem),380px)] sm:top-6 sm:right-6">
+    <div class="pointer-events-none fixed top-24 right-4 z-50 w-[min(calc(100%-2rem),380px)] sm:right-6">
         <TransitionGroup name="toast" tag="div" class="relative flex w-full flex-col gap-3">
             <div
                 v-for="item in toasts"

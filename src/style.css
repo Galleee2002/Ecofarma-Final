@@ -71,6 +71,14 @@
     padding: 2rem 1.5rem;
 }
 
+@utility fondo-trama {
+    background-color: var(--color-background);
+    background-image: url('/trama-web.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 @layer base {
     body {
         font-family: var(--font-sans);

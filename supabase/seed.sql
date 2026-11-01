@@ -115,7 +115,7 @@ values
     'authenticated', 'authenticated', 'admin@ecofarma.test',
     extensions.crypt('EcoFarma2026!', extensions.gen_salt('bf')), now(),
     '{"provider": "email", "providers": ["email"]}',
-    '{"name": "Admin EcoFARMA", "dni": "30111222", "telefono": "3510000001",
+    '{"name": "Admin ecofarma", "dni": "30111222", "telefono": "3510000001",
       "direccion": "Av. Colón 100", "localidad": "Córdoba", "acepto_ddjj": true}',
     now(), now(), '', '', '', ''
   ),

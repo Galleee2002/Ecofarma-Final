@@ -48,6 +48,10 @@ const marcado = computed({
     },
 });
 
+function limpiarValidez(evento) {
+    evento.target.setCustomValidity('');
+}
+
 const idAutomatico = useId();
 
 const idInput = computed(function () {
@@ -114,6 +118,7 @@ const clasesInput = computed(function () {
                     :class="clasesInput"
                     v-model="marcado"
                     :disabled="disabled"
+                    @change="limpiarValidez"
                     :required="required"
                     :aria-invalid="tieneError ? true : undefined"
                     :aria-describedby="descripcion"

@@ -154,16 +154,6 @@ const clasesEyebrow = computed(function () {
     return base + ' text-primary';
 });
 
-const clasesAcento = computed(function () {
-    if (variante.value === 'danger') {
-        return 'bg-danger';
-    }
-    if (variante.value === 'success') {
-        return 'bg-success';
-    }
-    return '';
-});
-
 const clasesAncho = computed(function () {
     if (tamano.value === 'sm') {
         return 'max-w-sm';
@@ -473,12 +463,6 @@ onBeforeUnmount(function () {
                 @click="alClicFondo"
             >
                 <div :class="clasesPanel" @click.stop>
-                    <span
-                        v-if="variante !== 'default'"
-                        class="absolute top-0 left-6 h-[3px] w-12 rounded-b-sm sm:left-8"
-                        :class="clasesAcento"
-                        aria-hidden="true"
-                    ></span>
                     <button
                         v-if="showClose"
                         type="button"

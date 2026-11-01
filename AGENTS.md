@@ -1,4 +1,4 @@
-# EcoFARMA — Guía para agentes
+# ecofarma — Guía para agentes
 
 Reglas de trabajo. El estado, las decisiones y el esquema están en `ROADMAP.md`. Cómo se protegen los datos está en `docs/base-de-datos.md`. Al cerrar una fase o una pantalla de la sección 5, actualizar `ROADMAP.md`.
 

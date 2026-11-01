@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { BookOpen, ChevronLeft, ChevronRight, Package, Users } from '@lucide/vue';
 
@@ -12,14 +12,31 @@ const secciones = [
     { nombre: 'admin-usuarios', etiqueta: 'Usuarios', icono: Users },
 ];
 
+let consultaEscritorio = null;
+
 function esEscritorio() {
     return window.matchMedia('(min-width: 768px)').matches;
 }
 
+function alCambiarViewport(evento) {
+    if (!evento.matches) {
+        colapsado.value = true;
+    }
+}
+
 onMounted(function () {
-    if (esEscritorio()) {
+    consultaEscritorio = window.matchMedia('(min-width: 768px)');
+    if (consultaEscritorio.matches) {
         colapsado.value = false;
     }
+    consultaEscritorio.addEventListener('change', alCambiarViewport);
+});
+
+onUnmounted(function () {
+    if (consultaEscritorio === null) {
+        return;
+    }
+    consultaEscritorio.removeEventListener('change', alCambiarViewport);
 });
 
 watch(

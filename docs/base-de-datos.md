@@ -1,4 +1,4 @@
-# Base de datos de EcoFARMA
+# Base de datos de ecofarma
 
 Cómo está armada la base y cómo se protege. El detalle de columnas, tipos y claves está en `ROADMAP.md` (sección 4). Las reglas para tocarla están en `AGENTS.md`.
 
@@ -6,7 +6,7 @@ Cómo está armada la base y cómo se protege. El detalle de columnas, tipos y c
 
 ## 1. Dónde se guardan los datos
 
-EcoFARMA usa **Supabase** (PostgreSQL) más estas piezas:
+ecofarma usa **Supabase** (PostgreSQL) más estas piezas:
 
 - **Auth:** registro e inicio de sesión. El email y la contraseña no están en las tablas de abajo.
 - **Storage:** fotos de envases y recetas. Las tablas guardan solo la URL.
@@ -133,7 +133,7 @@ El GRANT es la llave del edificio. La política RLS dice a qué departamentos se
 | `authenticated` | Usuario con sesión |
 | `service_role` | Las Edge Functions. Ignora RLS. No se usa en el frontend |
 
-En EcoFARMA los permisos de `anon` y `authenticated` no vienen dados: cada tabla nueva necesita su `GRANT`. Eso está en la migración `table_grants`. `service_role` los recibe por defecto.
+En ecofarma los permisos de `anon` y `authenticated` no vienen dados: cada tabla nueva necesita su `GRANT`. Eso está en la migración `table_grants`. `service_role` los recibe por defecto.
 
 Operaciones: `select` (leer), `insert` (crear), `update` (modificar), `delete` (borrar).
 

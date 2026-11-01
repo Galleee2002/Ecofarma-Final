@@ -76,6 +76,7 @@ async function confirmarCerrarSesion() {
     const salio = await cerrarSesion();
     if (salio) {
         confirmarCierre.value = false;
+        mostrarAviso('Cerraste sesión correctamente.', 'exito');
         router.push({ name: 'catalogo' });
     } else if (error.value !== '') {
         mostrarAviso(error.value, 'advertencia');
@@ -177,7 +178,7 @@ async function confirmarCerrarSesion() {
         variant="danger"
         size="sm"
         title="Cerrar sesión"
-        description="Vas a salir de EcoFARMA en este dispositivo."
+        description="Vas a salir de ecofarma en este dispositivo."
         :locked="cargando"
         :close-on-backdrop="!cargando"
         :close-on-esc="!cargando"

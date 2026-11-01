@@ -1,4 +1,4 @@
-# ROADMAP — EcoFARMA (MVP)
+# ROADMAP — ecofarma (MVP)
 
 Estado del proyecto, decisiones que siguen vigentes, esquema y lo que falta. Las reglas de trabajo están en `AGENTS.md`. La protección de los datos (GRANT, RLS, Storage) está en `docs/base-de-datos.md`.
 
@@ -48,7 +48,7 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 - El navbar de la plataforma tiene Inicio (deshabilitado hasta la landing), Donar (`/donar`) y Recibir (`/recibir`). Recibir reutiliza `CatalogoView` y queda activo en `/recibir`, `/catalogo` y `/medicamento/:id`. `/catalogo` se mantiene como ruta compatible.
 - Mi perfil sigue en `/perfil` con las pestañas Mis datos, Mis donaciones (`?tab=donaciones`) y Mis solicitudes (`?tab=solicitudes`). Administración solo se muestra si `rol = admin`.
 - El cierre de sesión se confirma con `BaseModal`. La autenticación sigue en `useAuth` (`signOut`).
-- `cargando` y `error` son de cada vista. `useAuth` comparte sesión, perfil y `errorPerfil`. El aviso de ingreso, registro y cierre de sesión vive en `mensajeExito`.
+- `cargando` y `error` son de cada vista. `useAuth` comparte sesión, perfil y `errorPerfil`. El aviso de ingreso, registro y cierre de sesión lo muestra `mostrarAviso` con `useToast` (3 s).
 
 ### Donaciones
 
@@ -193,8 +193,8 @@ Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. Cada vi
 - [x] Navegación (`App.vue`). Inicio deshabilitado hasta la landing; Donar `/donar`; Recibir `/recibir` (catálogo). Cierre de sesión con `BaseModal`.
 - [ ] Catálogo, `/recibir` y `/catalogo`.
 - [ ] Detalle y solicitud, `/medicamento/:id`.
-- [ ] Ingreso, `/login`.
-- [ ] Registro, `/registro`.
+- [x] Ingreso, `/login`.
+- [x] Registro, `/registro`.
 - [ ] Perfil, `/perfil`.
 - [ ] Publicar donación, `/donar`.
 - [ ] Chat, `/solicitud/:solicitudId/chat`.

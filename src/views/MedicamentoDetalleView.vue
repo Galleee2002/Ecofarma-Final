@@ -149,7 +149,7 @@ async function solicitar() {
                         </div>
                         <div class="flex items-start gap-2">
                             <input id="solicitud-ddjj" v-model="aceptoDdjj" type="checkbox" class="mt-1" />
-                            <label for="solicitud-ddjj">Acepto los Términos y Condiciones y la Declaración Jurada de EcoFARMA.</label>
+                            <label for="solicitud-ddjj">Acepto los Términos y Condiciones y la Declaración Jurada de ecofarma.</label>
                         </div>
                     </template>
                     <p v-if="errorCrear !== ''" class="border border-danger bg-danger/10 p-3 text-danger">{{ errorCrear }}</p>

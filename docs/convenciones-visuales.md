@@ -1,4 +1,4 @@
-# Convenciones visuales — EcoFARMA
+# Convenciones visuales — ecofarma
 
 Guía para la etapa de fidelidad visual y la landing. Los fundamentos y la paleta canónica están en la sección 3 de `ROADMAP.md`; las reglas de implementación están en `AGENTS.md`.
 
@@ -103,7 +103,7 @@ La implementación visual se trabaja de forma incremental por componente o panta
 
 La landing y la plataforma comparten la identidad visual del navbar: fondo `primary` (`#215b8d`) y textos e iconos `surface` (`#ffffff`). `BaseNavbar.vue` proporciona la estructura visual reutilizable; `LandingNavbar.vue` y `AppNavbar.vue` definen sus enlaces y comportamientos de navegación. Ambos se implementan mobile-first, con menú hamburguesa accesible en móvil y composición horizontal en pantallas mayores. La transición del menú se hace con Vue `Transition` y debe respetar `prefers-reduced-motion`.
 
-Usar el recurso original del proyecto (`public/logo.webp`) o el recurso oficial de Figma. No agregar el nombre EcoFARMA al lado del logo, reconstruir el logo con texto ni alterar sus proporciones. Sobre el fondo azul, los controles y enlaces deben conservar contraste y estados de foco visibles; los botones pueden adaptar su variante para seguir siendo legibles.
+Usar el recurso original del proyecto (`public/logo.webp`) o el recurso oficial de Figma. No agregar el nombre ecofarma al lado del logo, reconstruir el logo con texto ni alterar sus proporciones. Sobre el fondo azul, los controles y enlaces deben conservar contraste y estados de foco visibles; los botones pueden adaptar su variante para seguir siendo legibles.
 
 ### Landing
 
