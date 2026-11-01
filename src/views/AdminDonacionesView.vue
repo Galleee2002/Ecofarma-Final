@@ -209,7 +209,7 @@ function mensajeVacio() {
 
 function claseBandeja(valor) {
     const clases = [
-        'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md border px-4 font-sans text-sm',
+        'inline-flex min-h-12 shrink-0 snap-start items-center gap-2 rounded-md border px-4 font-sans text-sm',
         'transition duration-150 ease-out motion-reduce:transition-none',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
     ];
@@ -309,9 +309,9 @@ onMounted(function () {
 </script>
 
 <template>
-    <main class="flex flex-col gap-6">
+    <main class="flex min-w-0 w-full flex-col gap-6">
         <header class="flex flex-col gap-2">
-            <h1 class="text-primary">Moderación de donaciones</h1>
+            <h1 class="text-balance text-primary">Moderación de donaciones</h1>
             <p class="text-pretty text-muted">Revisá el envase, corregí la ficha y publicá o rechazá cada donación.</p>
         </header>
 
@@ -325,7 +325,7 @@ onMounted(function () {
 
         <div
             id="donaciones-estado"
-            class="-mx-1 flex flex-nowrap gap-2 overflow-x-auto px-1 pb-1"
+            class="-mx-1 flex flex-nowrap gap-2 overflow-x-auto overscroll-x-contain px-1 pb-1 snap-x snap-mandatory md:flex-wrap md:overflow-visible md:snap-none"
             role="tablist"
             aria-label="Estado de las donaciones"
         >
@@ -357,19 +357,21 @@ onMounted(function () {
             >
                 <button
                     type="button"
-                    class="flex w-full items-start gap-3 p-4 text-left transition duration-150 ease-out hover:bg-primary-soft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset motion-reduce:transition-none"
+                    class="flex min-h-12 w-full items-start gap-3 p-4 text-left transition duration-150 ease-out hover:bg-primary-soft/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset motion-reduce:transition-none"
                     :aria-expanded="estaAbierta(donacion.id) ? 'true' : 'false'"
                     :aria-controls="'ficha-' + donacion.id"
                     @click="alternarFicha(donacion.id)"
                 >
-                    <div class="min-w-0 flex-1">
-                        <h2 class="text-balance text-primary">{{ donacion.nombre_comercial }}</h2>
-                        <p class="mt-1 text-sm text-muted">Donante: {{ nombreDonante(donacion) }}</p>
-                        <p class="text-sm text-icon">Vence: {{ formatearFecha(donacion.fecha_vencimiento) }}</p>
+                    <div class="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                        <div class="min-w-0 flex-1">
+                            <h2 class="text-balance break-words text-primary">{{ donacion.nombre_comercial }}</h2>
+                            <p class="mt-1 text-sm text-muted">Donante: {{ nombreDonante(donacion) }}</p>
+                            <p class="text-sm text-icon">Vence: {{ formatearFecha(donacion.fecha_vencimiento) }}</p>
+                        </div>
+                        <BaseBadge class="self-start" :variant="varianteEstado(donacion.estado)" size="sm">
+                            {{ textoEstado(donacion.estado) }}
+                        </BaseBadge>
                     </div>
-                    <BaseBadge :variant="varianteEstado(donacion.estado)" size="sm">
-                        {{ textoEstado(donacion.estado) }}
-                    </BaseBadge>
                     <ChevronDown
                         class="mt-1 shrink-0 text-icon transition duration-150 ease-out motion-reduce:transition-none"
                         :class="estaAbierta(donacion.id) ? 'rotate-180' : ''"
@@ -379,19 +381,19 @@ onMounted(function () {
                 </button>
 
                 <Transition name="ficha">
-                    <div v-if="estaAbierta(donacion.id) && formularios[donacion.id]" :id="'ficha-' + donacion.id" class="border-t border-line px-4 pb-5 pt-4">
-                        <div class="flex flex-col gap-6">
+                    <div v-if="estaAbierta(donacion.id) && formularios[donacion.id]" :id="'ficha-' + donacion.id" class="border-t border-line px-4 pb-5 pt-4 sm:px-5">
+                        <div class="flex min-w-0 flex-col gap-6">
                             <section class="flex flex-col gap-3">
                                 <p class="font-sans text-xs font-semibold tracking-[0.14em] text-primary uppercase">
                                     Evidencia
                                 </p>
-                                <div v-if="fotos(donacion).length > 0" class="flex flex-wrap gap-3">
+                                <div v-if="fotos(donacion).length > 0" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap">
                                     <img
                                         v-for="(foto, indice) in fotos(donacion)"
                                         :key="indice"
                                         :src="foto"
                                         :alt="'Foto ' + (indice + 1) + ' de ' + donacion.nombre_comercial"
-                                        class="size-32 rounded-md object-cover shadow-sm sm:size-40"
+                                        class="aspect-[4/3] w-full rounded-md object-cover shadow-sm sm:aspect-square lg:size-40"
                                     />
                                 </div>
                                 <p v-else class="text-sm text-muted">Esta donación no tiene fotos del envase.</p>
@@ -406,7 +408,7 @@ onMounted(function () {
                                 <p class="font-sans text-xs font-semibold tracking-[0.14em] text-primary uppercase">
                                     Ficha
                                 </p>
-                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div class="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                                     <BaseInput
                                         :id="'moderar-nombre-' + donacion.id"
                                         v-model="formularios[donacion.id].nombre_comercial"
@@ -455,7 +457,7 @@ onMounted(function () {
                                     :rows="3"
                                 />
                                 <div>
-                                    <BaseButton type="submit" variant="outline" :loading="guardando">
+                                    <BaseButton type="submit" variant="outline" class="w-full sm:w-auto" :loading="guardando">
                                         Guardar cambios
                                     </BaseButton>
                                 </div>
@@ -465,8 +467,8 @@ onMounted(function () {
                                 <p class="font-sans text-xs font-semibold tracking-[0.14em] text-primary uppercase">
                                     Dictamen
                                 </p>
-                                <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                    <div class="flex flex-col gap-3">
+                                <div class="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-2">
+                                    <div class="flex min-w-0 flex-col gap-3">
                                         <BaseSelect
                                             :id="'moderar-vademecum-' + donacion.id"
                                             v-model="formularios[donacion.id].medicamento_habilitado_id"
@@ -476,6 +478,7 @@ onMounted(function () {
                                         />
                                         <div>
                                             <BaseButton
+                                                class="w-full sm:w-auto"
                                                 :loading="guardando"
                                                 @click="aprobarDonacion(donacion.id, formularios[donacion.id])"
                                             >
@@ -483,7 +486,7 @@ onMounted(function () {
                                             </BaseButton>
                                         </div>
                                     </div>
-                                    <div class="flex flex-col gap-3">
+                                    <div class="flex min-w-0 flex-col gap-3">
                                         <BaseTextarea
                                             :id="'moderar-motivo-' + donacion.id"
                                             v-model="formularios[donacion.id].motivo_rechazo"
@@ -493,6 +496,7 @@ onMounted(function () {
                                         <div>
                                             <BaseButton
                                                 variant="danger"
+                                                class="w-full sm:w-auto"
                                                 :disabled="guardando"
                                                 @click="pedirRechazo(donacion.id)"
                                             >
@@ -509,11 +513,11 @@ onMounted(function () {
         </TransitionGroup>
 
         <div v-if="!cargando && error === '' && total > 15" class="flex flex-wrap items-center gap-3">
-            <BaseButton variant="outline" size="sm" :disabled="pagina === 1" @click="pagina = pagina - 1">
+            <BaseButton variant="outline" :disabled="pagina === 1" @click="pagina = pagina - 1">
                 Anterior
             </BaseButton>
             <span class="font-sans text-sm text-muted tabular-nums">Página {{ pagina }}</span>
-            <BaseButton variant="outline" size="sm" :disabled="pagina * 15 >= total" @click="pagina = pagina + 1">
+            <BaseButton variant="outline" :disabled="pagina * 15 >= total" @click="pagina = pagina + 1">
                 Siguiente
             </BaseButton>
         </div>

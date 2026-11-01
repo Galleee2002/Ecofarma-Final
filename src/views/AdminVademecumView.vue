@@ -35,21 +35,21 @@ onMounted(cargarSugerencias);
 </script>
 
 <template>
-    <main class="flex max-w-3xl flex-col gap-6">
+    <main class="flex min-w-0 w-full max-w-3xl flex-col gap-6">
         <header class="flex flex-col gap-2">
-            <h1 class="text-primary">Alta del vademécum</h1>
+            <h1 class="text-balance text-primary">Alta del vademécum</h1>
             <p class="text-pretty text-muted">Agregá una fila al vademécum Remediar.</p>
         </header>
 
         <BaseAlert v-if="error !== ''" variant="warning" :message="error" />
 
-        <form class="flex flex-col gap-4" novalidate @submit.prevent="guardar">
+        <form class="flex min-w-0 flex-col gap-4" novalidate @submit.prevent="guardar">
             <BaseInput
                 id="vademecum-principio"
                 v-model="datos.principio_activo"
                 label="Principio activo"
             />
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                 <BaseInput
                     id="vademecum-nombre"
                     v-model="datos.nombre_comercial"
@@ -83,7 +83,7 @@ onMounted(cargarSugerencias);
             />
             <BaseAlert v-if="mensajeAlta !== ''" variant="success" :message="mensajeAlta" />
             <div>
-                <BaseButton type="submit" :loading="guardando">
+                <BaseButton type="submit" class="w-full sm:w-auto" :loading="guardando">
                     Agregar al vademécum
                 </BaseButton>
             </div>

@@ -1,10 +1,20 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { LoaderCircle, X } from '@lucide/vue';
+import BaseAlert from '../components/ui/BaseAlert.vue';
+import BaseButton from '../components/ui/BaseButton.vue';
+import BaseCard from '../components/ui/BaseCard.vue';
+import BaseCombobox from '../components/ui/BaseCombobox.vue';
+import BaseDatePicker from '../components/ui/BaseDatePicker.vue';
+import BaseFileDrop from '../components/ui/BaseFileDrop.vue';
+import BaseInput from '../components/ui/BaseInput.vue';
+import BaseTextarea from '../components/ui/BaseTextarea.vue';
 import { useAuth } from '../composables/useAuth';
 import { useVademecum } from '../composables/useVademecum';
 import { useDonaciones } from '../composables/useDonaciones';
 
 const MAXIMO_FOTOS = 3;
+const DURACION_PREPARACION = 700;
 const { sesion, perfil, errorPerfil } = useAuth();
 const { filas: sugerencias, error: errorSugerencias, cargarSugerencias } = useVademecum();
 const { publicando, errorPublicar, mensajePublicar, tipoMensajePublicar, publicarDonacion } = useDonaciones();
@@ -24,6 +34,13 @@ const avisoFotos = ref('');
 
 const cuentaSuspendida = computed(function () {
     return perfil.value !== null && perfil.value.is_validado === false;
+});
+
+const varianteMensajePublicar = computed(function () {
+    if (tipoMensajePublicar.value === 'exito') {
+        return 'success';
+    }
+    return 'info';
 });
 
 function obtenerFechaDeManiana() {
@@ -104,9 +121,61 @@ function yaEstaCargada(nombre) {
     return false;
 }
 
-function agregarFotos(evento) {
+function prefiereMenosMovimiento() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function formatearTamanio(bytes) {
+    if (bytes < 1024) {
+        return bytes + ' B';
+    }
+    if (bytes < 1024 * 1024) {
+        const kb = bytes / 1024;
+        if (kb < 10) {
+            return kb.toFixed(1) + ' KB';
+        }
+        return Math.round(kb) + ' KB';
+    }
+    const mb = bytes / (1024 * 1024);
+    if (mb < 10) {
+        return mb.toFixed(1) + ' MB';
+    }
+    return Math.round(mb) + ' MB';
+}
+
+function cancelarPreparacion(foto) {
+    if (foto.frame !== null) {
+        cancelAnimationFrame(foto.frame);
+        foto.frame = null;
+    }
+}
+
+function prepararFoto(foto) {
+    if (prefiereMenosMovimiento()) {
+        foto.progreso = 100;
+        foto.lista = true;
+        return;
+    }
+
+    const inicio = performance.now();
+
+    function avanzar(ahora) {
+        const t = Math.min(1, (ahora - inicio) / DURACION_PREPARACION);
+        foto.progreso = Math.round(t * 100);
+        if (t < 1) {
+            foto.frame = requestAnimationFrame(avanzar);
+            return;
+        }
+        foto.progreso = 100;
+        foto.lista = true;
+        foto.frame = null;
+    }
+
+    foto.frame = requestAnimationFrame(avanzar);
+}
+
+function agregarFotos(archivos) {
     avisoFotos.value = '';
-    const archivos = evento.target.files;
     let nombreRepetido = false;
 
     for (const archivo of archivos) {
@@ -118,7 +187,11 @@ function agregarFotos(evento) {
             fotos.value.push({
                 archivo: archivo,
                 url: URL.createObjectURL(archivo),
+                progreso: 0,
+                lista: false,
+                frame: null,
             });
+            prepararFoto(fotos.value[fotos.value.length - 1]);
         } else {
             avisoFotos.value = 'Podés subir hasta 3 fotos. Solo se agregaron las primeras.';
         }
@@ -127,11 +200,10 @@ function agregarFotos(evento) {
     if (nombreRepetido && avisoFotos.value === '') {
         avisoFotos.value = 'No podés subir dos fotos con el mismo nombre.';
     }
-
-    evento.target.value = '';
 }
 
 function quitarFoto(indice) {
+    cancelarPreparacion(fotos.value[indice]);
     URL.revokeObjectURL(fotos.value[indice].url);
     fotos.value.splice(indice, 1);
     avisoFotos.value = '';
@@ -139,6 +211,7 @@ function quitarFoto(indice) {
 
 function limpiarFotos() {
     for (const foto of fotos.value) {
+        cancelarPreparacion(foto);
         URL.revokeObjectURL(foto.url);
     }
     fotos.value = [];
@@ -172,91 +245,182 @@ onBeforeUnmount(limpiarFotos);
 </script>
 
 <template>
-    <main class="pagina-media">
-        <h1 class="text-primary">Donar un medicamento</h1>
+    <main class="min-h-[calc(100dvh-5.5rem)] bg-background bg-[url('/trama-web2.webp')] bg-cover bg-center bg-no-repeat">
+        <div class="pagina-media">
+            <header class="flex flex-col gap-1">
+                <h1 class="text-balance text-primary">Donar un medicamento</h1>
+                <p class="text-pretty text-muted">Publicá un medicamento para que otra persona pueda solicitarlo.</p>
+            </header>
 
-        <p v-if="errorPerfil !== ''" class="border border-danger bg-danger/10 p-3 text-danger">{{ errorPerfil }}</p>
-        <p v-else-if="perfil === null" class="text-muted">Cargando tus datos...</p>
+            <BaseAlert v-if="errorPerfil !== ''" variant="error" :message="errorPerfil" />
+            <p v-else-if="perfil === null" class="text-muted">Cargando tus datos...</p>
 
-        <form v-else class="flex flex-col gap-4" novalidate @submit.prevent="publicar">
-            <p v-if="cuentaSuspendida" class="border border-warning bg-warning/10 p-3 text-warning">
-                Tu cuenta está suspendida, no podés publicar donaciones.
-            </p>
-            <p v-if="errorSugerencias !== ''" class="border border-warning bg-warning/10 p-3 text-warning">{{ errorSugerencias }}</p>
-            <p
-                v-if="mensajePublicar !== ''"
-                class="p-3"
-                :class="tipoMensajePublicar === 'exito' ? 'border border-success bg-success/10 text-success' : 'border border-icon bg-icon/10 text-icon'"
-            >
-                {{ mensajePublicar }}
-            </p>
+            <form v-else novalidate @submit.prevent="publicar">
+                <BaseCard variant="surface" padding="md" class="rounded-lg shadow-md sm:p-8">
+                    <div class="flex flex-col gap-4">
+                        <BaseAlert
+                            v-if="cuentaSuspendida"
+                            variant="warning"
+                            message="Tu cuenta está suspendida, no podés publicar donaciones."
+                        />
+                        <BaseAlert v-if="errorSugerencias !== ''" variant="warning" :message="errorSugerencias" />
+                        <BaseAlert
+                            v-if="mensajePublicar !== ''"
+                            :variant="varianteMensajePublicar"
+                            :message="mensajePublicar"
+                        />
 
-            <div class="flex flex-col gap-1">
-                <label for="donacion-principio">Principio activo</label>
-                <input id="donacion-principio" v-model="datos.principio_activo" type="text" list="lista-principios" autocomplete="off" class="border border-line bg-surface px-3 py-2" />
-                <datalist id="lista-principios">
-                    <option v-for="valor in principiosActivos" :key="valor" :value="valor" />
-                </datalist>
-            </div>
-            <div class="flex flex-col gap-1">
-                <label for="donacion-concentracion">Concentración</label>
-                <input id="donacion-concentracion" v-model="datos.concentracion" type="text" list="lista-concentraciones" autocomplete="off" class="border border-line bg-surface px-3 py-2" />
-                <datalist id="lista-concentraciones">
-                    <option v-for="valor in concentraciones" :key="valor" :value="valor" />
-                </datalist>
-            </div>
-            <div class="flex flex-col gap-1">
-                <label for="donacion-forma">Forma farmacéutica</label>
-                <input id="donacion-forma" v-model="datos.forma_farmaceutica" type="text" list="lista-formas" autocomplete="off" class="border border-line bg-surface px-3 py-2" />
-                <datalist id="lista-formas">
-                    <option v-for="valor in formasFarmaceuticas" :key="valor" :value="valor" />
-                </datalist>
-            </div>
-            <div class="flex flex-col gap-1">
-                <label for="donacion-nombre">Nombre comercial</label>
-                <input id="donacion-nombre" v-model="datos.nombre_comercial" type="text" list="lista-nombres" autocomplete="off" class="border border-line bg-surface px-3 py-2" />
-                <datalist id="lista-nombres">
-                    <option v-for="valor in nombresComerciales" :key="valor" :value="valor" />
-                </datalist>
-            </div>
-            <div class="flex flex-col gap-1">
-                <label for="donacion-cantidad">Cantidad</label>
-                <input id="donacion-cantidad" v-model="datos.cantidad_disponible" type="number" min="1" step="1" class="border border-line bg-surface px-3 py-2" />
-            </div>
-            <div class="flex flex-col gap-1">
-                <label for="donacion-lote">Lote</label>
-                <input id="donacion-lote" v-model="datos.lote" type="text" class="border border-line bg-surface px-3 py-2" />
-            </div>
-            <div class="flex flex-col gap-1">
-                <label for="donacion-vencimiento">Fecha de vencimiento</label>
-                <input id="donacion-vencimiento" v-model="datos.fecha_vencimiento" type="date" :min="fechaMinima" class="border border-line bg-surface px-3 py-2" />
-            </div>
-            <div class="flex flex-col gap-1">
-                <label for="donacion-descripcion">Descripción (opcional)</label>
-                <textarea id="donacion-descripcion" v-model="datos.descripcion" rows="3" class="border border-line bg-surface px-3 py-2"></textarea>
-            </div>
-            <div class="flex flex-col gap-1">
-                <label for="donacion-fotos">Fotos del envase (1 a 3, JPG, PNG o WEBP, hasta 5 MB)</label>
-                <input
-                    id="donacion-fotos"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    multiple
-                    :disabled="fotos.length >= MAXIMO_FOTOS"
-                    @change="agregarFotos"
-                />
-                <ul v-if="fotos.length > 0" class="flex flex-col gap-2">
-                    <li v-for="(foto, indice) in fotos" :key="foto.url" class="flex items-center gap-2">
-                        <span>{{ foto.archivo.name }}</span>
-                        <button type="button" class="text-danger" @click="quitarFoto(indice)">Quitar</button>
-                    </li>
-                </ul>
-                <p v-if="avisoFotos !== ''" class="border border-warning bg-warning/10 p-3 text-warning">{{ avisoFotos }}</p>
-            </div>
-            <p v-if="errorPublicar !== ''" class="border border-danger bg-danger/10 p-3 text-danger">{{ errorPublicar }}</p>
-            <button type="submit" class="bg-primary px-4 py-2 text-surface" :disabled="publicando || cuentaSuspendida">
-                {{ publicando ? 'Publicando...' : 'Publicar donación' }}
-            </button>
-        </form>
+                        <BaseCombobox
+                            id="donacion-principio"
+                            v-model="datos.principio_activo"
+                            label="Principio activo"
+                            :options="principiosActivos"
+                        />
+                        <BaseCombobox
+                            id="donacion-concentracion"
+                            v-model="datos.concentracion"
+                            label="Concentración"
+                            :options="concentraciones"
+                        />
+                        <BaseCombobox
+                            id="donacion-forma"
+                            v-model="datos.forma_farmaceutica"
+                            label="Forma farmacéutica"
+                            :options="formasFarmaceuticas"
+                        />
+                        <BaseCombobox
+                            id="donacion-nombre"
+                            v-model="datos.nombre_comercial"
+                            label="Nombre comercial"
+                            :options="nombresComerciales"
+                        />
+                        <div class="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
+                            <BaseInput
+                                id="donacion-cantidad"
+                                v-model="datos.cantidad_disponible"
+                                label="Cantidad"
+                                type="number"
+                                min="1"
+                                step="1"
+                            />
+                            <BaseInput
+                                id="donacion-lote"
+                                v-model="datos.lote"
+                                label="Lote"
+                                type="text"
+                            />
+                        </div>
+                        <BaseDatePicker
+                            id="donacion-vencimiento"
+                            v-model="datos.fecha_vencimiento"
+                            label="Fecha de vencimiento"
+                            :min="fechaMinima"
+                        />
+                        <BaseTextarea
+                            id="donacion-descripcion"
+                            v-model="datos.descripcion"
+                            label="Descripción (opcional)"
+                            :rows="3"
+                        />
+                        <div class="flex flex-col gap-3">
+                            <BaseFileDrop
+                                id="donacion-fotos"
+                                label="Fotos del envase"
+                                hint="JPG, PNG o WEBP, hasta 5 MB. Máximo 3 fotos."
+                                :disabled="fotos.length >= MAXIMO_FOTOS"
+                                @select="agregarFotos"
+                            />
+                            <TransitionGroup
+                                v-if="fotos.length > 0"
+                                name="donacion-fotos"
+                                tag="ul"
+                                class="flex flex-col gap-3"
+                            >
+                                <li
+                                    v-for="(foto, indice) in fotos"
+                                    :key="foto.url"
+                                    class="flex items-center gap-3 rounded-md border border-line bg-surface p-3"
+                                >
+                                    <img
+                                        :src="foto.url"
+                                        :alt="foto.archivo.name"
+                                        class="h-10 w-10 min-h-10 min-w-10 shrink-0 rounded-sm object-cover"
+                                    />
+                                    <div class="min-w-0 flex-1">
+                                        <p class="truncate font-sans text-sm text-foreground">{{ foto.archivo.name }}</p>
+                                        <p v-if="!foto.lista" class="mt-0.5 flex items-center gap-1 font-sans text-xs text-muted">
+                                            <LoaderCircle class="shrink-0 animate-spin motion-reduce:animate-none" :size="12" aria-hidden="true" />
+                                            Preparando...
+                                        </p>
+                                        <p v-else class="mt-0.5 font-sans text-xs text-muted">
+                                            {{ formatearTamanio(foto.archivo.size) }}
+                                        </p>
+                                        <div
+                                            v-if="!foto.lista"
+                                            class="mt-2 h-1 w-full overflow-hidden rounded-sm bg-line"
+                                            role="progressbar"
+                                            :aria-valuenow="foto.progreso"
+                                            aria-valuemin="0"
+                                            aria-valuemax="100"
+                                            aria-label="Preparando imagen"
+                                        >
+                                            <div
+                                                class="h-full bg-primary transition-[width] duration-150 ease-out motion-reduce:transition-none"
+                                                :style="{ width: foto.progreso + '%' }"
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-sm text-muted transition duration-150 ease-out hover:bg-muted/10 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:outline-none motion-reduce:transition-none"
+                                        aria-label="Quitar foto"
+                                        @click="quitarFoto(indice)"
+                                    >
+                                        <X class="size-5" aria-hidden="true" />
+                                    </button>
+                                </li>
+                            </TransitionGroup>
+                            <BaseAlert v-if="avisoFotos !== ''" variant="warning" :message="avisoFotos" />
+                        </div>
+                        <BaseAlert v-if="errorPublicar !== ''" variant="error" :message="errorPublicar" />
+                        <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
+                            <BaseButton
+                                type="submit"
+                                variant="primary"
+                                class="w-full min-w-0 sm:w-auto"
+                                :disabled="cuentaSuspendida"
+                                :loading="publicando"
+                            >
+                                {{ publicando ? 'Publicando...' : 'Publicar donación' }}
+                            </BaseButton>
+                        </div>
+                    </div>
+                </BaseCard>
+            </form>
+        </div>
     </main>
 </template>
+
+<style>
+.donacion-fotos-enter-active,
+.donacion-fotos-leave-active {
+    transition: opacity 180ms ease-out;
+}
+
+.donacion-fotos-move {
+    transition: transform 180ms ease-out;
+}
+
+.donacion-fotos-enter-from,
+.donacion-fotos-leave-to {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .donacion-fotos-enter-active,
+    .donacion-fotos-leave-active,
+    .donacion-fotos-move {
+        transition: none;
+    }
+}
+</style>

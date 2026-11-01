@@ -13,6 +13,10 @@ const props = defineProps({
         type: String,
         default: 'desktop',
     },
+    nombre: {
+        type: String,
+        default: '',
+    },
 });
 
 const emit = defineEmits(['logout']);
@@ -68,7 +72,7 @@ function elementosMenu() {
 function enfocarElemento(indice) {
     const elementos = elementosMenu();
     if (elementos.length > 0) {
-        elementos[indice]?.focus();
+        elementos[indice]?.focus({ preventScroll: true });
     }
 }
 
@@ -118,7 +122,21 @@ function cerrarSesion() {
 </script>
 
 <template>
-    <div ref="raiz" class="relative" @keydown="moverFoco">
+    <div
+        ref="raiz"
+        :class="
+            modo === 'mobile'
+                ? 'relative flex w-full min-w-0 flex-col items-stretch'
+                : 'relative flex items-center gap-2'
+        "
+        @keydown="moverFoco"
+    >
+        <p
+            v-if="modo !== 'mobile' && nombre !== ''"
+            class="max-w-40 truncate whitespace-nowrap font-sans text-sm text-surface"
+        >
+            Bienvenido/a {{ nombre }}
+        </p>
         <BaseButton
             ref="disparador"
             variant="on-primary"
@@ -141,8 +159,8 @@ function cerrarSesion() {
             ref="menu"
             role="menu"
             aria-label="Opciones de usuario"
-            class="z-50 flex min-w-56 flex-col gap-1 rounded-md border border-line bg-surface p-2 text-foreground shadow-md"
-            :class="modo === 'mobile' ? 'mt-2 w-full' : 'absolute right-0 top-full mt-2'"
+            class="z-50 flex flex-col gap-1 rounded-md border border-line bg-surface p-2 text-foreground shadow-md"
+            :class="modo === 'mobile' ? 'mt-2 w-full min-w-0' : 'absolute right-0 top-full mt-2 min-w-56'"
         >
             <button
                 type="button"

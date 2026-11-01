@@ -56,7 +56,7 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 - Si hay coincidencia, se guarda `medicamento_habilitado_id` y el estado queda `disponible`. Si no, el vínculo queda `NULL` y el estado es `pendiente_revision`.
 - `requiere_receta` es `true` en antibióticos y psicofármacos. Sin vínculo al vademécum se exige receta. La app solo comprueba que haya una foto. Al aprobar, el admin vincula una fila del vademécum.
 - Concentración, forma farmacéutica y lote son obligatorios (`NOT NULL`).
-- El formulario sugiere con `<datalist>` y `useVademecum`. Un valor escrito a mano es válido y manda la donación a revisión. No reemplazar ese control por un select cerrado.
+- El formulario sugiere con un combobox filtrado al escribir (`BaseCombobox` y `useVademecum`). Un valor escrito a mano es válido y manda la donación a revisión. No reemplazar ese control por un select cerrado.
 - Fotos: 1 a 3, JPG, PNG o WEBP, hasta 5 MB, nombres distintos. El frontend sube al bucket público `fotos-envases` (`<user_id>/<uuid>.ext`) y después invoca la función. Si algo falla, borra lo subido. No hay política de `update` en Storage.
 - La fecha de hoy en `publicar-medicamento` usa la zona horaria de Argentina.
 - El catálogo filtra `estado = 'disponible'` y `fecha_vencimiento >= hoy` en la consulta, además de la RLS: con sesión las políticas se suman y un donante o un admin verían otros estados. La búsqueda por nombre y principio activo es en memoria.
@@ -195,8 +195,8 @@ Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. Cada vi
 - [ ] Detalle y solicitud, `/medicamento/:id`.
 - [x] Ingreso, `/login`.
 - [x] Registro, `/registro`.
-- [ ] Perfil, `/perfil`.
-- [ ] Publicar donación, `/donar`.
+- [x] Perfil, `/perfil`.
+- [x] Publicar donación, `/donar`.
 - [ ] Chat, `/solicitud/:solicitudId/chat`.
 - [x] Administración: `/admin/donaciones`, `/admin/vademecum` y `/admin/usuarios`.
 

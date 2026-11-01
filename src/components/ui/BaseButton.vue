@@ -37,6 +37,7 @@ const variantes = {
     primary: 'border-transparent bg-primary text-surface shadow-sm hover:brightness-110 hover:shadow-md active:brightness-95',
     secondary: 'border-transparent bg-primary-soft text-primary hover:brightness-95 active:brightness-90',
     outline: 'border-primary bg-transparent text-primary hover:bg-primary-soft active:bg-primary/20',
+    neutral: 'border-line bg-surface text-foreground hover:bg-muted/10 active:bg-muted/20',
     ghost: 'border-transparent bg-transparent text-primary hover:bg-primary-soft active:bg-primary/20',
     'on-primary': 'border-transparent bg-transparent text-surface hover:bg-surface/10 active:bg-surface/20',
     danger: 'border-transparent bg-danger text-surface shadow-sm hover:brightness-110 hover:shadow-md active:brightness-95',

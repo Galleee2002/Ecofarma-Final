@@ -17,6 +17,19 @@ const esAdmin = computed(function () {
     return perfil.value !== null && perfil.value.rol === 'admin';
 });
 
+const nombreUsuario = computed(function () {
+    if (perfil.value === null || typeof perfil.value.name !== 'string') {
+        return '';
+    }
+
+    const partes = perfil.value.name.trim().split(/\s+/);
+    if (partes[0] === undefined || partes[0] === '') {
+        return '';
+    }
+
+    return partes[0];
+});
+
 const enlaces = [
     { id: 'inicio', etiqueta: 'Inicio', destino: null, deshabilitado: true },
     { id: 'donar', etiqueta: 'Donar', destino: { name: 'donar' }, deshabilitado: false },
@@ -111,7 +124,7 @@ async function confirmarCerrarSesion() {
 
         <template #actions>
             <template v-if="authListo && sesion !== null">
-                <UserMenu :es-admin="esAdmin" @logout="pedirCerrarSesion" />
+                <UserMenu :es-admin="esAdmin" :nombre="nombreUsuario" @logout="pedirCerrarSesion" />
             </template>
             <template v-else-if="authListo">
                 <RouterLink

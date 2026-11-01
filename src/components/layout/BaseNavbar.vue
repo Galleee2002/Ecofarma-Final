@@ -73,7 +73,7 @@ function cerrarMenu() {
             <div
                 v-if="menuAbierto"
                 id="navbar-menu-mobile"
-                class="absolute inset-x-0 top-full border-t border-surface/20 bg-primary px-4 pb-5 pt-3 shadow-md sm:px-6 lg:hidden"
+                class="absolute inset-x-0 top-full overflow-x-clip border-t border-surface/20 bg-primary px-4 pb-5 pt-3 shadow-md sm:px-6 lg:hidden"
                 @click="cerrarMenu"
             >
                 <nav aria-label="Navegación móvil" class="flex flex-col items-stretch gap-1">
