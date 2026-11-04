@@ -30,11 +30,21 @@ const nombreUsuario = computed(function () {
     return partes[0];
 });
 
-const enlaces = [
-    { id: 'inicio', etiqueta: 'Inicio', destino: { name: 'inicio' }, deshabilitado: false },
-    { id: 'donar', etiqueta: 'Donar', destino: { name: 'donar' }, deshabilitado: false },
-    { id: 'recibir', etiqueta: 'Recibir', destino: { name: 'recibir' }, deshabilitado: false },
-];
+const esLanding = computed(function () {
+    return route.name === 'inicio';
+});
+
+const enlaces = computed(function () {
+    const principales = [
+        { id: 'inicio', etiqueta: 'Inicio', destino: { name: 'inicio' }, deshabilitado: false },
+        { id: 'donar', etiqueta: 'Donar', destino: { name: 'donar' }, deshabilitado: false },
+        { id: 'recibir', etiqueta: 'Recibir', destino: { name: 'recibir' }, deshabilitado: false },
+    ];
+    if (esLanding.value) {
+        principales.push({ id: 'como-funciona', etiqueta: 'Cómo funciona', deshabilitado: false });
+    }
+    return principales;
+});
 
 onMounted(async function () {
     await esperarSesionInicial();
@@ -60,9 +70,10 @@ function enlaceActivo(enlace) {
 function clasesEnlace(enlace, movil) {
     const alto = movil ? 'min-h-11' : 'min-h-10';
     const clases = [
-        'inline-flex items-center rounded-md px-3 py-2 font-semibold text-surface',
+        'inline-flex items-center rounded-md px-3 py-2 font-semibold',
+        esLanding.value ? 'text-primary' : 'text-surface',
         alto,
-        'transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none',
+        'transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none',
     ];
 
     if (enlace.deshabilitado) {
@@ -70,9 +81,9 @@ function clasesEnlace(enlace, movil) {
         return clases.join(' ');
     }
 
-    clases.push('hover:bg-surface/10');
+    clases.push(esLanding.value ? 'hover:bg-primary/5' : 'hover:bg-surface/10');
     if (enlaceActivo(enlace)) {
-        clases.push('bg-secondary/30');
+        clases.push(esLanding.value ? 'bg-primary/5' : 'bg-secondary/30');
     }
     return clases.join(' ');
 }
@@ -101,11 +112,12 @@ async function confirmarCerrarSesion() {
 </script>
 
 <template>
-    <BaseNavbar>
+    <BaseNavbar :claro="esLanding">
         <template #desktop-navigation>
             <template v-for="enlace in enlaces" :key="enlace.id">
+                <a v-if="enlace.id === 'como-funciona'" href="#como-funciona" :class="clasesEnlace(enlace, false)">{{ enlace.etiqueta }}</a>
                 <button
-                    v-if="enlace.deshabilitado"
+                    v-else-if="enlace.deshabilitado"
                     type="button"
                     disabled
                     :class="clasesEnlace(enlace, false)"
@@ -127,18 +139,22 @@ async function confirmarCerrarSesion() {
 
         <template #actions>
             <template v-if="authListo && sesion !== null">
-                <UserMenu :es-admin="esAdmin" :nombre="nombreUsuario" @logout="pedirCerrarSesion" />
+                <div :class="esLanding ? 'rounded-md bg-primary px-3 py-1' : ''">
+                    <UserMenu :es-admin="esAdmin" :nombre="nombreUsuario" @logout="pedirCerrarSesion" />
+                </div>
             </template>
             <template v-else-if="authListo">
                 <RouterLink
                     :to="{ name: 'login' }"
-                    class="inline-flex min-h-10 items-center rounded-md px-3 py-2 font-semibold text-surface transition hover:bg-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none"
+                    class="inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                    :class="esLanding ? 'text-primary hover:bg-primary/5' : 'text-surface hover:bg-surface/10'"
                 >
                     Ingresar
                 </RouterLink>
                 <RouterLink
                     :to="{ name: 'registro' }"
-                    class="inline-flex min-h-10 items-center rounded-md bg-surface px-4 py-2 font-semibold text-primary transition hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none"
+                    class="inline-flex min-h-11 items-center rounded-md px-4 py-2 font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none"
+                    :class="esLanding ? 'bg-primary text-surface hover:brightness-110' : 'bg-surface text-primary hover:bg-surface/90'"
                 >
                     Registrarse
                 </RouterLink>
@@ -147,8 +163,9 @@ async function confirmarCerrarSesion() {
 
         <template #mobile-navigation>
             <template v-for="enlace in enlaces" :key="enlace.id">
+                <a v-if="enlace.id === 'como-funciona'" href="#como-funciona" :class="clasesEnlace(enlace, true)">{{ enlace.etiqueta }}</a>
                 <button
-                    v-if="enlace.deshabilitado"
+                    v-else-if="enlace.deshabilitado"
                     type="button"
                     disabled
                     :class="clasesEnlace(enlace, true)"
@@ -170,18 +187,22 @@ async function confirmarCerrarSesion() {
 
         <template #mobile-actions>
             <template v-if="authListo && sesion !== null">
-                <UserMenu modo="mobile" :es-admin="esAdmin" @logout="pedirCerrarSesion" />
+                <div :class="esLanding ? 'rounded-md bg-primary p-2' : ''">
+                    <UserMenu modo="mobile" :es-admin="esAdmin" @logout="pedirCerrarSesion" />
+                </div>
             </template>
             <template v-else-if="authListo">
                 <RouterLink
                     :to="{ name: 'login' }"
-                    class="inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold text-surface transition hover:bg-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none"
+                    class="inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                    :class="esLanding ? 'text-primary hover:bg-primary/5' : 'text-surface hover:bg-surface/10'"
                 >
                     Ingresar
                 </RouterLink>
                 <RouterLink
                     :to="{ name: 'registro' }"
-                    class="inline-flex min-h-11 items-center justify-center rounded-md bg-surface px-4 py-2 font-semibold text-primary transition hover:bg-surface/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none"
+                    class="inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none"
+                    :class="esLanding ? 'bg-primary text-surface hover:brightness-110' : 'bg-surface text-primary hover:bg-surface/90'"
                 >
                     Registrarse
                 </RouterLink>

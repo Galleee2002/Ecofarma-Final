@@ -1,49 +1,24 @@
-<script setup>
-import { useRouter } from 'vue-router';
-import BaseButton from '../ui/BaseButton.vue';
-
-const router = useRouter();
-
-function irADonar() {
-    router.push({ name: 'donar' });
-}
-</script>
-
 <template>
-    <section
-        class="relative flex min-h-[70svh] overflow-hidden lg:min-h-[80svh]"
-        aria-labelledby="hero-titulo"
-    >
-        <img
-            src="/ecofarma-hero.webp"
-            alt="Entrega de un medicamento entre dos personas"
-            class="absolute inset-0 h-full w-full object-cover object-[center_right] lg:object-center"
-            width="1920"
-            height="1080"
-            fetchpriority="high"
-            loading="eager"
-        />
-        <div class="absolute inset-0 bg-foreground/40" aria-hidden="true"></div>
-        <div class="relative z-10 mx-auto flex w-full max-w-7xl flex-1 items-center px-4 py-16 sm:px-6 lg:py-20">
-            <div class="flex max-w-xl flex-col items-start gap-5 sm:gap-6">
-                <p class="text-sm text-surface/80">Doná · Recibí · Coordiná</p>
-                <h1 id="hero-titulo" class="hero-titulo text-surface">
-                    Dale una segunda vida a tus medicamentos
-                </h1>
-                <p class="text-base text-surface/90 sm:text-lg">
-                    Publicá tus medicamentos en buen estado y ayudá a quien los necesita.
-                </p>
-                <BaseButton class="mt-2 w-full sm:w-auto" size="lg" @click="irADonar">
-                    Donar ahora
-                </BaseButton>
+    <section class="relative isolate overflow-hidden bg-surface" aria-labelledby="hero-titulo">
+        <div class="relative z-10 mx-auto grid w-full max-w-7xl px-5 pt-10 sm:px-8 md:min-h-[32rem] md:grid-cols-2 md:items-center md:py-16 lg:min-h-[36rem]">
+            <div class="flex max-w-lg flex-col items-start gap-5 pb-8 md:pb-0">
+                <h1 id="hero-titulo" class="text-3xl leading-tight lg:text-[2.75rem]">Dale una segunda vida a tus <span class="text-icon">medicamentos</span></h1>
+                <p class="max-w-sm text-lg text-muted">Doná tus medicamentos en buen estado y ayudá a quien los necesita.</p>
+                <div class="mt-2 flex w-full flex-col gap-3 sm:w-auto sm:flex-row md:w-full md:flex-col lg:w-auto lg:flex-row">
+                    <RouterLink :to="{ name: 'donar' }" class="inline-flex min-h-12 items-center justify-center rounded-md bg-primary px-6 font-semibold text-surface hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">Donar ahora</RouterLink>
+                    <RouterLink :to="{ name: 'recibir' }" class="inline-flex min-h-12 items-center justify-center rounded-md border border-primary px-6 font-semibold text-primary hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">Recibir medicamentos</RouterLink>
+                </div>
             </div>
         </div>
+        <img src="/ecofarma-hero.webp" alt="Dos personas comparten una caja de medicamentos" width="1774" height="887" fetchpriority="high" loading="eager" class="hero-foto h-64 w-full object-cover object-right sm:h-80 md:absolute md:inset-y-0 md:right-0 md:h-full md:w-3/5" />
+        <div class="pointer-events-none absolute -bottom-9 -left-[10%] z-20 h-16 w-[120%] rounded-[50%] bg-surface md:h-20" aria-hidden="true"></div>
     </section>
 </template>
 
 <style scoped>
-.hero-titulo {
-    font-size: clamp(1.75rem, 4vw + 1rem, 2.5rem);
-    line-height: 1.15;
+@media (min-width: 48rem) {
+    .hero-foto {
+        mask-image: linear-gradient(to right, transparent, black 24%);
+    }
 }
 </style>

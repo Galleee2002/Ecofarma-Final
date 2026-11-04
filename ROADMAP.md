@@ -229,7 +229,9 @@ Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 
 ## 6. Landing (fase 10)
 
-Última del tablero. `/` es la landing de media fidelidad. Siguen pendientes Información/Ayuda, Sobre nosotros, Contacto y Legales.
+Última del tablero. `/` tiene implementada la landing responsive basada en la referencia: hero claro con dos acciones, sponsors, beneficios, cómo funciona, confianza, cierre y footer. Pendiente validar visualmente y ejecutar el build. Siguen pendientes Información/Ayuda, Sobre nosotros, Contacto y Legales.
 
 - [ ] Rutas de esa arquitectura. Donar y Recibir ya están en el navbar de la plataforma. Inicio apunta a `/`.
+- [x] Composición de la home responsive implementada; cabecera clara solo en Inicio, teléfono ilustrativo y sponsors sin marcas no confirmadas.
+- [ ] Validación visual en mobile, tablet y desktop, build y prueba de navegación con y sin sesión.
 - [ ] Home con el propósito, cómo donar, cómo recibir, contacto y enlace al catálogo, con los tokens de la sección 3.

@@ -4,6 +4,10 @@ import { useRoute } from 'vue-router';
 import { Menu, X } from '@lucide/vue';
 
 const props = defineProps({
+    claro: {
+        type: Boolean,
+        default: false,
+    },
     logoTo: {
         type: [String, Object],
         default: '/',
@@ -37,11 +41,12 @@ function cerrarMenu() {
 </script>
 
 <template>
-    <header class="relative z-40 bg-primary text-surface" @keydown.esc="cerrarMenu">
+    <header class="relative z-40" :class="claro ? 'bg-surface text-primary' : 'bg-primary text-surface'" @keydown.esc="cerrarMenu">
         <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:px-6 lg:grid lg:grid-cols-[auto_1fr_auto] lg:gap-8">
             <slot name="brand">
-                <RouterLink :to="props.logoTo" class="inline-flex shrink-0 items-center" aria-label="ecofarma">
-                    <img src="/logo.webp" alt="ecofarma" class="h-14 w-auto object-contain" />
+                <RouterLink :to="props.logoTo" class="inline-flex shrink-0 items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current" aria-label="ecofarma">
+                    <span v-if="claro" role="img" aria-label="ecofarma" class="block size-14 bg-primary [mask-image:url('/logo.webp')] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center]"></span>
+                    <img v-else src="/logo.webp" alt="ecofarma" class="h-14 w-auto object-contain" />
                 </RouterLink>
             </slot>
 
@@ -57,7 +62,7 @@ function cerrarMenu() {
                 <slot name="mobile-primary-action" />
                 <button
                     type="button"
-                    class="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-surface transition hover:bg-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary motion-reduce:transition-none"
+                    class="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-current transition hover:bg-primary-soft/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none"
                     :aria-expanded="menuAbierto"
                     aria-controls="navbar-menu-mobile"
                     :aria-label="menuAbierto ? 'Cerrar menú' : 'Abrir menú'"
@@ -73,7 +78,8 @@ function cerrarMenu() {
             <div
                 v-if="menuAbierto"
                 id="navbar-menu-mobile"
-                class="absolute inset-x-0 top-full overflow-x-clip border-t border-surface/20 bg-primary px-4 pb-5 pt-3 shadow-md sm:px-6 lg:hidden"
+                class="absolute inset-x-0 top-full overflow-x-clip border-t px-4 pb-5 pt-3 shadow-md sm:px-6 lg:hidden"
+                :class="claro ? 'border-line bg-surface' : 'border-surface/20 bg-primary'"
                 @click="cerrarMenu"
             >
                 <nav aria-label="Navegación móvil" class="flex flex-col items-stretch gap-1">

@@ -1,21 +1,21 @@
 <script setup>
 import LandingBeneficios from '../components/landing/LandingBeneficios.vue';
 import LandingCierre from '../components/landing/LandingCierre.vue';
-import LandingDonar from '../components/landing/LandingDonar.vue';
+import LandingConfianza from '../components/landing/LandingConfianza.vue';
 import LandingFooter from '../components/landing/LandingFooter.vue';
 import LandingHero from '../components/landing/LandingHero.vue';
-import LandingRecibir from '../components/landing/LandingRecibir.vue';
+import LandingTutorial from '../components/landing/LandingTutorial.vue';
 import LandingSponsors from '../components/landing/LandingSponsors.vue';
 </script>
 
 <template>
-    <main>
+    <main class="bg-surface">
         <LandingHero />
         <LandingSponsors />
         <LandingBeneficios />
-        <LandingDonar />
-        <LandingRecibir />
+        <LandingTutorial />
+        <LandingConfianza />
         <LandingCierre />
-        <LandingFooter />
     </main>
+    <LandingFooter />
 </template>

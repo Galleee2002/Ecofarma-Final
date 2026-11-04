@@ -1,25 +1,11 @@
-<script setup>
-import { useRouter } from 'vue-router';
-import BaseButton from '../ui/BaseButton.vue';
-
-const router = useRouter();
-
-function irA(nombre) {
-    router.push({ name: nombre });
-}
-</script>
-
 <template>
-    <section class="bg-surface" aria-labelledby="cierre-titulo">
-        <div class="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
-            <div class="flex flex-col items-start gap-6 rounded-lg bg-primary-soft px-6 py-10 sm:px-10 lg:flex-row lg:items-center lg:justify-between">
-                <h2 id="cierre-titulo" class="max-w-xl">Un paso para compartir lo que ya no usás.</h2>
-                <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
-                    <BaseButton class="w-full sm:w-auto" @click="irA('donar')">Donar</BaseButton>
-                    <BaseButton class="w-full sm:w-auto" variant="outline" @click="irA('recibir')">
-                        Recibir
-                    </BaseButton>
-                </div>
+    <section class="bg-surface px-5 py-8 sm:px-8" aria-labelledby="cierre-titulo">
+        <div class="relative isolate mx-auto flex max-w-7xl flex-col gap-7 overflow-hidden rounded-lg bg-primary px-6 py-9 text-surface sm:px-10 md:flex-row md:items-center md:justify-between lg:px-16">
+            <div class="pointer-events-none absolute -right-24 -bottom-44 -z-10 h-60 w-96 -rotate-12 rounded-[50%] bg-surface/10" aria-hidden="true"></div>
+            <h2 id="cierre-titulo" class="max-w-sm text-2xl">Un paso para compartir lo que ya no usás.</h2>
+            <div class="flex flex-col gap-3 sm:flex-row">
+                <RouterLink :to="{ name: 'donar' }" class="inline-flex min-h-12 items-center justify-center rounded-md bg-surface px-9 font-semibold text-primary hover:bg-surface/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-surface">Donar</RouterLink>
+                <RouterLink :to="{ name: 'recibir' }" class="inline-flex min-h-12 items-center justify-center rounded-md border border-surface px-9 font-semibold text-surface hover:bg-surface/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-surface">Recibir</RouterLink>
             </div>
         </div>
     </section>

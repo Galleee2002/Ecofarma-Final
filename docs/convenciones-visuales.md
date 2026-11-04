@@ -101,13 +101,13 @@ La implementación visual se trabaja de forma incremental por componente o panta
 
 ### Navegación
 
-La landing y la plataforma comparten la identidad visual del navbar: fondo `primary` (`#215b8d`) y textos e iconos `surface` (`#ffffff`). `BaseNavbar.vue` proporciona la estructura visual reutilizable; `LandingNavbar.vue` y `AppNavbar.vue` definen sus enlaces y comportamientos de navegación. Ambos se implementan mobile-first, con menú hamburguesa accesible en móvil y composición horizontal en pantallas mayores. La transición del menú se hace con Vue `Transition` y debe respetar `prefers-reduced-motion`.
+La landing usa una variante clara del navbar (fondo surface y controles primary), según la referencia de la fase 10. El símbolo original se muestra en primary mediante una máscara del mismo recurso, sin cambiar sus proporciones. La plataforma conserva fondo `primary` (`#215b8d`) y textos e iconos `surface` (`#ffffff`). `BaseNavbar.vue` proporciona la estructura visual reutilizable; `AppNavbar.vue` define los enlaces y comportamientos de navegación, y activa la variante clara solo en Inicio. Ambos se implementan mobile-first, con menú hamburguesa accesible en móvil y composición horizontal en pantallas mayores. La transición del menú se hace con Vue `Transition` y debe respetar `prefers-reduced-motion`.
 
 Usar el recurso original del proyecto (`public/logo.webp`) o el recurso oficial de Figma. No agregar el nombre ecofarma al lado del logo, reconstruir el logo con texto ni alterar sus proporciones. Sobre el fondo azul, los controles y enlaces deben conservar contraste y estados de foco visibles; los botones pueden adaptar su variante para seguir siendo legibles.
 
 ### Landing
 
-El hero usa imagen de fondo (`public/ecofarma-hero.webp`), velo oscuro semitransparente (`bg-foreground/40`) y el título «Dale una segunda vida a tus medicamentos», con texto `surface` para contraste. Motion for Vue se prevé para animaciones de la landing cuando aporten a la experiencia; las animaciones sencillas existentes usan `Transition` y `TransitionGroup` de Vue.
+El hero usa fondo surface, el título «Dale una segunda vida a tus medicamentos» en foreground con acento icon, y dos enlaces: Donar ahora y Recibir medicamentos. La fotografía (`public/ecofarma-hero.webp`) aparece debajo del texto en mobile y a la derecha desde md, con una máscara gradual para integrarla al fondo. Cómo funciona reúne ambos recorridos; el teléfono es ilustrativo. Las ondas usan formas CSS y los tokens existentes. Los sponsors permanecen como Próximamente hasta confirmar colaboradores. Motion for Vue se prevé para animaciones de la landing cuando aporten a la experiencia; las animaciones sencillas existentes usan `Transition` y `TransitionGroup` de Vue.
 
 ### Rastro antiguo que no se reutiliza
 

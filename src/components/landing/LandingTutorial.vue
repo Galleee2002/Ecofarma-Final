@@ -1,42 +1,19 @@
 <script setup>
-const pasos = [
-    {
-        titulo: 'Elegí el medicamento',
-        texto: 'Buscalo en el catálogo.',
-    },
-    {
-        titulo: 'Enviá la solicitud',
-        texto: 'Si requiere receta, adjuntá la foto.',
-    },
-    {
-        titulo: 'Coordiná el encuentro',
-        texto: 'El chat es el lugar para ponerse de acuerdo.',
-    },
-    {
-        titulo: 'Confirmá la entrega',
-        texto: 'El donante carga el código de 6 dígitos.',
-    },
-];
+import LandingDonar from './LandingDonar.vue';
+import LandingRecibir from './LandingRecibir.vue';
+import LandingTelefono from './LandingTelefono.vue';
 </script>
 
 <template>
-    <section class="bg-primary-soft" aria-labelledby="tutorial-titulo">
-        <div class="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-12 sm:px-6 lg:py-16">
-            <div class="flex max-w-2xl flex-col gap-3">
-                <h2 id="tutorial-titulo">Cómo solicitar y coordinar</h2>
-                <p class="text-muted">De la búsqueda a la entrega, en cuatro pasos.</p>
+    <section id="como-funciona" class="scroll-mt-8 bg-surface" aria-labelledby="tutorial-titulo">
+        <div class="mx-auto max-w-7xl px-5 py-14 sm:px-8 md:py-16">
+            <h2 id="tutorial-titulo" class="text-2xl">Cómo funciona</h2>
+            <p class="mt-2 text-muted">De la publicación a la entrega, en pocos pasos.</p>
+            <div class="mt-10 grid items-start gap-10 md:grid-cols-2 lg:grid-cols-[0.8fr_1fr_1fr] lg:gap-12">
+                <LandingTelefono class="order-last md:col-span-2 lg:order-first lg:col-span-1" />
+                <LandingDonar />
+                <LandingRecibir class="border-t border-line pt-8 md:border-t-0 md:border-l md:pl-8 md:pt-0" />
             </div>
-            <ol class="grid list-none gap-6 lg:grid-cols-2">
-                <li v-for="(paso, indice) in pasos" :key="paso.titulo" class="flex gap-4">
-                    <span class="flex size-10 shrink-0 items-center justify-center rounded-md bg-surface font-heading text-primary">
-                        {{ indice + 1 }}
-                    </span>
-                    <div class="flex flex-col gap-1">
-                        <h3>{{ paso.titulo }}</h3>
-                        <p class="text-muted">{{ paso.texto }}</p>
-                    </div>
-                </li>
-            </ol>
         </div>
     </section>
 </template>
