@@ -1,6 +1,11 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { ChevronLeft } from '@lucide/vue';
+import BaseAlert from '../components/ui/BaseAlert.vue';
+import BaseButton from '../components/ui/BaseButton.vue';
+import FichaMedicamento from '../components/medicamentos/FichaMedicamento.vue';
+import PanelSolicitud from '../components/medicamentos/PanelSolicitud.vue';
 import { useAuth } from '../composables/useAuth';
 import { useMedicamentos } from '../composables/useMedicamentos';
 import { useSolicitudes } from '../composables/useSolicitudes';
@@ -44,17 +49,16 @@ const puedeSolicitar = computed(function () {
     return true;
 });
 
-function formatearFecha(fecha) {
-    const partes = fecha.split('-');
-    return partes[2] + '/' + partes[1] + '/' + partes[0];
-}
-
 function irALogin() {
     router.push({ name: 'login', query: { redirect: route.fullPath } });
 }
 
-function elegirReceta(evento) {
-    archivoReceta.value = evento.target.files[0] || null;
+function elegirReceta(archivo) {
+    archivoReceta.value = archivo;
+}
+
+function reintentar() {
+    cargarMedicamentoPorId(route.params.id);
 }
 
 watch(
@@ -96,69 +100,44 @@ async function solicitar() {
 
 <template>
     <main class="pagina">
-        <RouterLink :to="{ name: 'catalogo' }" class="text-primary">Volver al catálogo</RouterLink>
-        <h1 class="text-primary">Detalle del medicamento</h1>
+        <RouterLink
+            :to="{ name: 'catalogo' }"
+            class="-mx-2 inline-flex min-h-11 w-fit items-center gap-1 self-start rounded-md px-2 font-sans font-semibold text-primary hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+            <ChevronLeft :size="18" aria-hidden="true" />
+            Volver al catálogo
+        </RouterLink>
 
         <p v-if="cargando" class="text-muted">Cargando medicamento...</p>
-        <p v-else-if="error !== ''" class="border border-danger bg-danger/10 p-3 text-danger">{{ error }}</p>
+        <div v-else-if="error !== ''" class="flex flex-col items-start gap-3">
+            <BaseAlert variant="error" :message="error" />
+            <BaseButton variant="outline" @click="reintentar">Reintentar</BaseButton>
+        </div>
 
-        <template v-else-if="medicamento !== null">
-            <h2 class="text-primary">{{ medicamento.nombre_comercial }}</h2>
-            <p>{{ medicamento.principio_activo }} {{ medicamento.concentracion }}</p>
-            <p>Forma farmacéutica: {{ medicamento.forma_farmaceutica || 'No informada' }}</p>
-            <p>Cantidad: {{ medicamento.cantidad_disponible }}</p>
-            <p>Vence: {{ formatearFecha(medicamento.fecha_vencimiento) }}</p>
-            <p>Lote: {{ medicamento.lote || 'No informado' }}</p>
-            <p v-if="medicamento.descripcion">{{ medicamento.descripcion }}</p>
-
-            <div v-if="medicamento.fotos_envase.length > 0" class="flex flex-wrap gap-2">
-                <img
-                    v-for="(foto, indice) in medicamento.fotos_envase"
-                    :key="indice"
-                    :src="foto"
-                    :alt="'Foto ' + (indice + 1) + ' de ' + medicamento.nombre_comercial"
-                    class="h-32 w-32 object-cover"
-                />
-            </div>
-            <p v-else class="text-muted">Este medicamento no tiene fotos del envase.</p>
-
-            <section class="flex flex-col gap-4 border border-line bg-surface p-4">
-                <h3 class="text-primary">Solicitar este medicamento</h3>
-                <p v-if="errorPerfil !== ''" class="border border-danger bg-danger/10 p-3 text-danger">{{ errorPerfil }}</p>
-                <template v-else-if="sesion === null">
-                    <p class="text-muted">Iniciá sesión para enviar tu solicitud y coordinar la entrega.</p>
-                    <button type="button" class="bg-primary px-4 py-2 text-surface" @click="irALogin">Iniciar sesión</button>
-                </template>
-                <p v-else-if="perfil === null" class="text-muted">Cargando tus datos...</p>
-                <template v-else>
-                    <p v-if="cuentaSuspendida" class="border border-warning bg-warning/10 p-3 text-warning">
-                        Tu cuenta está suspendida, no podés solicitar medicamentos.
-                    </p>
-                    <template v-else>
-                        <div class="flex items-start gap-2">
-                            <input id="solicitud-tercero" v-model="esParaTercero" type="checkbox" class="mt-1" />
-                            <label for="solicitud-tercero">Solicito este medicamento para otra persona</label>
-                        </div>
-                        <div v-if="esParaTercero" class="flex flex-col gap-1">
-                            <label for="solicitud-destinatario">Nombre del destinatario</label>
-                            <input id="solicitud-destinatario" v-model="nombreDestinatario" type="text" class="border border-line bg-surface px-3 py-2" />
-                        </div>
-                        <div v-if="requiereReceta" class="flex flex-col gap-1">
-                            <label for="solicitud-receta">Foto de la receta médica (JPG, PNG o WEBP, hasta 5 MB)</label>
-                            <input id="solicitud-receta" type="file" accept="image/jpeg,image/png,image/webp" @change="elegirReceta" />
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <input id="solicitud-ddjj" v-model="aceptoDdjj" type="checkbox" class="mt-1" />
-                            <label for="solicitud-ddjj">Acepto los Términos y Condiciones y la Declaración Jurada de ecofarma.</label>
-                        </div>
-                    </template>
-                    <p v-if="errorCrear !== ''" class="border border-danger bg-danger/10 p-3 text-danger">{{ errorCrear }}</p>
-                    <p v-if="mensajeCrear !== ''" class="border border-success bg-success/10 p-3 text-success">{{ mensajeCrear }}</p>
-                    <button type="button" class="bg-primary px-4 py-2 text-surface" :disabled="!puedeSolicitar" @click="solicitar">
-                        {{ creando ? 'Enviando...' : 'Enviar solicitud' }}
-                    </button>
-                </template>
-            </section>
-        </template>
+        <div
+            v-else-if="medicamento !== null"
+            class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-8"
+        >
+            <FichaMedicamento class="min-w-0" :medicamento="medicamento" :requiere-receta="requiereReceta" />
+            <PanelSolicitud
+                class="min-w-0 lg:sticky lg:top-4"
+                v-model:acepto-ddjj="aceptoDdjj"
+                v-model:es-para-tercero="esParaTercero"
+                v-model:nombre-destinatario="nombreDestinatario"
+                :archivo-receta="archivoReceta"
+                :sesion="sesion"
+                :perfil="perfil"
+                :requiere-receta="requiereReceta"
+                :cuenta-suspendida="cuentaSuspendida"
+                :puede-solicitar="puedeSolicitar"
+                :creando="creando"
+                :error-perfil="errorPerfil"
+                :error-crear="errorCrear"
+                :mensaje-crear="mensajeCrear"
+                @elegir-receta="elegirReceta"
+                @login="irALogin"
+                @enviar="solicitar"
+            />
+        </div>
     </main>
 </template>

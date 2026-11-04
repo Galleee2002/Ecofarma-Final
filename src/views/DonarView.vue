@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { LoaderCircle, X } from '@lucide/vue';
 import BaseAlert from '../components/ui/BaseAlert.vue';
 import BaseButton from '../components/ui/BaseButton.vue';
@@ -7,17 +7,20 @@ import BaseCard from '../components/ui/BaseCard.vue';
 import BaseCombobox from '../components/ui/BaseCombobox.vue';
 import BaseDatePicker from '../components/ui/BaseDatePicker.vue';
 import BaseFileDrop from '../components/ui/BaseFileDrop.vue';
+import BaseInfoTip from '../components/ui/BaseInfoTip.vue';
 import BaseInput from '../components/ui/BaseInput.vue';
 import BaseTextarea from '../components/ui/BaseTextarea.vue';
 import { useAuth } from '../composables/useAuth';
 import { useVademecum } from '../composables/useVademecum';
 import { useDonaciones } from '../composables/useDonaciones';
+import { useToast } from '../composables/useToast';
 
 const MAXIMO_FOTOS = 3;
 const DURACION_PREPARACION = 700;
-const { sesion, perfil, errorPerfil } = useAuth();
+const { sesion, perfil, errorPerfil, mostrarAviso } = useAuth();
 const { filas: sugerencias, error: errorSugerencias, cargarSugerencias } = useVademecum();
 const { publicando, errorPublicar, mensajePublicar, tipoMensajePublicar, publicarDonacion } = useDonaciones();
+const { info: mostrarInfo } = useToast();
 
 const datos = ref({
     nombre_comercial: '',
@@ -34,13 +37,6 @@ const avisoFotos = ref('');
 
 const cuentaSuspendida = computed(function () {
     return perfil.value !== null && perfil.value.is_validado === false;
-});
-
-const varianteMensajePublicar = computed(function () {
-    if (tipoMensajePublicar.value === 'exito') {
-        return 'success';
-    }
-    return 'info';
 });
 
 function obtenerFechaDeManiana() {
@@ -67,7 +63,7 @@ function valoresUnicos(filas, campo) {
 
 function filtrarPorCampo(filas, campo, texto) {
     if (texto === '') {
-        return filas;
+        return [];
     }
 
     const coincidentes = [];
@@ -78,11 +74,19 @@ function filtrarPorCampo(filas, campo, texto) {
         }
     }
 
-    if (coincidentes.length === 0) {
-        return filas;
-    }
     return coincidentes;
 }
+
+const TEXTO_AYUDA_PRINCIPIO =
+    'Componente químico o sustancia responsable del efecto terapéutico. Figura en el envase, habitualmente junto al nombre comercial o en el prospecto.';
+const TEXTO_AYUDA_CONCENTRACION =
+    'Cantidad de principio activo por unidad de presentación (por ejemplo, 500 mg o 10 mg/ml). Se indica en el frente de la caja o del blíster, junto al nombre del medicamento.';
+const TEXTO_AYUDA_FORMA =
+    'Modo de presentación del medicamento (comprimidos, cápsulas, jarabe, crema, entre otros). Consta en el frente o en los laterales del envase.';
+const TEXTO_AYUDA_NOMBRE =
+    'Denominación con la que el medicamento se identifica en el mercado (marca). Es el nombre que suele figurar de forma destacada en el frente del envase.';
+const TEXTO_AYUDA_LOTE =
+    'Código alfanumérico de fabricación (lote o batch). Se imprime en la caja o el blíster, generalmente junto a la fecha de vencimiento.';
 
 const filasDelPrincipioActivo = computed(function () {
     return filtrarPorCampo(sugerencias.value, 'principio_activo', datos.value.principio_activo.trim().toLowerCase());
@@ -111,6 +115,36 @@ const formasFarmaceuticas = computed(function () {
 const nombresComerciales = computed(function () {
     return valoresUnicos(filasDeLaForma.value, 'nombre_comercial');
 });
+
+watch(
+    function () {
+        return datos.value.principio_activo;
+    },
+    function () {
+        datos.value.concentracion = '';
+        datos.value.forma_farmaceutica = '';
+        datos.value.nombre_comercial = '';
+    },
+);
+
+watch(
+    function () {
+        return datos.value.concentracion;
+    },
+    function () {
+        datos.value.forma_farmaceutica = '';
+        datos.value.nombre_comercial = '';
+    },
+);
+
+watch(
+    function () {
+        return datos.value.forma_farmaceutica;
+    },
+    function () {
+        datos.value.nombre_comercial = '';
+    },
+);
 
 function yaEstaCargada(nombre) {
     for (const foto of fotos.value) {
@@ -225,6 +259,12 @@ async function publicar() {
 
     const publicada = await publicarDonacion(sesion.value.user.id, datos.value, archivos);
     if (publicada) {
+        if (tipoMensajePublicar.value === 'exito') {
+            mostrarAviso(mensajePublicar.value, 'exito');
+        } else {
+            mostrarInfo(mensajePublicar.value, { duration: 3000 });
+        }
+        mensajePublicar.value = '';
         datos.value = {
             nombre_comercial: '',
             principio_activo: '',
@@ -264,36 +304,67 @@ onBeforeUnmount(limpiarFotos);
                             message="Tu cuenta está suspendida, no podés publicar donaciones."
                         />
                         <BaseAlert v-if="errorSugerencias !== ''" variant="warning" :message="errorSugerencias" />
-                        <BaseAlert
-                            v-if="mensajePublicar !== ''"
-                            :variant="varianteMensajePublicar"
-                            :message="mensajePublicar"
-                        />
 
-                        <BaseCombobox
-                            id="donacion-principio"
-                            v-model="datos.principio_activo"
-                            label="Principio activo"
-                            :options="principiosActivos"
-                        />
-                        <BaseCombobox
-                            id="donacion-concentracion"
-                            v-model="datos.concentracion"
-                            label="Concentración"
-                            :options="concentraciones"
-                        />
-                        <BaseCombobox
-                            id="donacion-forma"
-                            v-model="datos.forma_farmaceutica"
-                            label="Forma farmacéutica"
-                            :options="formasFarmaceuticas"
-                        />
-                        <BaseCombobox
-                            id="donacion-nombre"
-                            v-model="datos.nombre_comercial"
-                            label="Nombre comercial"
-                            :options="nombresComerciales"
-                        />
+                        <div class="flex min-w-0 items-start gap-2">
+                            <div class="min-w-0 flex-1">
+                                <BaseCombobox
+                                    id="donacion-principio"
+                                    v-model="datos.principio_activo"
+                                    label="Principio activo"
+                                    :options="principiosActivos"
+                                />
+                            </div>
+                            <BaseInfoTip
+                                class="mt-7"
+                                etiqueta="Qué es el principio activo"
+                                :texto="TEXTO_AYUDA_PRINCIPIO"
+                            />
+                        </div>
+                        <div class="flex min-w-0 items-start gap-2">
+                            <div class="min-w-0 flex-1">
+                                <BaseCombobox
+                                    id="donacion-concentracion"
+                                    v-model="datos.concentracion"
+                                    label="Concentración"
+                                    :options="concentraciones"
+                                />
+                            </div>
+                            <BaseInfoTip
+                                class="mt-7"
+                                etiqueta="Dónde encontrar la concentración"
+                                :texto="TEXTO_AYUDA_CONCENTRACION"
+                            />
+                        </div>
+                        <div class="flex min-w-0 items-start gap-2">
+                            <div class="min-w-0 flex-1">
+                                <BaseCombobox
+                                    id="donacion-forma"
+                                    v-model="datos.forma_farmaceutica"
+                                    label="Forma farmacéutica"
+                                    :options="formasFarmaceuticas"
+                                />
+                            </div>
+                            <BaseInfoTip
+                                class="mt-7"
+                                etiqueta="Dónde encontrar la forma farmacéutica"
+                                :texto="TEXTO_AYUDA_FORMA"
+                            />
+                        </div>
+                        <div class="flex min-w-0 items-start gap-2">
+                            <div class="min-w-0 flex-1">
+                                <BaseCombobox
+                                    id="donacion-nombre"
+                                    v-model="datos.nombre_comercial"
+                                    label="Nombre comercial"
+                                    :options="nombresComerciales"
+                                />
+                            </div>
+                            <BaseInfoTip
+                                class="mt-7"
+                                etiqueta="Qué es el nombre comercial"
+                                :texto="TEXTO_AYUDA_NOMBRE"
+                            />
+                        </div>
                         <div class="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                             <BaseInput
                                 id="donacion-cantidad"
@@ -303,12 +374,21 @@ onBeforeUnmount(limpiarFotos);
                                 min="1"
                                 step="1"
                             />
-                            <BaseInput
-                                id="donacion-lote"
-                                v-model="datos.lote"
-                                label="Lote"
-                                type="text"
-                            />
+                            <div class="flex min-w-0 items-start gap-2">
+                                <div class="min-w-0 flex-1">
+                                    <BaseInput
+                                        id="donacion-lote"
+                                        v-model="datos.lote"
+                                        label="Lote"
+                                        type="text"
+                                    />
+                                </div>
+                                <BaseInfoTip
+                                    class="mt-7"
+                                    etiqueta="Dónde encontrar el lote"
+                                    :texto="TEXTO_AYUDA_LOTE"
+                                />
+                            </div>
                         </div>
                         <BaseDatePicker
                             id="donacion-vencimiento"

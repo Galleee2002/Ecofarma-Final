@@ -1,61 +1,93 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useMedicamentos } from '../composables/useMedicamentos';
+import BaseAlert from '../components/ui/BaseAlert.vue';
+import BaseBadge from '../components/ui/BaseBadge.vue';
+import BaseButton from '../components/ui/BaseButton.vue';
+import BaseCard from '../components/ui/BaseCard.vue';
+import BaseInput from '../components/ui/BaseInput.vue';
+import BaseSelect from '../components/ui/BaseSelect.vue';
 
 const { cargando, error, busqueda, filtroReceta, orden, medicamentosFiltrados, cargarMedicamentos } = useMedicamentos();
+
+const opcionesOrden = [
+    { value: 'recientes', label: 'Más recientes' },
+    { value: 'vencimiento', label: 'Próximos a vencer' },
+];
+
+const filtrosReceta = [
+    { valor: 'todos', etiqueta: 'Todos' },
+    { valor: 'con_receta', etiqueta: 'Con receta' },
+    { valor: 'sin_receta', etiqueta: 'Sin receta' },
+];
+
+function requiereReceta(medicamento) {
+    return medicamento.medicamentos_habilitados?.requiere_receta === true;
+}
 
 onMounted(cargarMedicamentos);
 </script>
 
 <template>
     <main class="pagina">
-        <h1 class="text-primary">Catálogo de medicamentos</h1>
-        <p class="text-muted">Explorá los medicamentos donados disponibles para solicitar.</p>
+        <header class="flex flex-col gap-1">
+            <h1 class="text-balance text-primary">Catálogo de medicamentos</h1>
+            <p class="text-pretty text-muted">Explorá los medicamentos donados disponibles para solicitar.</p>
+        </header>
 
-        <div class="flex flex-col gap-1">
-            <label for="catalogo-busqueda">Buscar</label>
-            <input
+        <div class="grid gap-4 sm:grid-cols-2">
+            <BaseInput
                 id="catalogo-busqueda"
                 v-model="busqueda"
+                label="Buscar"
                 type="search"
-                class="border border-line bg-surface px-3 py-2"
                 placeholder="Nombre o principio activo"
+            />
+            <BaseSelect
+                id="catalogo-orden"
+                v-model="orden"
+                label="Ordenar"
+                :options="opcionesOrden"
             />
         </div>
 
         <div class="flex flex-wrap gap-2" aria-label="Filtrar medicamentos por receta">
-            <button type="button" class="border border-line bg-surface px-3 py-2" :class="filtroReceta === 'todos' ? 'border-primary text-primary' : ''" @click="filtroReceta = 'todos'">
-                Todos
-            </button>
-            <button type="button" class="border border-line bg-surface px-3 py-2" :class="filtroReceta === 'con_receta' ? 'border-primary text-primary' : ''" @click="filtroReceta = 'con_receta'">
-                Con receta
-            </button>
-            <button type="button" class="border border-line bg-surface px-3 py-2" :class="filtroReceta === 'sin_receta' ? 'border-primary text-primary' : ''" @click="filtroReceta = 'sin_receta'">
-                Sin receta
-            </button>
-        </div>
-
-        <div class="flex flex-col gap-1">
-            <label for="catalogo-orden">Ordenar</label>
-            <select id="catalogo-orden" v-model="orden" class="border border-line bg-surface px-3 py-2">
-                <option value="recientes">Más recientes</option>
-                <option value="vencimiento">Próximos a vencer</option>
-            </select>
+            <BaseButton
+                v-for="filtro in filtrosReceta"
+                :key="filtro.valor"
+                size="sm"
+                :variant="filtroReceta === filtro.valor ? 'outline' : 'neutral'"
+                :aria-pressed="filtroReceta === filtro.valor"
+                @click="filtroReceta = filtro.valor"
+            >
+                {{ filtro.etiqueta }}
+            </BaseButton>
         </div>
 
         <p v-if="!cargando && error === ''" class="text-muted">{{ medicamentosFiltrados.length }} medicamentos disponibles</p>
         <p v-if="cargando" class="text-muted">Cargando medicamentos...</p>
-        <div v-else-if="error !== ''" class="flex flex-col items-start gap-2 border border-danger bg-danger/10 p-3 text-danger">
-            <p>{{ error }}</p>
-            <button type="button" class="border border-danger px-3 py-1" @click="cargarMedicamentos">Reintentar</button>
+        <div v-else-if="error !== ''" class="flex flex-col items-start gap-3">
+            <BaseAlert variant="error" :message="error" />
+            <BaseButton variant="outline" @click="cargarMedicamentos">Reintentar</BaseButton>
         </div>
-        <p v-else-if="medicamentosFiltrados.length === 0" class="border border-line bg-muted/10 p-3 text-muted">No hay medicamentos para mostrar.</p>
-        <ul v-else class="flex flex-col gap-4">
-            <li v-for="medicamento in medicamentosFiltrados" :key="medicamento.id" class="border border-line bg-surface p-4">
-                <h2 class="text-primary">{{ medicamento.nombre_comercial }}</h2>
-                <p>{{ medicamento.principio_activo }} {{ medicamento.concentracion }}</p>
-                <p class="text-sm text-muted">{{ medicamento.forma_farmaceutica }} · cantidad {{ medicamento.cantidad_disponible }}</p>
-                <RouterLink :to="'/medicamento/' + medicamento.id" class="text-secondary">Ver detalle</RouterLink>
+        <BaseAlert v-else-if="medicamentosFiltrados.length === 0" variant="info" message="No hay medicamentos para mostrar." />
+        <ul v-else class="flex list-none flex-col gap-4">
+            <li v-for="medicamento in medicamentosFiltrados" :key="medicamento.id">
+                <BaseCard variant="surface" padding="md" bordered class="rounded-lg shadow-sm">
+                    <template #header>
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <h2 class="text-balance text-primary">{{ medicamento.nombre_comercial }}</h2>
+                            <BaseBadge class="self-start" size="sm" :variant="requiereReceta(medicamento) ? 'warning' : 'success'">
+                                {{ requiereReceta(medicamento) ? 'Con receta' : 'Sin receta' }}
+                            </BaseBadge>
+                        </div>
+                    </template>
+                    <p>{{ medicamento.principio_activo }} {{ medicamento.concentracion }}</p>
+                    <p class="text-sm text-muted">{{ medicamento.forma_farmaceutica }} · cantidad {{ medicamento.cantidad_disponible }}</p>
+                    <template #footer>
+                        <RouterLink :to="'/medicamento/' + medicamento.id" class="font-semibold text-primary">Ver detalle</RouterLink>
+                    </template>
+                </BaseCard>
             </li>
         </ul>
     </main>

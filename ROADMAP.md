@@ -191,8 +191,8 @@ Sin `updated_at`. Solo leen y escriben donante y receptor.
 Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. Cada vista llama al composable y usa HTML nativo. El pulido visual de cada pantalla está pendiente.
 
 - [x] Navegación (`App.vue`). Inicio en `/`; Donar `/donar`; Recibir `/recibir` (catálogo). Cierre de sesión con `BaseModal`.
-- [ ] Catálogo, `/recibir` y `/catalogo`.
-- [ ] Detalle y solicitud, `/medicamento/:id`.
+- [x] Catálogo, `/recibir` y `/catalogo`.
+- [x] Detalle y solicitud, `/medicamento/:id`.
 - [x] Ingreso, `/login`.
 - [x] Registro, `/registro`.
 - [x] Perfil, `/perfil`.

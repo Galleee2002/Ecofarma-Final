@@ -82,13 +82,13 @@ const tieneError = computed(function () {
 
 const coincidencias = computed(function () {
     const texto = String(props.modelValue).trim().toLowerCase();
-    if (texto === '') {
-        return [];
-    }
-
     const filtradas = [];
+
     for (const opcion of props.options) {
-        if (typeof opcion === 'string' && opcion.toLowerCase().startsWith(texto)) {
+        if (typeof opcion !== 'string') {
+            continue;
+        }
+        if (texto === '' || opcion.toLowerCase().startsWith(texto)) {
             filtradas.push(opcion);
         }
     }
@@ -169,7 +169,7 @@ function actualizarValor(evento) {
 }
 
 function alEnfocar() {
-    if (String(props.modelValue).trim() !== '') {
+    if (coincidencias.value.length > 0) {
         abierto.value = true;
     }
 }
