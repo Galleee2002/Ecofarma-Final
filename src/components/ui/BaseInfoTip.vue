@@ -75,13 +75,13 @@ onBeforeUnmount(function () {
         >
             <Info class="size-5" aria-hidden="true" />
         </button>
-        <div class="absolute bottom-full left-1/2 z-30 mb-1 -translate-x-1/2">
+        <div class="absolute bottom-full right-0 z-30 mb-1">
             <Transition name="info-tip">
                 <div
                     v-show="abierto"
                     :id="idPanel"
                     role="tooltip"
-                    class="w-56 rounded-md border border-line bg-surface p-3 font-sans text-sm text-foreground shadow-md sm:w-64"
+                    class="w-56 max-w-[calc(100vw-2rem)] rounded-md border border-line bg-surface p-3 font-sans text-sm text-foreground shadow-md sm:w-64"
                 >
                     {{ texto }}
                 </div>

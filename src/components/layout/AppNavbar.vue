@@ -30,10 +30,6 @@ const nombreUsuario = computed(function () {
     return partes[0];
 });
 
-const esLanding = computed(function () {
-    return route.name === 'inicio';
-});
-
 const enlaces = computed(function () {
     return [
         { id: 'inicio', etiqueta: 'Inicio', destino: { name: 'inicio' }, deshabilitado: false },
@@ -66,8 +62,7 @@ function enlaceActivo(enlace) {
 function clasesEnlace(enlace, movil) {
     const alto = movil ? 'min-h-11' : 'min-h-10';
     const clases = [
-        'inline-flex items-center rounded-md px-3 py-2 font-semibold',
-        esLanding.value ? 'text-primary' : 'text-surface',
+        'inline-flex items-center rounded-md px-3 py-2 font-semibold text-surface',
         alto,
         'transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none',
     ];
@@ -77,9 +72,9 @@ function clasesEnlace(enlace, movil) {
         return clases.join(' ');
     }
 
-    clases.push(esLanding.value ? 'hover:bg-primary/5' : 'hover:bg-surface/10');
+    clases.push('hover:bg-surface/10');
     if (enlaceActivo(enlace)) {
-        clases.push(esLanding.value ? 'bg-primary/5' : 'bg-secondary/30');
+        clases.push('bg-secondary/30');
     }
     return clases.join(' ');
 }
@@ -108,7 +103,7 @@ async function confirmarCerrarSesion() {
 </script>
 
 <template>
-    <BaseNavbar :claro="esLanding">
+    <BaseNavbar>
         <template #desktop-navigation>
             <template v-for="enlace in enlaces" :key="enlace.id">
                 <button
@@ -134,22 +129,18 @@ async function confirmarCerrarSesion() {
 
         <template #actions>
             <template v-if="authListo && sesion !== null">
-                <div :class="esLanding ? 'rounded-md bg-primary px-3 py-1' : ''">
-                    <UserMenu :es-admin="esAdmin" :nombre="nombreUsuario" @logout="pedirCerrarSesion" />
-                </div>
+                <UserMenu :es-admin="esAdmin" :nombre="nombreUsuario" @logout="pedirCerrarSesion" />
             </template>
             <template v-else-if="authListo">
                 <RouterLink
                     :to="{ name: 'login' }"
-                    class="inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-                    :class="esLanding ? 'text-primary hover:bg-primary/5' : 'text-surface hover:bg-surface/10'"
+                    class="inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold text-surface hover:bg-surface/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
                 >
                     Ingresar
                 </RouterLink>
                 <RouterLink
                     :to="{ name: 'registro' }"
-                    class="inline-flex min-h-11 items-center rounded-md px-4 py-2 font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none"
-                    :class="esLanding ? 'bg-primary text-surface hover:brightness-110' : 'bg-surface text-primary hover:bg-surface/90'"
+                    class="inline-flex min-h-11 items-center rounded-md bg-surface px-4 py-2 font-semibold text-primary transition hover:bg-surface/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none"
                 >
                     Registrarse
                 </RouterLink>
@@ -181,22 +172,18 @@ async function confirmarCerrarSesion() {
 
         <template #mobile-actions>
             <template v-if="authListo && sesion !== null">
-                <div :class="esLanding ? 'rounded-md bg-primary p-2' : ''">
-                    <UserMenu modo="mobile" :es-admin="esAdmin" @logout="pedirCerrarSesion" />
-                </div>
+                <UserMenu modo="mobile" :es-admin="esAdmin" @logout="pedirCerrarSesion" />
             </template>
             <template v-else-if="authListo">
                 <RouterLink
                     :to="{ name: 'login' }"
-                    class="inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-                    :class="esLanding ? 'text-primary hover:bg-primary/5' : 'text-surface hover:bg-surface/10'"
+                    class="inline-flex min-h-11 items-center rounded-md px-3 py-2 font-semibold text-surface hover:bg-surface/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
                 >
                     Ingresar
                 </RouterLink>
                 <RouterLink
                     :to="{ name: 'registro' }"
-                    class="inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none"
-                    :class="esLanding ? 'bg-primary text-surface hover:brightness-110' : 'bg-surface text-primary hover:bg-surface/90'"
+                    class="inline-flex min-h-11 items-center justify-center rounded-md bg-surface px-4 py-2 font-semibold text-primary transition hover:bg-surface/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none"
                 >
                     Registrarse
                 </RouterLink>

@@ -233,6 +233,6 @@ Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 Última del tablero. `/` tiene implementada la landing responsive basada en la referencia: hero claro con dos acciones, sponsors, beneficios, cómo funciona, confianza, cierre y footer. Pendiente validar visualmente y ejecutar el build. Legales parcial: `/terminos` y `/declaracion-jurada` (contenido V1.0 del documento de contenidos; enlazados desde el checkbox de registro y solicitud). Siguen pendientes Información/Ayuda, Sobre nosotros, Contacto y el bloque Legales del footer de la landing.
 
 - [ ] Rutas de esa arquitectura. Donar y Recibir ya están en el navbar de la plataforma. Inicio apunta a `/`.
-- [x] Composición de la home responsive implementada; cabecera clara solo en Inicio, teléfono ilustrativo y sponsors sin marcas no confirmadas.
+- [x] Composición de la home responsive implementada; cabecera clara solo en Inicio, carrusel «Cómo funciona nuestra app» (Donar/Recibir) y sponsors sin marcas no confirmadas.
 - [ ] Validación visual en mobile, tablet y desktop, build y prueba de navegación con y sin sesión.
 - [ ] Home con el propósito, cómo donar, cómo recibir, contacto y enlace al catálogo, con los tokens de la sección 3.

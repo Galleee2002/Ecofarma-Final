@@ -107,7 +107,7 @@ Usar el recurso original del proyecto (`public/logo.webp`) o el recurso oficial 
 
 ### Landing
 
-El hero usa fondo surface, el título «Dale una segunda vida a tus medicamentos» en foreground con acento icon, y dos enlaces: Donar ahora y Recibir medicamentos. La fotografía (`public/ecofarma-hero.webp`) aparece debajo del texto en mobile y a la derecha desde md, con una máscara gradual para integrarla al fondo. Cómo funciona reúne ambos recorridos; el teléfono es ilustrativo. Las ondas usan formas CSS y los tokens existentes. Los sponsors permanecen como Próximamente hasta confirmar colaboradores. Motion for Vue se prevé para animaciones de la landing cuando aporten a la experiencia; las animaciones sencillas existentes usan `Transition` y `TransitionGroup` de Vue.
+El hero usa fondo surface, el título «Dale una segunda vida a tus medicamentos» en foreground con acento icon, y dos enlaces: Donar ahora y Recibir medicamentos. La fotografía (`public/ecofarma-hero.webp`) aparece debajo del texto en mobile y a la derecha desde md, con una máscara gradual para integrarla al fondo. Cómo funciona reúne ambos recorridos con un carrusel coverflow y capturas de la app (`public/landing/tutorial/`); el toggle Donar/Recibir usa `BaseButton` sin iconos. Las ondas usan formas CSS y los tokens existentes. Los sponsors permanecen como Próximamente hasta confirmar colaboradores. Motion for Vue se prevé para animaciones de la landing cuando aporten a la experiencia; las animaciones sencillas existentes usan `Transition` y `TransitionGroup` de Vue.
 
 ### Rastro antiguo que no se reutiliza
 
