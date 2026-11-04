@@ -17,6 +17,8 @@
     --text-xl--line-height: 1.25;
     --text-2xl: 1.75rem;
     --text-2xl--line-height: 1.2;
+    --text-3xl: 2.25rem;
+    --text-3xl--line-height: 1.15;
 
     --color-primary: #215b8d;
     --color-primary-soft: #cedceb;

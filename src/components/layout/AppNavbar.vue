@@ -31,7 +31,7 @@ const nombreUsuario = computed(function () {
 });
 
 const enlaces = [
-    { id: 'inicio', etiqueta: 'Inicio', destino: null, deshabilitado: true },
+    { id: 'inicio', etiqueta: 'Inicio', destino: { name: 'inicio' }, deshabilitado: false },
     { id: 'donar', etiqueta: 'Donar', destino: { name: 'donar' }, deshabilitado: false },
     { id: 'recibir', etiqueta: 'Recibir', destino: { name: 'recibir' }, deshabilitado: false },
 ];
@@ -45,6 +45,9 @@ onMounted(async function () {
 });
 
 function enlaceActivo(enlace) {
+    if (enlace.id === 'inicio') {
+        return route.name === 'inicio';
+    }
     if (enlace.id === 'recibir') {
         return route.name === 'recibir' || route.name === 'catalogo' || route.name === 'medicamento-detalle';
     }

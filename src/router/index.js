@@ -4,7 +4,8 @@ import { useAuth } from '../composables/useAuth';
 const routes = [
     {
         path: '/',
-        redirect: { name: 'catalogo' },
+        name: 'inicio',
+        component: () => import('../views/LandingView.vue'),
     },
     {
         path: '/recibir',

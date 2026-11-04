@@ -107,7 +107,7 @@ Usar el recurso original del proyecto (`public/logo.webp`) o el recurso oficial 
 
 ### Landing
 
-El hero aprobado usa video de fondo, overlay oscuro semitransparente y el título «Compartir también es cuidar». Asegurar contraste suficiente para el texto y una alternativa visual adecuada si el video no está disponible. Motion for Vue se prevé para animaciones de la landing cuando aporten a la experiencia; las animaciones sencillas existentes usan `Transition` y `TransitionGroup` de Vue.
+El hero usa imagen de fondo (`public/ecofarma-hero.webp`), velo oscuro semitransparente (`bg-foreground/40`) y el título «Dale una segunda vida a tus medicamentos», con texto `surface` para contraste. Motion for Vue se prevé para animaciones de la landing cuando aporten a la experiencia; las animaciones sencillas existentes usan `Transition` y `TransitionGroup` de Vue.
 
 ### Rastro antiguo que no se reutiliza
 

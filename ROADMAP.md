@@ -45,7 +45,7 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 - La sesión se escucha solo con `onAuthStateChange`. `INITIAL_SESSION` trae la sesión guardada. El perfil se carga con `setTimeout`, fuera del callback, y solo si cambió el usuario.
 - La escucha arranca en `router.beforeEach`, que espera `esperarSesionInicial()` antes de decidir. El guard de admin espera además `esperarPerfil()`.
 - `requiereSesion` manda a `/login?redirect=`. `soloInvitados` manda al catálogo. `requiereAdmin` manda al catálogo si el rol no es `admin`. El registro siempre va al catálogo. El ingreso vuelve al `redirect` si empieza con `/`.
-- El navbar de la plataforma tiene Inicio (deshabilitado hasta la landing), Donar (`/donar`) y Recibir (`/recibir`). Recibir reutiliza `CatalogoView` y queda activo en `/recibir`, `/catalogo` y `/medicamento/:id`. `/catalogo` se mantiene como ruta compatible.
+- El navbar de la plataforma tiene Inicio (`/`, landing de media fidelidad), Donar (`/donar`) y Recibir (`/recibir`). Recibir reutiliza `CatalogoView` y queda activo en `/recibir`, `/catalogo` y `/medicamento/:id`. `/catalogo` se mantiene como ruta compatible.
 - Mi perfil sigue en `/perfil` con las pestañas Mis datos, Mis donaciones (`?tab=donaciones`) y Mis solicitudes (`?tab=solicitudes`). Administración solo se muestra si `rol = admin`.
 - El cierre de sesión se confirma con `BaseModal`. La autenticación sigue en `useAuth` (`signOut`).
 - `cargando` y `error` son de cada vista. `useAuth` comparte sesión, perfil y `errorPerfil`. El aviso de ingreso, registro y cierre de sesión lo muestra `mostrarAviso` con `useToast` (3 s).
@@ -190,7 +190,7 @@ Sin `updated_at`. Solo leen y escriben donante y receptor.
 
 Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. Cada vista llama al composable y usa HTML nativo. El pulido visual de cada pantalla está pendiente.
 
-- [x] Navegación (`App.vue`). Inicio deshabilitado hasta la landing; Donar `/donar`; Recibir `/recibir` (catálogo). Cierre de sesión con `BaseModal`.
+- [x] Navegación (`App.vue`). Inicio en `/`; Donar `/donar`; Recibir `/recibir` (catálogo). Cierre de sesión con `BaseModal`.
 - [ ] Catálogo, `/recibir` y `/catalogo`.
 - [ ] Detalle y solicitud, `/medicamento/:id`.
 - [x] Ingreso, `/login`.
@@ -223,13 +223,13 @@ Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 | Cuentas | `/admin/usuarios` | `AdminUsuariosView` | `useUsuariosAdmin` | `gestionar-usuarios` (`listar`, `suspender`, `rehabilitar`, `promover`, `revocar`) |
 | Guard | todas | `src/router/index.js` | `useAuth` | `requiereSesion`, `soloInvitados`, `requiereAdmin` |
 
-`AdminLayout` es el subnav de `/admin/*`. `/` redirige al catálogo. Recibir del navbar apunta a `/recibir`. La fase 10 no suma Edge Functions.
+`AdminLayout` es el subnav de `/admin/*`. `/` es la landing. Recibir del navbar apunta a `/recibir`. La fase 10 no suma Edge Functions.
 
 ---
 
 ## 6. Landing (fase 10)
 
-Última del tablero. Hoy `/` redirige al catálogo. Esta fase crea pantallas: Inicio, Información/Ayuda, Sobre nosotros, Contacto y Legales.
+Última del tablero. `/` es la landing de media fidelidad. Siguen pendientes Información/Ayuda, Sobre nosotros, Contacto y Legales.
 
-- [ ] Rutas de esa arquitectura. Donar y Recibir ya están en el navbar de la plataforma; Inicio queda deshabilitado hasta esta fase.
+- [ ] Rutas de esa arquitectura. Donar y Recibir ya están en el navbar de la plataforma. Inicio apunta a `/`.
 - [ ] Home con el propósito, cómo donar, cómo recibir, contacto y enlace al catálogo, con los tokens de la sección 3.
