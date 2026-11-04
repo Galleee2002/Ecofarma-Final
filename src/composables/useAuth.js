@@ -66,7 +66,7 @@ async function cargarPerfil() {
 
     const { data, error: errorConsulta } = await supabase
         .from('profiles')
-        .select('id, name, dni, telefono, direccion, localidad, rol, is_validado')
+        .select('id, name, dni, telefono, provincia, direccion, localidad, rol, is_validado')
         .eq('id', sesion.value.user.id)
         .single();
 
@@ -149,6 +149,7 @@ function validarRegistro(datos) {
         datos.name,
         datos.dni,
         datos.telefono,
+        datos.provincia,
         datos.direccion,
         datos.localidad,
         datos.email,
@@ -159,6 +160,10 @@ function validarRegistro(datos) {
         if (campo.trim() === '') {
             return 'Completá todos los campos para crear tu cuenta.';
         }
+    }
+
+    if (!/^\d{7,8}$/.test(datos.dni.trim())) {
+        return 'El DNI debe tener 7 u 8 números.';
     }
 
     if (datos.password.length < 6) {
@@ -195,6 +200,7 @@ export function useAuth() {
                     name: datos.name.trim(),
                     dni: datos.dni.trim(),
                     telefono: datos.telefono.trim(),
+                    provincia: datos.provincia.trim(),
                     direccion: datos.direccion.trim(),
                     localidad: datos.localidad.trim(),
                     acepto_ddjj: true,

@@ -53,6 +53,18 @@ Un solo proyecto: `src/` en la raíz y `supabase/` al lado. No separar en `/fron
 - Títulos en `font-heading` (Lato 700). Cuerpo en `font-sans` (Source Sans Pro).
 - Mobile First es obligatorio: todos los componentes, layouts y pantallas se diseñan primero para dispositivos móviles y se adaptan progresivamente a tablet y desktop usando los breakpoints de Tailwind CSS (`sm`, `md`, `lg`, `xl`). Priorizar accesibilidad, usabilidad, consistencia visual y reutilización de componentes.
 
+### Legales
+
+- Rutas públicas `/terminos` (`TerminosView`) y `/declaracion-jurada` (`DeclaracionJuradaView`) con el texto V1.0 del documento de contenidos.
+- El checkbox de aceptación usa el slot de `BaseCheckbox` con `RouterLink` a esas rutas (`@click.stop` para no alternar el check). Mismo patrón en registro y en solicitud.
+
+### Domicilio / Georef
+
+- En registro y perfil, `provincia` y `localidad` salen de la API pública Georef (`https://apis.datos.gob.ar/georef/api`). `direccion` es calle libre (nombre y altura).
+- Cliente: `src/lib/georef.js` (fetch) y `src/composables/useGeoref.js` (estado, debounce y validación). Llamadas desde el browser; sin Edge Function, sin API key y sin catálogos propios en Supabase.
+- Endpoints: `/provincias` (lista para `BaseSelect`) y `/localidades?provincia=...` (lista completa de la provincia para `BaseCombobox`, filtrable al escribir). Sin provincia no hay localidad; al cambiar provincia se limpia y se recarga la lista.
+- Se guardan los nombres en `profiles`, no los IDs de Georef. No usar `/calles` en esta etapa.
+
 ### Mensajes
 
 - Texto claro en español. El error crudo (`error.message`, códigos de Postgres, stack) solo se escribe en consola.

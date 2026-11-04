@@ -48,6 +48,10 @@ const props = defineProps({
             return [];
         },
     },
+    filtrarOpciones: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -88,7 +92,7 @@ const coincidencias = computed(function () {
         if (typeof opcion !== 'string') {
             continue;
         }
-        if (texto === '' || opcion.toLowerCase().startsWith(texto)) {
+        if (!props.filtrarOpciones || texto === '' || opcion.toLowerCase().startsWith(texto)) {
             filtradas.push(opcion);
         }
     }
@@ -169,6 +173,9 @@ function actualizarValor(evento) {
 }
 
 function alEnfocar() {
+    if (props.disabled) {
+        return;
+    }
     if (coincidencias.value.length > 0) {
         abierto.value = true;
     }
@@ -277,7 +284,7 @@ onBeforeUnmount(function () {
                 v-show="listaVisible"
                 :id="idLista"
                 role="listbox"
-                class="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded-md border border-line bg-surface shadow-md"
+                class="absolute left-0 right-0 z-50 mt-1 max-h-[min(15rem,50dvh)] w-full overflow-y-auto overscroll-contain rounded-md border border-line bg-surface shadow-md"
             >
                 <li
                     v-for="(opcion, indice) in coincidencias"

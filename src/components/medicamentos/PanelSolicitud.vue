@@ -166,10 +166,27 @@ function enviar() {
                         <BaseCheckbox
                             id="solicitud-ddjj"
                             :model-value="aceptoDdjj"
-                            label="Acepto los Términos y Condiciones y la Declaración Jurada de ecofarma."
                             :disabled="creando"
                             @update:model-value="cambiarDdjj"
-                        />
+                        >
+                            Acepto los
+                            <RouterLink
+                                :to="{ name: 'terminos' }"
+                                class="text-primary underline-offset-2 hover:underline"
+                                @click.stop
+                            >
+                                Términos y Condiciones
+                            </RouterLink>
+                            y la
+                            <RouterLink
+                                :to="{ name: 'declaracion-jurada' }"
+                                class="text-primary underline-offset-2 hover:underline"
+                                @click.stop
+                            >
+                                Declaración Jurada
+                            </RouterLink>
+                            de ecofarma.
+                        </BaseCheckbox>
                     </template>
                     <BaseAlert v-if="errorCrear !== ''" variant="error" :message="errorCrear" />
                     <BaseAlert v-if="mensajeCrear !== ''" variant="success" :message="mensajeCrear" />

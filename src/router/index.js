@@ -35,6 +35,16 @@ const routes = [
         meta: { soloInvitados: true },
     },
     {
+        path: '/terminos',
+        name: 'terminos',
+        component: () => import('../views/TerminosView.vue'),
+    },
+    {
+        path: '/declaracion-jurada',
+        name: 'declaracion-jurada',
+        component: () => import('../views/DeclaracionJuradaView.vue'),
+    },
+    {
         path: '/perfil',
         name: 'perfil',
         component: () => import('../views/PerfilView.vue'),

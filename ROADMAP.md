@@ -33,10 +33,11 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 
 - Email y contraseña viven en `auth.users`. El perfil de dominio se crea con el trigger `handle_new_user`.
 - La confirmación de email está apagada: `signUp` deja la sesión abierta.
-- El trigger cancela el alta si falta la DDJJ o `name`, `dni`, `telefono`, `direccion` o `localidad`.
+- El trigger cancela el alta si falta la DDJJ o `name`, `dni`, `telefono`, `provincia`, `direccion` o `localidad`.
 - Un DNI repetido llega como error genérico de Auth. El mensaje al usuario es general. No hay una RPC para consultar DNIs.
 - `rol` arranca en `user`. `is_validado` arranca en `true`. Solo un admin los cambia, por la Edge Function `gestionar-usuarios`.
-- El usuario edita `name`, `dni`, `telefono`, `direccion` y `localidad` con un `update` directo. El email se cambia con `auth.updateUser`. La DDJJ queda fuera de ese `update`.
+- El usuario edita `name`, `dni`, `telefono`, `provincia`, `direccion` y `localidad` con un `update` directo. El email se cambia con `auth.updateUser`. La DDJJ queda fuera de ese `update`.
+- Domicilio: `provincia` y `localidad` se eligen con Georef (API pública); `direccion` es calle libre. Detalle en `AGENTS.md`.
 - Suspender pone `is_validado` en `false` y no cierra la sesión ni el acceso de admin. Para sacar el rol admin hay que revocar. `gestionar-usuarios` no actúa sobre la propia cuenta ni deja el sistema sin admins.
 - Donar, solicitar, confirmar y cancelar leen `is_validado` en la Edge Function y responden 403. No hay políticas de `INSERT` en `medicamentos` ni en `solicitudes`.
 
@@ -130,7 +131,7 @@ Migraciones en `supabase/migrations/`. Salvo el chat, cada tabla tiene `created_
 Se crea al registrarse, por trigger sobre `auth.users`.
 
 - `id`: UUID, PK, FK → `auth.users(id)` ON DELETE CASCADE
-- `name`, `dni` (UNIQUE), `telefono`, `direccion`, `localidad`: VARCHAR
+- `name`, `dni` (UNIQUE), `telefono`, `provincia`, `direccion`, `localidad`: VARCHAR
 - `rol`: VARCHAR, default `'user'` — `user` | `admin`
 - `is_validado`: BOOLEAN, default `true`
 - `acepto_ddjj`: BOOLEAN, default `false`
@@ -229,7 +230,7 @@ Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 
 ## 6. Landing (fase 10)
 
-Última del tablero. `/` tiene implementada la landing responsive basada en la referencia: hero claro con dos acciones, sponsors, beneficios, cómo funciona, confianza, cierre y footer. Pendiente validar visualmente y ejecutar el build. Siguen pendientes Información/Ayuda, Sobre nosotros, Contacto y Legales.
+Última del tablero. `/` tiene implementada la landing responsive basada en la referencia: hero claro con dos acciones, sponsors, beneficios, cómo funciona, confianza, cierre y footer. Pendiente validar visualmente y ejecutar el build. Legales parcial: `/terminos` y `/declaracion-jurada` (contenido V1.0 del documento de contenidos; enlazados desde el checkbox de registro y solicitud). Siguen pendientes Información/Ayuda, Sobre nosotros, Contacto y el bloque Legales del footer de la landing.
 
 - [ ] Rutas de esa arquitectura. Donar y Recibir ya están en el navbar de la plataforma. Inicio apunta a `/`.
 - [x] Composición de la home responsive implementada; cabecera clara solo en Inicio, teléfono ilustrativo y sponsors sin marcas no confirmadas.

@@ -16,10 +16,11 @@ export function usePerfil() {
         const email = datos.email.trim();
         const dni = datos.dni.trim();
         const telefono = datos.telefono.trim();
+        const provincia = datos.provincia.trim();
         const direccion = datos.direccion.trim();
         const localidad = datos.localidad.trim();
 
-        if (nombre === '' || email === '' || dni === '' || telefono === '' || direccion === '' || localidad === '') {
+        if (nombre === '' || email === '' || dni === '' || telefono === '' || provincia === '' || direccion === '' || localidad === '') {
             error.value = 'Completá todos los campos.';
             return false;
         }
@@ -37,11 +38,12 @@ export function usePerfil() {
                 name: nombre,
                 dni: dni,
                 telefono: telefono,
+                provincia: provincia,
                 direccion: direccion,
                 localidad: localidad,
             })
             .eq('id', sesion.value.user.id)
-            .select('id, name, dni, telefono, direccion, localidad, rol, is_validado')
+            .select('id, name, dni, telefono, provincia, direccion, localidad, rol, is_validado')
             .single();
 
         if (errorUpdate) {

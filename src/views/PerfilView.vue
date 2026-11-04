@@ -1,18 +1,33 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BaseAlert from '../components/ui/BaseAlert.vue';
 import BaseBadge from '../components/ui/BaseBadge.vue';
 import BaseButton from '../components/ui/BaseButton.vue';
 import BaseCard from '../components/ui/BaseCard.vue';
+import BaseCombobox from '../components/ui/BaseCombobox.vue';
 import BaseInput from '../components/ui/BaseInput.vue';
+import BaseSelect from '../components/ui/BaseSelect.vue';
 import { useAuth } from '../composables/useAuth';
+import { useGeoref } from '../composables/useGeoref';
 import { usePerfil } from '../composables/usePerfil';
 import { useDonaciones } from '../composables/useDonaciones';
 import { useSolicitudes } from '../composables/useSolicitudes';
 
 const { sesion, perfil, errorPerfil } = useAuth();
 const { cargando: guardando, error: errorGuardar, mensaje: mensajeGuardar, actualizarDatos } = usePerfil();
+const {
+    opcionesProvincia,
+    opcionesLocalidad,
+    cargandoProvincias,
+    cargandoLocalidades,
+    errorGeoref,
+    cargarProvincias,
+    limpiarLocalidades,
+    cargarLocalidadesProvincia,
+    localidadEsValida,
+    provinciaEsValida,
+} = useGeoref();
 const { donaciones, cargando: cargandoDonaciones, cargado: donacionesCargadas, error: errorDonaciones, cargarMisDonaciones } = useDonaciones();
 const { solicitudes, cargando: cargandoSolicitudes, cargado: solicitudesCargadas, error: errorSolicitudes, cargarMisSolicitudes } = useSolicitudes();
 const route = useRoute();
@@ -24,6 +39,7 @@ const datos = ref({
     email: '',
     dni: '',
     telefono: '',
+    provincia: '',
     direccion: '',
     localidad: '',
 });
@@ -71,6 +87,7 @@ const hayCambios = computed(function () {
         || datos.value.email !== original.email
         || datos.value.dni !== original.dni
         || datos.value.telefono !== original.telefono
+        || datos.value.provincia !== original.provincia
         || datos.value.direccion !== original.direccion
         || datos.value.localidad !== original.localidad
     );
@@ -85,6 +102,9 @@ watch(
             return;
         }
         aplicarDatos(datosDesdeCuenta());
+        if (datos.value.provincia !== '') {
+            cargarLocalidadesProvincia(datos.value.provincia);
+        }
     },
     { immediate: true },
 );
@@ -129,6 +149,7 @@ function datosDesdeCuenta() {
         email: sesion.value === null ? '' : textoOVacio(sesion.value.user.email),
         dni: perfil.value === null ? '' : textoOVacio(perfil.value.dni),
         telefono: perfil.value === null ? '' : textoOVacio(perfil.value.telefono),
+        provincia: perfil.value === null ? '' : textoOVacio(perfil.value.provincia),
         direccion: perfil.value === null ? '' : textoOVacio(perfil.value.direccion),
         localidad: perfil.value === null ? '' : textoOVacio(perfil.value.localidad),
     };
@@ -139,6 +160,7 @@ function aplicarDatos(valores) {
     datos.value.email = valores.email;
     datos.value.dni = valores.dni;
     datos.value.telefono = valores.telefono;
+    datos.value.provincia = valores.provincia;
     datos.value.direccion = valores.direccion;
     datos.value.localidad = valores.localidad;
 }
@@ -229,12 +251,51 @@ function clasePestana(id) {
     return clases.join(' ');
 }
 
+onMounted(function () {
+    cargarProvincias();
+});
+
+function alActualizarProvincia(valor) {
+    const anterior = datos.value.provincia;
+    datos.value.provincia = valor;
+    if (valor !== anterior) {
+        datos.value.localidad = '';
+        cargarLocalidadesProvincia(valor);
+    }
+}
+
+function alActualizarLocalidad(valor) {
+    datos.value.localidad = valor;
+}
+
+async function guardarDatos() {
+    errorGuardar.value = '';
+    mensajeGuardar.value = '';
+
+    if (!provinciaEsValida(datos.value.provincia)) {
+        errorGuardar.value = 'Elegí una provincia de la lista.';
+        return;
+    }
+    if (datos.value.localidad.trim() === '') {
+        errorGuardar.value = 'Completá el barrio o localidad.';
+        return;
+    }
+    const localidadValida = await localidadEsValida(datos.value.provincia, datos.value.localidad);
+    if (!localidadValida) {
+        errorGuardar.value = 'Elegí un barrio o localidad de la lista sugerida.';
+        return;
+    }
+
+    await actualizarDatos(datos.value);
+}
+
 function cancelarCambios() {
     if (guardando.value) {
         return;
     }
     errorGuardar.value = '';
     mensajeGuardar.value = '';
+    limpiarLocalidades();
     aplicarDatos(datosDesdeCuenta());
 }
 
@@ -286,7 +347,7 @@ function claseEnlaceChat() {
                         role="tabpanel"
                         aria-labelledby="perfil-tab-datos"
                         novalidate
-                        @submit.prevent="actualizarDatos(datos)"
+                        @submit.prevent="guardarDatos"
                     >
                         <BaseCard variant="surface" padding="md" class="rounded-lg shadow-md sm:p-8">
                             <div class="flex flex-col gap-6">
@@ -326,21 +387,39 @@ function claseEnlaceChat() {
                                             autocomplete="tel"
                                         />
                                     </div>
+                                    <BaseSelect
+                                        id="perfil-provincia"
+                                        :model-value="datos.provincia"
+                                        label="Provincia"
+                                        placeholder="Elegí una provincia"
+                                        :options="opcionesProvincia"
+                                        :disabled="cargandoProvincias"
+                                        @update:model-value="alActualizarProvincia"
+                                    />
+                                    <BaseCombobox
+                                        id="perfil-localidad"
+                                        :model-value="datos.localidad"
+                                        label="Barrio / Localidad"
+                                        placeholder="Elegí o escribí para filtrar"
+                                        :options="opcionesLocalidad"
+                                        :disabled="datos.provincia === '' || cargandoLocalidades"
+                                        :hint="cargandoLocalidades ? 'Cargando localidades...' : ''"
+                                        @update:model-value="alActualizarLocalidad"
+                                    />
                                     <BaseInput
                                         id="perfil-direccion"
                                         v-model="datos.direccion"
-                                        label="Dirección"
+                                        label="Calle"
                                         type="text"
                                         autocomplete="street-address"
                                     />
-                                    <BaseInput
-                                        id="perfil-localidad"
-                                        v-model="datos.localidad"
-                                        label="Localidad"
-                                        type="text"
-                                    />
                                 </div>
 
+                                <BaseAlert
+                                    v-if="errorGeoref !== ''"
+                                    variant="error"
+                                    :message="errorGeoref"
+                                />
                                 <BaseAlert v-if="errorGuardar !== ''" variant="error" :message="errorGuardar" />
                                 <BaseAlert v-if="mensajeGuardar !== ''" variant="success" :message="mensajeGuardar" />
 

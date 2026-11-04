@@ -116,7 +116,7 @@ values
     extensions.crypt('EcoFarma2026!', extensions.gen_salt('bf')), now(),
     '{"provider": "email", "providers": ["email"]}',
     '{"name": "Admin ecofarma", "dni": "30111222", "telefono": "3510000001",
-      "direccion": "Av. Colón 100", "localidad": "Córdoba", "acepto_ddjj": true}',
+      "provincia": "Córdoba", "direccion": "Av. Colón 100", "localidad": "Córdoba", "acepto_ddjj": true}',
     now(), now(), '', '', '', ''
   ),
   (
@@ -126,7 +126,7 @@ values
     extensions.crypt('EcoFarma2026!', extensions.gen_salt('bf')), now(),
     '{"provider": "email", "providers": ["email"]}',
     '{"name": "Lucía Fernández", "dni": "32444555", "telefono": "3510000002",
-      "direccion": "Bv. San Juan 450", "localidad": "Córdoba", "acepto_ddjj": true}',
+      "provincia": "Córdoba", "direccion": "Bv. San Juan 450", "localidad": "Córdoba", "acepto_ddjj": true}',
     now(), now(), '', '', '', ''
   )
 on conflict (id) do nothing;

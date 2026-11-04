@@ -1,15 +1,29 @@
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import BaseAlert from '../components/ui/BaseAlert.vue';
 import BaseButton from '../components/ui/BaseButton.vue';
 import BaseCard from '../components/ui/BaseCard.vue';
 import BaseCheckbox from '../components/ui/BaseCheckbox.vue';
+import BaseCombobox from '../components/ui/BaseCombobox.vue';
 import BaseInput from '../components/ui/BaseInput.vue';
+import BaseSelect from '../components/ui/BaseSelect.vue';
 import { useAuth } from '../composables/useAuth';
+import { useGeoref } from '../composables/useGeoref';
 
 const router = useRouter();
 const { cargando, error, registrarse, mostrarAviso } = useAuth();
+const {
+    opcionesProvincia,
+    opcionesLocalidad,
+    cargandoProvincias,
+    cargandoLocalidades,
+    errorGeoref,
+    cargarProvincias,
+    cargarLocalidadesProvincia,
+    localidadEsValida,
+    provinciaEsValida,
+} = useGeoref();
 
 const paso = ref(1);
 const direccionPaso = ref('adelante');
@@ -19,6 +33,7 @@ const datos = ref({
     name: '',
     dni: '',
     telefono: '',
+    provincia: '',
     direccion: '',
     localidad: '',
     email: '',
@@ -56,9 +71,24 @@ function mensajeNativo(evento) {
         campo.setCustomValidity('Ingresá un email válido.');
         return;
     }
+    if (campo.validity.patternMismatch) {
+        campo.setCustomValidity('El DNI debe tener 7 u 8 números.');
+        return;
+    }
     if (campo.validity.tooShort) {
         campo.setCustomValidity('La contraseña debe tener al menos 6 caracteres.');
     }
+}
+
+function actualizarDni(valor) {
+    const limpio = String(valor).replace(/\D/g, '').slice(0, 8);
+    datos.value.dni = limpio;
+    nextTick(function () {
+        const input = document.getElementById('registro-dni');
+        if (input !== null && input.value !== limpio) {
+            input.value = limpio;
+        }
+    });
 }
 
 function sincronizarConfirmacion() {
@@ -82,6 +112,44 @@ watch(
     },
 );
 
+onMounted(function () {
+    cargarProvincias();
+});
+
+function alActualizarProvincia(valor) {
+    const anterior = datos.value.provincia;
+    datos.value.provincia = valor;
+    if (valor !== anterior) {
+        datos.value.localidad = '';
+        cargarLocalidadesProvincia(valor);
+    }
+}
+
+function alActualizarLocalidad(valor) {
+    datos.value.localidad = valor;
+}
+
+async function validarDomicilio() {
+    if (!provinciaEsValida(datos.value.provincia)) {
+        error.value = 'Elegí una provincia de la lista.';
+        return false;
+    }
+    if (datos.value.localidad.trim() === '') {
+        error.value = 'Completá el barrio o localidad.';
+        return false;
+    }
+    const localidadValida = await localidadEsValida(datos.value.provincia, datos.value.localidad);
+    if (!localidadValida) {
+        error.value = 'Elegí un barrio o localidad de la lista sugerida.';
+        return false;
+    }
+    if (datos.value.direccion.trim() === '') {
+        error.value = 'Completá la calle.';
+        return false;
+    }
+    return true;
+}
+
 function continuar() {
     error.value = '';
     direccionPaso.value = 'adelante';
@@ -100,6 +168,10 @@ function atras() {
 }
 
 async function registrar() {
+    const domicilioOk = await validarDomicilio();
+    if (!domicilioOk) {
+        return;
+    }
     const registrado = await registrarse(datos.value);
     if (registrado) {
         mostrarAviso('Tu cuenta se creó correctamente. ¡Te damos la bienvenida a ecofarma!', 'exito');
@@ -109,6 +181,14 @@ async function registrar() {
 
 async function enviar() {
     error.value = '';
+    if (paso.value === 2) {
+        const domicilioOk = await validarDomicilio();
+        if (!domicilioOk) {
+            return;
+        }
+        continuar();
+        return;
+    }
     if (paso.value < 3) {
         continuar();
         return;
@@ -130,9 +210,9 @@ async function enviar() {
                     </Transition>
 
                     <form class="flex flex-col gap-4" @submit.prevent="enviar" @invalid.capture="mensajeNativo">
-                        <div class="-mx-2 -my-1 overflow-hidden px-2 py-1">
+                        <div class="-mx-2 -my-1 px-2 py-1">
                         <Transition :name="nombreTransicion" mode="out-in">
-                            <div :key="paso" class="flex flex-col gap-4">
+                            <div :key="paso" class="flex flex-col gap-4 overflow-visible">
                                 <template v-if="paso === 1">
                                     <BaseInput
                                         id="registro-nombre"
@@ -144,11 +224,15 @@ async function enviar() {
                                     />
                                     <BaseInput
                                         id="registro-dni"
-                                        v-model="datos.dni"
+                                        :model-value="datos.dni"
                                         label="DNI"
                                         type="text"
                                         inputmode="numeric"
+                                        autocomplete="off"
+                                        maxlength="8"
+                                        pattern="[0-9]{7,8}"
                                         required
+                                        @update:model-value="actualizarDni"
                                     />
                                     <BaseInput
                                         id="registro-telefono"
@@ -161,21 +245,43 @@ async function enviar() {
                                 </template>
 
                                 <template v-else-if="paso === 2">
+                                    <BaseSelect
+                                        id="registro-provincia"
+                                        :model-value="datos.provincia"
+                                        label="Provincia"
+                                        placeholder="Elegí una provincia"
+                                        :options="opcionesProvincia"
+                                        :disabled="cargandoProvincias"
+                                        required
+                                        @update:model-value="alActualizarProvincia"
+                                    />
+                                    <BaseCombobox
+                                        id="registro-localidad"
+                                        :model-value="datos.localidad"
+                                        label="Barrio / Localidad"
+                                        placeholder="Elegí o escribí para filtrar"
+                                        :options="opcionesLocalidad"
+                                        :disabled="datos.provincia === '' || cargandoLocalidades"
+                                        :hint="cargandoLocalidades ? 'Cargando localidades...' : ''"
+                                        required
+                                        @update:model-value="alActualizarLocalidad"
+                                    />
                                     <BaseInput
                                         id="registro-direccion"
                                         v-model="datos.direccion"
-                                        label="Dirección"
+                                        label="Calle"
                                         type="text"
                                         autocomplete="street-address"
                                         required
                                     />
-                                    <BaseInput
-                                        id="registro-localidad"
-                                        v-model="datos.localidad"
-                                        label="Localidad"
-                                        type="text"
-                                        required
+                                    <BaseAlert
+                                        v-if="errorGeoref !== ''"
+                                        variant="error"
+                                        :message="errorGeoref"
                                     />
+                                </template>
+
+                                <template v-else>
                                     <BaseInput
                                         id="registro-email"
                                         v-model="datos.email"
@@ -184,9 +290,6 @@ async function enviar() {
                                         autocomplete="email"
                                         required
                                     />
-                                </template>
-
-                                <template v-else>
                                     <BaseInput
                                         id="registro-password"
                                         v-model="datos.password"
@@ -207,9 +310,26 @@ async function enviar() {
                                     <BaseCheckbox
                                         id="registro-ddjj"
                                         v-model="datos.aceptoDdjj"
-                                        label="Acepto los Términos y Condiciones y la Declaración Jurada de ecofarma."
                                         required
-                                    />
+                                    >
+                                        Acepto los
+                                        <RouterLink
+                                            :to="{ name: 'terminos' }"
+                                            class="text-primary underline-offset-2 hover:underline"
+                                            @click.stop
+                                        >
+                                            Términos y Condiciones
+                                        </RouterLink>
+                                        y la
+                                        <RouterLink
+                                            :to="{ name: 'declaracion-jurada' }"
+                                            class="text-primary underline-offset-2 hover:underline"
+                                            @click.stop
+                                        >
+                                            Declaración Jurada
+                                        </RouterLink>
+                                        de ecofarma.
+                                    </BaseCheckbox>
                                 </template>
                             </div>
                         </Transition>

@@ -129,8 +129,13 @@ const clasesInput = computed(function () {
                     aria-hidden="true"
                 />
             </span>
-            <span v-if="label !== ''" class="min-w-0 pt-px font-sans text-sm text-foreground">
-                {{ label }}
+            <span
+                v-if="$slots.default || label !== ''"
+                class="min-w-0 pt-px font-sans text-sm text-foreground"
+            >
+                <slot>
+                    {{ label }}
+                </slot>
             </span>
         </label>
         <p v-if="tieneError" :id="idError" class="text-xs text-danger" role="alert">

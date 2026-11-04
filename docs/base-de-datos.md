@@ -45,17 +45,17 @@ Todas las tablas tienen `id` y `created_at`. `updated_at` está en todas menos e
 
 ### `profiles`
 
-El perfil se crea solo al registrarse, con un trigger sobre `auth.users`. El rol arranca en `user`. Si la persona no aceptó la DDJJ, o le falta nombre, DNI, teléfono, dirección o localidad, el trigger cancela el alta.
+El perfil se crea solo al registrarse, con un trigger sobre `auth.users`. El rol arranca en `user`. Si la persona no aceptó la DDJJ, o le falta nombre, DNI, teléfono, provincia, dirección o localidad, el trigger cancela el alta.
 
 | Columna | Significado |
 |---|---|
 | `name`, `dni` | Nombre y DNI. El DNI no se repite |
-| `telefono`, `direccion`, `localidad` | Contacto |
+| `telefono`, `provincia`, `direccion`, `localidad` | Contacto y domicilio (`direccion` = calle con altura; `localidad` = barrio / localidad) |
 | `rol` | `user` o `admin` |
 | `is_validado` | Cuenta habilitada. Arranca en `true`. El admin la pasa a `false` para suspenderla |
 | `acepto_ddjj`, `fecha_aceptacion_ddjj` | Si aceptó la Declaración Jurada, y cuándo |
 
-El usuario puede editar nombre, DNI, teléfono, dirección y localidad. El email se cambia por Auth, no por una columna de esta tabla. No puede cambiar `rol`, `is_validado` ni la DDJJ.
+El usuario puede editar nombre, DNI, teléfono, provincia, dirección y localidad. El email se cambia por Auth, no por una columna de esta tabla. No puede cambiar `rol`, `is_validado` ni la DDJJ.
 
 ### `medicamentos_habilitados`
 
@@ -141,7 +141,7 @@ Operaciones: `select` (leer), `insert` (crear), `update` (modificar), `delete` (
 
 | Tabla | Visitante | Usuario con sesión |
 |---|---|---|
-| `profiles` | Nada | Leer. Modificar `name`, `dni`, `telefono`, `direccion` y `localidad` |
+| `profiles` | Nada | Leer. Modificar `name`, `dni`, `telefono`, `provincia`, `direccion` y `localidad` |
 | `medicamentos_habilitados` | Leer | Leer |
 | `medicamentos` | Leer | Leer |
 | `solicitudes` | Nada | Leer todas las columnas menos `codigo_confirmacion` |
@@ -200,7 +200,7 @@ Los dos aceptan JPG, PNG o WEBP de hasta 5 MB. Cada usuario sube, ve y borra sol
 
 | Acción | Quién |
 |---|---|
-| Editar nombre, DNI, teléfono, dirección y localidad | Frontend, sobre `profiles` |
+| Editar nombre, DNI, teléfono, provincia, dirección y localidad | Frontend, sobre `profiles` |
 | Cambiar el email | Frontend, con `auth.updateUser` |
 | Enviar un mensaje | Frontend, sobre `solicitud_mensajes` |
 | Publicar una donación | `publicar-medicamento` |
