@@ -11,6 +11,10 @@ import BaseSelect from '../components/ui/BaseSelect.vue';
 import { useAuth } from '../composables/useAuth';
 import { useGeoref } from '../composables/useGeoref';
 
+defineOptions({
+    name: 'RegistroView',
+});
+
 const router = useRouter();
 const { cargando, error, registrarse, mostrarAviso } = useAuth();
 const {
@@ -167,6 +171,24 @@ function atras() {
     }
 }
 
+function reiniciarFormulario() {
+    paso.value = 1;
+    direccionPaso.value = 'adelante';
+    passwordConfirmacion.value = '';
+    datos.value = {
+        name: '',
+        dni: '',
+        telefono: '',
+        provincia: '',
+        direccion: '',
+        localidad: '',
+        email: '',
+        password: '',
+        aceptoDdjj: false,
+    };
+    error.value = '';
+}
+
 async function registrar() {
     const domicilioOk = await validarDomicilio();
     if (!domicilioOk) {
@@ -174,6 +196,7 @@ async function registrar() {
     }
     const registrado = await registrarse(datos.value);
     if (registrado) {
+        reiniciarFormulario();
         mostrarAviso('Tu cuenta se creó correctamente. ¡Te damos la bienvenida a ecofarma!', 'exito');
         router.push({ name: 'catalogo' });
     }

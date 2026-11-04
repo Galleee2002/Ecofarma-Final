@@ -48,6 +48,7 @@ Un solo proyecto: `src/` en la raíz y `supabase/` al lado. No separar en `/fron
 
 ## Frontend
 
+- `KeepAlive` en `App.vue` conserva el borrador de `RegistroView`, `DonarView` y `MedicamentoDetalleView` al navegar a otra ruta (p. ej. legales) y volver. Esas vistas declaran `defineOptions({ name: '...' })`. Tras un alta exitosa, el formulario de registro se reinicia.
 - `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en `.env.local`. Nunca la `service_role` key ni otros secretos.
 - Colores solo con tokens de `src/style.css` (`bg-primary`, `text-icon`, `text-danger`). Sin hex sueltos ni la paleta por defecto de Tailwind.
 - Títulos en `font-heading` (Lato 700). Cuerpo en `font-sans` (Source Sans Pro).

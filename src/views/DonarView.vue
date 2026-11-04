@@ -15,6 +15,10 @@ import { useVademecum } from '../composables/useVademecum';
 import { useDonaciones } from '../composables/useDonaciones';
 import { useToast } from '../composables/useToast';
 
+defineOptions({
+    name: 'DonarView',
+});
+
 const MAXIMO_FOTOS = 3;
 const DURACION_PREPARACION = 700;
 const { sesion, perfil, errorPerfil, mostrarAviso } = useAuth();

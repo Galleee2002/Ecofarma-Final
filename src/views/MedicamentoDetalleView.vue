@@ -10,6 +10,10 @@ import { useAuth } from '../composables/useAuth';
 import { useMedicamentos } from '../composables/useMedicamentos';
 import { useSolicitudes } from '../composables/useSolicitudes';
 
+defineOptions({
+    name: 'MedicamentoDetalleView',
+});
+
 const route = useRoute();
 const router = useRouter();
 const { sesion, perfil, errorPerfil } = useAuth();
@@ -65,7 +69,13 @@ watch(
     function () {
         return route.params.id;
     },
-    function (id) {
+    function (id, idAnterior) {
+        if (idAnterior !== undefined && id !== idAnterior) {
+            aceptoDdjj.value = false;
+            esParaTercero.value = false;
+            nombreDestinatario.value = '';
+            archivoReceta.value = null;
+        }
         cargarMedicamentoPorId(id);
     },
     { immediate: true },
