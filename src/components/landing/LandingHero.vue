@@ -7,7 +7,7 @@
             height="887"
             fetchpriority="high"
             loading="eager"
-            class="absolute inset-0 size-full object-cover object-[70%_center] sm:object-right"
+            class="absolute inset-0 size-full object-cover object-[15%_center] sm:object-[70%_center] md:object-right"
         >
         <div class="relative z-10 mx-auto flex min-h-[28rem] w-full max-w-7xl items-center px-5 py-12 sm:min-h-[30rem] sm:px-8 md:min-h-[32rem] md:py-16 lg:min-h-[36rem]">
             <div class="flex max-w-lg flex-col items-start gap-5">

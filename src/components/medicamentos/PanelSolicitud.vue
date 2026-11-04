@@ -188,7 +188,14 @@ function enviar() {
                             de ecofarma.
                         </BaseCheckbox>
                     </template>
-                    <BaseAlert v-if="errorCrear !== ''" variant="error" :message="errorCrear" />
+                    <p
+                        v-if="errorCrear !== ''"
+                        class="flex items-start gap-2 rounded-md bg-danger/10 px-3 py-2 text-sm text-danger"
+                        role="alert"
+                    >
+                        <X class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                        <span>{{ errorCrear }}</span>
+                    </p>
                     <BaseAlert v-if="mensajeCrear !== ''" variant="success" :message="mensajeCrear" />
                     <BaseButton
                         type="button"
