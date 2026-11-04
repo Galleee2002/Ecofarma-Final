@@ -11,7 +11,6 @@
                 <RouterLink :to="{ name: 'inicio' }" class="inline-flex min-h-11 items-center rounded-sm px-2 hover:bg-surface/10 focus-visible:outline-2 focus-visible:outline-surface">Inicio</RouterLink>
                 <RouterLink :to="{ name: 'donar' }" class="inline-flex min-h-11 items-center rounded-sm px-2 hover:bg-surface/10 focus-visible:outline-2 focus-visible:outline-surface">Donar</RouterLink>
                 <RouterLink :to="{ name: 'recibir' }" class="inline-flex min-h-11 items-center rounded-sm px-2 hover:bg-surface/10 focus-visible:outline-2 focus-visible:outline-surface">Recibir</RouterLink>
-                <a href="#como-funciona" class="inline-flex min-h-11 items-center rounded-sm px-2 hover:bg-surface/10 focus-visible:outline-2 focus-visible:outline-surface">Cómo funciona</a>
             </nav>
         </div>
     </footer>

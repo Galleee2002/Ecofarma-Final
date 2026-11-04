@@ -35,15 +35,11 @@ const esLanding = computed(function () {
 });
 
 const enlaces = computed(function () {
-    const principales = [
+    return [
         { id: 'inicio', etiqueta: 'Inicio', destino: { name: 'inicio' }, deshabilitado: false },
         { id: 'donar', etiqueta: 'Donar', destino: { name: 'donar' }, deshabilitado: false },
         { id: 'recibir', etiqueta: 'Recibir', destino: { name: 'recibir' }, deshabilitado: false },
     ];
-    if (esLanding.value) {
-        principales.push({ id: 'como-funciona', etiqueta: 'Cómo funciona', deshabilitado: false });
-    }
-    return principales;
 });
 
 onMounted(async function () {
@@ -115,9 +111,8 @@ async function confirmarCerrarSesion() {
     <BaseNavbar :claro="esLanding">
         <template #desktop-navigation>
             <template v-for="enlace in enlaces" :key="enlace.id">
-                <a v-if="enlace.id === 'como-funciona'" href="#como-funciona" :class="clasesEnlace(enlace, false)">{{ enlace.etiqueta }}</a>
                 <button
-                    v-else-if="enlace.deshabilitado"
+                    v-if="enlace.deshabilitado"
                     type="button"
                     disabled
                     :class="clasesEnlace(enlace, false)"
@@ -163,9 +158,8 @@ async function confirmarCerrarSesion() {
 
         <template #mobile-navigation>
             <template v-for="enlace in enlaces" :key="enlace.id">
-                <a v-if="enlace.id === 'como-funciona'" href="#como-funciona" :class="clasesEnlace(enlace, true)">{{ enlace.etiqueta }}</a>
                 <button
-                    v-else-if="enlace.deshabilitado"
+                    v-if="enlace.deshabilitado"
                     type="button"
                     disabled
                     :class="clasesEnlace(enlace, true)"
