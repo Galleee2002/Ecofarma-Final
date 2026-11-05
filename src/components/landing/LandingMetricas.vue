@@ -1,10 +1,11 @@
 <script setup>
+import { HandHeart, Recycle, Smile } from '@lucide/vue';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const metricasBase = [
-    { etiqueta: 'Donaciones realizadas', objetivo: 1250, retardo: 0 },
-    { etiqueta: 'Clientes satisfechos', objetivo: 980, retardo: 200 },
-    { etiqueta: 'Medicamentos reutilizados', objetivo: 3400, retardo: 400 },
+    { etiqueta: 'Donaciones realizadas', objetivo: 1250, retardo: 0, icono: HandHeart },
+    { etiqueta: 'Clientes satisfechos', objetivo: 980, retardo: 200, icono: Smile },
+    { etiqueta: 'Medicamentos reutilizados', objetivo: 3400, retardo: 400, icono: Recycle },
 ];
 
 const seccionRef = ref(null);
@@ -102,21 +103,24 @@ onBeforeUnmount(function () {
 </script>
 
 <template>
-    <section ref="seccionRef" class="bg-surface" aria-labelledby="metricas-titulo">
-        <div class="mx-auto max-w-7xl px-5 py-14 sm:px-8 md:py-16">
-            <h2 id="metricas-titulo" class="text-2xl">Nuestro impacto</h2>
-            <p class="mt-2 text-muted">Resultados que crecen con cada intercambio responsable.</p>
-            <ul class="mt-10 grid list-none gap-8 md:grid-cols-3 md:gap-0 md:divide-x md:divide-line">
+    <section ref="seccionRef" class="bg-surface text-primary" aria-labelledby="metricas-titulo">
+        <div class="mx-auto max-w-7xl px-5 pt-12 pb-0 sm:px-8 md:pt-16">
+            <h2 id="metricas-titulo" class="text-2xl text-foreground">Nuestro impacto</h2>
+            <p class="mt-2 max-w-md text-muted">Resultados que crecen con cada intercambio responsable.</p>
+            <ul class="mt-14 grid list-none grid-cols-3 justify-center gap-6 sm:flex sm:gap-20 md:mt-16 lg:gap-45">
                 <li
                     v-for="(metrica, indice) in metricasBase"
                     :key="metrica.etiqueta"
-                    class="text-center transition duration-700 ease-out motion-reduce:transition-none md:px-8 md:first:pl-0 md:last:pr-0"
+                    class="flex flex-col items-center gap-3 text-center transition duration-700 ease-out motion-reduce:transition-none"
                     :class="visibles[indice] ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'"
                 >
-                    <p class="font-heading text-3xl font-bold leading-none text-primary tabular-nums sm:text-[2.75rem]">
+                    <component :is="metrica.icono" :size="28" :stroke-width="1.5" class="text-icon" aria-hidden="true" />
+                    <p class="font-heading text-[1.65rem] font-bold leading-none tabular-nums sm:text-[2rem] lg:text-[2.75rem]">
                         {{ formatearNumero(valores[indice]) }}
                     </p>
-                    <p class="mt-2 text-muted">{{ metrica.etiqueta }}</p>
+                    <p class="text-sm text-muted sm:text-base">
+                        {{ metrica.etiqueta }}
+                    </p>
                 </li>
             </ul>
         </div>

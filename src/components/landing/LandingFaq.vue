@@ -47,10 +47,10 @@ function alternar(id) {
 </script>
 
 <template>
-    <section class="bg-surface" aria-labelledby="faq-titulo">
+    <section id="preguntas" class="scroll-mt-8 bg-surface" aria-labelledby="faq-titulo">
         <div class="mx-auto max-w-7xl px-5 py-14 sm:px-8 md:py-16">
-            <div class="lg:text-center">
-                <h2 id="faq-titulo" class="text-2xl font-bold text-primary">Preguntas frecuentes</h2>
+            <div class="text-left">
+                <h2 id="faq-titulo" class="text-2xl font-bold text-foreground">Preguntas frecuentes</h2>
                 <p class="mt-2 text-muted">
                     Encontrá respuestas a las dudas más comunes sobre cómo donar y recibir medicamentos en ecofarma.
                 </p>

@@ -1,28 +1,61 @@
+<script setup>
+const plataforma = [
+    { etiqueta: 'Inicio', destino: { name: 'inicio' } },
+    { etiqueta: 'Donar', destino: { name: 'donar' } },
+    { etiqueta: 'Recibir', destino: { name: 'recibir' } },
+    { etiqueta: 'Cómo funciona', destino: { name: 'inicio', hash: '#como-funciona' } },
+    { etiqueta: 'Preguntas frecuentes', destino: { name: 'inicio', hash: '#preguntas' } },
+];
+
+const legales = [
+    { etiqueta: 'Términos y condiciones', destino: { name: 'terminos' } },
+    { etiqueta: 'Declaración jurada', destino: { name: 'declaracion-jurada' } },
+];
+
+const claseEnlace = 'w-fit text-sm underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-surface';
+</script>
+
 <template>
     <footer class="bg-primary text-surface">
-        <div class="mx-auto flex max-w-7xl flex-col gap-7 px-5 py-8 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
-            <div class="flex items-center gap-5">
-                <RouterLink :to="{ name: 'inicio' }" class="shrink-0 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-surface" aria-label="ecofarma, inicio">
-                    <img src="/logo.webp" alt="ecofarma" width="1280" height="1280" class="size-12 object-contain" loading="lazy" />
-                </RouterLink>
-                <p class="max-w-72 border-l border-surface/30 pl-5 text-sm">Doná los medicamentos que ya no usás y encontrá los que necesitás.</p>
+        <div class="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:py-12">
+            <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+                <div class="self-center lg:col-span-4">
+                    <RouterLink :to="{ name: 'inicio' }" class="inline-flex rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-surface" aria-label="ecofarma, inicio">
+                        <img src="/logo.webp" alt="ecofarma" width="1280" height="1280" class="size-16 object-contain" loading="lazy" />
+                    </RouterLink>
+                    <p class="mt-5 max-w-xs text-sm">Plataforma gratuita para compartir medicamentos entre personas. La entrega se acuerda en el chat.</p>
+                </div>
+
+                <nav class="lg:col-span-2 lg:col-start-6" aria-label="Plataforma">
+                    <h3 class="font-heading text-sm">Plataforma</h3>
+                    <ul class="mt-4 flex list-none flex-col gap-2.5">
+                        <li v-for="enlace in plataforma" :key="enlace.etiqueta">
+                            <RouterLink :to="enlace.destino" :class="claseEnlace">{{ enlace.etiqueta }}</RouterLink>
+                        </li>
+                    </ul>
+                </nav>
+
+                <nav class="lg:col-span-3" aria-label="Legales">
+                    <h3 class="font-heading text-sm">Legales</h3>
+                    <ul class="mt-4 flex list-none flex-col gap-2.5">
+                        <li v-for="enlace in legales" :key="enlace.etiqueta">
+                            <RouterLink :to="enlace.destino" :class="claseEnlace">{{ enlace.etiqueta }}</RouterLink>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="lg:col-span-2">
+                    <h3 class="font-heading text-sm">Contacto</h3>
+                    <ul class="mt-4 flex list-none flex-col gap-2.5 text-sm">
+                        <li>Instagram · @ecofarma</li>
+                        <li>Facebook · ecofarma</li>
+                    </ul>
+                </div>
             </div>
-            <div class="flex flex-col gap-2 text-sm">
-                <p>Contáctanos</p>
-                <p class="flex items-center gap-2">
-                    <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                    </svg>
-                    @ecofarma
-                </p>
-                <p class="flex items-center gap-2">
-                    <svg viewBox="0 0 24 24" class="size-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-                    </svg>
-                    ecofarma
-                </p>
+
+            <div class="mt-10 flex flex-col gap-2 border-t border-surface/30 pt-6 text-xs lg:mt-14 lg:flex-row lg:items-center lg:justify-between">
+                <p>© 2026 ecofarma</p>
+                <p>Intercambio gratuito entre personas. Sin venta de medicamentos.</p>
             </div>
         </div>
     </footer>
