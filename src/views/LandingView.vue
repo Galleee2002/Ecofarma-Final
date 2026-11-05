@@ -1,5 +1,6 @@
 <script setup>
 import LandingCierre from '../components/landing/LandingCierre.vue';
+import LandingFaq from '../components/landing/LandingFaq.vue';
 import LandingFooter from '../components/landing/LandingFooter.vue';
 import LandingHero from '../components/landing/LandingHero.vue';
 import LandingMetricas from '../components/landing/LandingMetricas.vue';
@@ -13,6 +14,7 @@ import LandingSponsors from '../components/landing/LandingSponsors.vue';
         <LandingSponsors />
         <LandingTutorial />
         <LandingMetricas />
+        <LandingFaq />
         <LandingCierre />
     </main>
     <LandingFooter />

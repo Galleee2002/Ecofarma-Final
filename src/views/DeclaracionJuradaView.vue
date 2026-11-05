@@ -21,7 +21,7 @@ function volver() {
             <article class="flex flex-col gap-8 rounded-md bg-surface p-6 shadow-md sm:p-8">
                 <header class="flex flex-col gap-2">
                     <h1 class="font-heading text-2xl font-bold text-primary sm:text-3xl">
-                        Declaración Jurada de Ecofarma
+                        Declaración Jurada de ecofarma
                     </h1>
                     <p class="text-sm text-muted">
                         Documentos V1.0 para receptor y donante. Borrador sujeto a revisión jurídica y sanitaria.
@@ -35,7 +35,7 @@ function volver() {
                     <p class="text-foreground">
                         Mediante la aceptación de la presente Declaración Jurada, manifiesto que la información
                         proporcionada para solicitar el medicamento es verdadera y que conozco las condiciones aplicables
-                        a su recepción mediante Ecofarma.
+                        a su recepción mediante ecofarma.
                     </p>
 
                     <div class="flex flex-col gap-3">
@@ -51,8 +51,8 @@ function volver() {
                         </p>
                         <p class="text-foreground">Entiendo que:</p>
                         <ul class="list-disc space-y-1 pl-5 text-foreground">
-                            <li>Ecofarma deberá corroborar la información proporcionada;</li>
-                            <li>la operación necesitará habilitación de Ecofarma antes de continuar;</li>
+                            <li>ecofarma deberá corroborar la información proporcionada;</li>
+                            <li>la operación necesitará habilitación de ecofarma antes de continuar;</li>
                             <li>
                                 y el donante será informado de que el medicamento solicitado será destinado a un tercero.
                             </li>
@@ -74,7 +74,7 @@ function volver() {
                             Cuando el medicamento sea de venta libre, este requisito no será exigible.
                         </p>
                         <p class="text-foreground">
-                            Comprendo que solicitar un medicamento mediante Ecofarma no constituye una prescripción,
+                            Comprendo que solicitar un medicamento mediante ecofarma no constituye una prescripción,
                             recomendación médica ni indicación de tratamiento por parte de la plataforma.
                         </p>
                     </div>
@@ -86,7 +86,7 @@ function volver() {
                         </p>
                         <ul class="list-disc space-y-1 pl-5 text-foreground">
                             <li>corresponde al medicamento solicitado;</li>
-                            <li>los datos principales coinciden con los registrados en Ecofarma;</li>
+                            <li>los datos principales coinciden con los registrados en ecofarma;</li>
                             <li>el lote y vencimiento coinciden con los informados;</li>
                             <li>el medicamento no está vencido;</li>
                             <li>conserva una identificación legible;</li>
@@ -98,22 +98,22 @@ function volver() {
                         </ul>
                         <p class="text-foreground">
                             Si detecto alguna inconsistencia, me comprometo a no aceptar el medicamento y reportar la
-                            situación a Ecofarma.
+                            situación a ecofarma.
                         </p>
                     </div>
 
                     <div class="flex flex-col gap-3">
-                        <h3 class="font-heading text-lg font-bold text-foreground">4. Alcance de la validación de Ecofarma</h3>
+                        <h3 class="font-heading text-lg font-bold text-foreground">4. Alcance de la validación de ecofarma</h3>
                         <p class="text-foreground">
-                            Reconozco que Ecofarma puede verificar la información digital disponible sobre el medicamento
+                            Reconozco que ecofarma puede verificar la información digital disponible sobre el medicamento
                             y contrastarla con sus fuentes de información.
                         </p>
                         <p class="text-foreground">
-                            Comprendo que Ecofarma no realiza una inspección física de la unidad que recibiré ni certifica
+                            Comprendo que ecofarma no realiza una inspección física de la unidad que recibiré ni certifica
                             su calidad física, integridad o condiciones reales de conservación.
                         </p>
                         <p class="text-foreground">
-                            La inclusión de un medicamento dentro del dataset utilizado por Ecofarma determina su
+                            La inclusión de un medicamento dentro del dataset utilizado por ecofarma determina su
                             elegibilidad inicial dentro de la plataforma, pero la operación permanece sujeta a las
                             restricciones legales, sanitarias y operativas aplicables.
                         </p>
@@ -122,11 +122,11 @@ function volver() {
                     <div class="flex flex-col gap-3">
                         <h3 class="font-heading text-lg font-bold text-foreground">5. Entrega</h3>
                         <p class="text-foreground">
-                            Comprendo que la entrega física se realiza directamente entre particulares y que Ecofarma
+                            Comprendo que la entrega física se realiza directamente entre particulares y que ecofarma
                             actúa únicamente como plataforma intermediaria.
                         </p>
                         <p class="text-foreground">
-                            Ecofarma no recibe, almacena, transporta, manipula ni custodia físicamente el medicamento
+                            ecofarma no recibe, almacena, transporta, manipula ni custodia físicamente el medicamento
                             durante la entrega.
                         </p>
                         <p class="text-foreground">
@@ -142,10 +142,10 @@ function volver() {
                             rechazarlo y reportarlo.
                         </p>
                         <p class="text-foreground">
-                            El reporte provocará la interrupción automática de la operación mientras Ecofarma analiza el
+                            El reporte provocará la interrupción automática de la operación mientras ecofarma analiza el
                             caso.
                         </p>
-                        <p class="text-foreground">Una vez resuelta la situación, Ecofarma podrá:</p>
+                        <p class="text-foreground">Una vez resuelta la situación, ecofarma podrá:</p>
                         <ul class="list-disc space-y-1 pl-5 text-foreground">
                             <li>cerrar definitivamente la operación; o</li>
                             <li>habilitar nuevamente el intercambio cuando corresponda.</li>
@@ -155,7 +155,7 @@ function volver() {
                     <div class="flex flex-col gap-3">
                         <h3 class="font-heading text-lg font-bold text-foreground">7. Registro de la declaración y de la operación</h3>
                         <p class="text-foreground">
-                            Acepto que Ecofarma conserve vinculados a esta operación, como mínimo: usuario donante,
+                            Acepto que ecofarma conserve vinculados a esta operación, como mínimo: usuario donante,
                             usuario receptor, identidad del destinatario cuando sea un tercero, medicamento, lote, fecha
                             de vencimiento, fotografías, fecha y hora, versión de esta Declaración Jurada y confirmación
                             de la entrega.
@@ -182,7 +182,7 @@ function volver() {
                         <p class="text-foreground">Declaro que:</p>
                         <ul class="list-disc space-y-1 pl-5 text-foreground">
                             <li>El medicamento fue obtenido legítimamente y se encuentra legítimamente en mi poder.</li>
-                            <li>El medicamento corresponde al producto informado y registrado en Ecofarma.</li>
+                            <li>El medicamento corresponde al producto informado y registrado en ecofarma.</li>
                             <li>
                                 Los datos cargados en la plataforma, incluyendo medicamento, presentación, lote y fecha de
                                 vencimiento, corresponden exactamente a la unidad que será entregada.
@@ -225,7 +225,7 @@ function volver() {
                             <li>se abre o manipula su envase primario;</li>
                             <li>sufre daños;</li>
                             <li>se altera su estado;</li>
-                            <li>o deja de coincidir con la información o fotografías registradas en Ecofarma.</li>
+                            <li>o deja de coincidir con la información o fotografías registradas en ecofarma.</li>
                         </ul>
                         <p class="text-foreground">
                             En cualquiera de estos casos deberé informar la situación a través de la plataforma.
@@ -235,24 +235,24 @@ function volver() {
                     <div class="flex flex-col gap-3">
                         <h3 class="font-heading text-lg font-bold text-foreground">3. Solicitudes realizadas para terceros</h3>
                         <p class="text-foreground">
-                            Entiendo que un usuario de Ecofarma puede solicitar el medicamento para otra persona.
+                            Entiendo que un usuario de ecofarma puede solicitar el medicamento para otra persona.
                         </p>
                         <p class="text-foreground">En esos casos:</p>
                         <ul class="list-disc space-y-1 pl-5 text-foreground">
-                            <li>Ecofarma deberá revisar y habilitar previamente la operación;</li>
+                            <li>ecofarma deberá revisar y habilitar previamente la operación;</li>
                             <li>seré informado de que el medicamento será destinado a un tercero;</li>
                             <li>
                                 y no podré rechazar la donación por el solo hecho de que el destinatario final sea una
-                                persona distinta del usuario que realizó la solicitud, siempre que Ecofarma haya
+                                persona distinta del usuario que realizó la solicitud, siempre que ecofarma haya
                                 habilitado la operación.
                             </li>
                         </ul>
                     </div>
 
                     <div class="flex flex-col gap-3">
-                        <h3 class="font-heading text-lg font-bold text-foreground">4. Alcance de la validación de Ecofarma</h3>
+                        <h3 class="font-heading text-lg font-bold text-foreground">4. Alcance de la validación de ecofarma</h3>
                         <p class="text-foreground">
-                            Reconozco que Ecofarma puede verificar la información digital disponible sobre el medicamento
+                            Reconozco que ecofarma puede verificar la información digital disponible sobre el medicamento
                             y contrastarla con sus fuentes de información.
                         </p>
                         <p class="text-foreground">
@@ -265,9 +265,9 @@ function volver() {
                             como donante.
                         </p>
                         <p class="text-foreground">
-                            La inclusión de un medicamento dentro del dataset utilizado por Ecofarma determina su
+                            La inclusión de un medicamento dentro del dataset utilizado por ecofarma determina su
                             elegibilidad inicial dentro de la plataforma, pero su participación permanece sujeta a las
-                            restricciones legales, sanitarias y operativas que correspondan. Ecofarma podrá impedir,
+                            restricciones legales, sanitarias y operativas que correspondan. ecofarma podrá impedir,
                             suspender o revisar una operación cuando resulte necesario.
                         </p>
                     </div>
@@ -278,7 +278,7 @@ function volver() {
                             Comprendo que la entrega física del medicamento se realiza directamente entre particulares.
                         </p>
                         <p class="text-foreground">
-                            Ecofarma funciona como plataforma intermediaria y no recibe, almacena, transporta, manipula ni
+                            ecofarma funciona como plataforma intermediaria y no recibe, almacena, transporta, manipula ni
                             custodia físicamente el medicamento durante la entrega.
                         </p>
                         <p class="text-foreground">
@@ -299,11 +299,11 @@ function volver() {
                             <li>o incumpla cualquiera de las condiciones declaradas.</li>
                         </ul>
                         <p class="text-foreground">
-                            Ante un reporte de este tipo, la operación será interrumpida automáticamente y Ecofarma podrá
+                            Ante un reporte de este tipo, la operación será interrumpida automáticamente y ecofarma podrá
                             abrir un caso para analizar la situación.
                         </p>
                         <p class="text-foreground">
-                            Una vez resuelto, Ecofarma podrá cerrar definitivamente la operación o habilitar nuevamente el
+                            Una vez resuelto, ecofarma podrá cerrar definitivamente la operación o habilitar nuevamente el
                             intercambio, según corresponda.
                         </p>
                     </div>
@@ -311,7 +311,7 @@ function volver() {
                     <div class="flex flex-col gap-3">
                         <h3 class="font-heading text-lg font-bold text-foreground">7. Registro de la declaración</h3>
                         <p class="text-foreground">
-                            Acepto que Ecofarma conserve vinculados a esta operación, como mínimo: usuario donante,
+                            Acepto que ecofarma conserve vinculados a esta operación, como mínimo: usuario donante,
                             usuario receptor, medicamento, lote, fecha de vencimiento, fotografías, fecha y hora, versión
                             de esta Declaración Jurada y confirmación de la entrega.
                         </p>

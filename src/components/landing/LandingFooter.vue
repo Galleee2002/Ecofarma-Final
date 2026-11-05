@@ -2,8 +2,8 @@
     <footer class="bg-primary text-surface">
         <div class="mx-auto flex max-w-7xl flex-col gap-7 px-5 py-8 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex items-center gap-5">
-                <RouterLink :to="{ name: 'inicio' }" class="shrink-0 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-surface" aria-label="Ecofarma, inicio">
-                    <img src="/logo.webp" alt="Ecofarma" width="1280" height="1280" class="size-12 object-contain" loading="lazy" />
+                <RouterLink :to="{ name: 'inicio' }" class="shrink-0 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-surface" aria-label="ecofarma, inicio">
+                    <img src="/logo.webp" alt="ecofarma" width="1280" height="1280" class="size-12 object-contain" loading="lazy" />
                 </RouterLink>
                 <p class="max-w-72 border-l border-surface/30 pl-5 text-sm">Doná los medicamentos que ya no usás y encontrá los que necesitás.</p>
             </div>

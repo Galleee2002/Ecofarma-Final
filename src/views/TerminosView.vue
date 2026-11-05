@@ -21,30 +21,30 @@ function volver() {
             <article class="flex flex-col gap-6 rounded-md bg-surface p-6 shadow-md sm:p-8">
                 <header class="flex flex-col gap-2">
                     <h1 class="font-heading text-2xl font-bold text-primary sm:text-3xl">
-                        Términos y Condiciones de Uso de Ecofarma
+                        Términos y Condiciones de Uso de ecofarma
                     </h1>
                     <p class="text-sm text-muted">
-                        Versión 1 — Definición, alcance, rol de Ecofarma y catálogo de medicamentos
+                        Versión 1 — Definición, alcance, rol de ecofarma y catálogo de medicamentos
                     </p>
                     <p class="text-sm text-muted">
                         Estado del documento: borrador preliminar sujeto a revisión jurídica, sanitaria y a las decisiones
-                        definitivas del equipo de Ecofarma.
+                        definitivas del equipo de ecofarma.
                     </p>
                 </header>
 
                 <section class="flex flex-col gap-3">
-                    <h2 class="font-heading text-lg font-bold text-foreground">1. Objeto y finalidad de Ecofarma</h2>
+                    <h2 class="font-heading text-lg font-bold text-foreground">1. Objeto y finalidad de ecofarma</h2>
                     <p class="text-foreground">
-                        Ecofarma es una plataforma digital de carácter altruista y gratuito cuyo propósito es facilitar el
+                        ecofarma es una plataforma digital de carácter altruista y gratuito cuyo propósito es facilitar el
                         contacto entre personas particulares que dispongan de medicamentos que ya no necesiten y personas
                         particulares interesadas en recibirlos mediante donación.
                     </p>
                     <p class="text-foreground">
-                        Ecofarma funciona como un espacio de intermediación o “vidriera” entre potenciales donantes y
+                        ecofarma funciona como un espacio de intermediación o “vidriera” entre potenciales donantes y
                         receptores, permitiendo publicar y solicitar medicamentos que cumplan con los requisitos
                         establecidos por la plataforma.
                     </p>
-                    <p class="text-foreground">La finalidad principal de Ecofarma es contribuir a:</p>
+                    <p class="text-foreground">La finalidad principal de ecofarma es contribuir a:</p>
                     <ul class="list-disc space-y-1 pl-5 text-foreground">
                         <li>reducir el desperdicio de medicamentos;</li>
                         <li>facilitar el acceso a medicamentos a personas que los necesiten;</li>
@@ -55,17 +55,17 @@ function volver() {
                         <li>fomentar acciones solidarias y altruistas entre personas;</li>
                         <li>contribuir a reducir el impacto ambiental relacionado con el descarte de medicamentos.</li>
                     </ul>
-                    <p class="text-foreground">Ecofarma no constituye un espacio destinado a la compraventa de medicamentos.</p>
+                    <p class="text-foreground">ecofarma no constituye un espacio destinado a la compraventa de medicamentos.</p>
                 </section>
 
                 <section class="flex flex-col gap-3">
                     <h2 class="font-heading text-lg font-bold text-foreground">2. Carácter gratuito de las donaciones</h2>
                     <p class="text-foreground">
-                        Todas las operaciones realizadas a través de Ecofarma deberán tener carácter exclusivamente
+                        Todas las operaciones realizadas a través de ecofarma deberán tener carácter exclusivamente
                         gratuito.
                     </p>
                     <p class="text-foreground">
-                        Queda prohibida la utilización de Ecofarma para vender, revender, comercializar o exigir
+                        Queda prohibida la utilización de ecofarma para vender, revender, comercializar o exigir
                         contraprestaciones económicas a cambio de los medicamentos publicados en la plataforma.
                     </p>
                     <p class="text-foreground">
@@ -73,20 +73,20 @@ function volver() {
                         donación.
                     </p>
                     <p class="text-foreground">
-                        La utilización de Ecofarma deberá responder exclusivamente a los fines altruistas y solidarios
+                        La utilización de ecofarma deberá responder exclusivamente a los fines altruistas y solidarios
                         para los cuales fue creada la plataforma.
                     </p>
                     <p class="text-foreground">
-                        Ecofarma podrá intervenir, suspender o eliminar publicaciones y adoptar medidas respecto de
+                        ecofarma podrá intervenir, suspender o eliminar publicaciones y adoptar medidas respecto de
                         usuarios cuando detecte indicios de utilización de la plataforma con fines comerciales,
                         fraudulentos, maliciosos o contrarios a estas condiciones.
                     </p>
                 </section>
 
                 <section class="flex flex-col gap-3">
-                    <h2 class="font-heading text-lg font-bold text-foreground">3. Usuarios de Ecofarma</h2>
+                    <h2 class="font-heading text-lg font-bold text-foreground">3. Usuarios de ecofarma</h2>
                     <p class="text-foreground">
-                        En esta primera versión del servicio, Ecofarma estará destinada exclusivamente a personas físicas
+                        En esta primera versión del servicio, ecofarma estará destinada exclusivamente a personas físicas
                         que actúen a título individual.
                     </p>
                     <p class="text-foreground">
@@ -95,13 +95,13 @@ function volver() {
                     <p class="text-foreground">
                         <strong>Donante.</strong>
                         Persona que declara disponer legítimamente de un medicamento que ya no necesita y manifiesta su
-                        voluntad de ofrecerlo gratuitamente mediante Ecofarma, sujeto al cumplimiento de los requisitos
+                        voluntad de ofrecerlo gratuitamente mediante ecofarma, sujeto al cumplimiento de los requisitos
                         establecidos por la plataforma.
                     </p>
                     <p class="text-foreground">
                         <strong>Receptor.</strong>
                         Persona que manifiesta interés o necesidad de recibir gratuitamente un medicamento publicado
-                        mediante Ecofarma y acepta las condiciones y declaraciones que correspondan antes de concretar la
+                        mediante ecofarma y acepta las condiciones y declaraciones que correspondan antes de concretar la
                         operación.
                     </p>
                     <p class="text-foreground">
@@ -115,16 +115,16 @@ function volver() {
                 </section>
 
                 <section class="flex flex-col gap-3">
-                    <h2 class="font-heading text-lg font-bold text-foreground">4. Rol de Ecofarma</h2>
+                    <h2 class="font-heading text-lg font-bold text-foreground">4. Rol de ecofarma</h2>
                     <p class="text-foreground">
-                        Ecofarma actúa como plataforma intermediaria entre donantes y receptores.
+                        ecofarma actúa como plataforma intermediaria entre donantes y receptores.
                     </p>
                     <p class="text-foreground">
                         Su intervención tiene como finalidad facilitar la publicación, identificación y solicitud de
                         medicamentos y establecer mecanismos de control respecto de los medicamentos que pueden ser
                         publicados mediante el servicio.
                     </p>
-                    <p class="text-foreground">Ecofarma podrá:</p>
+                    <p class="text-foreground">ecofarma podrá:</p>
                     <ul class="list-disc space-y-1 pl-5 text-foreground">
                         <li>establecer requisitos para la publicación de medicamentos;</li>
                         <li>mantener un catálogo de referencia de medicamentos;</li>
@@ -141,7 +141,7 @@ function volver() {
                         </li>
                     </ul>
                     <p class="text-foreground">
-                        La intervención de Ecofarma sobre una publicación no constituye, por sí misma, una garantía
+                        La intervención de ecofarma sobre una publicación no constituye, por sí misma, una garantía
                         respecto de la autenticidad, conservación, calidad, seguridad o estado físico de la unidad
                         concreta del medicamento que se encuentre en poder del donante.
                     </p>
@@ -150,7 +150,7 @@ function volver() {
                 <section class="flex flex-col gap-3">
                     <h2 class="font-heading text-lg font-bold text-foreground">5. Posesión y manipulación de los medicamentos</h2>
                     <p class="text-foreground">
-                        Ecofarma no recibe, almacena ni manipula físicamente los medicamentos publicados por los usuarios.
+                        ecofarma no recibe, almacena ni manipula físicamente los medicamentos publicados por los usuarios.
                     </p>
                     <p class="text-foreground">
                         El medicamento permanece en posesión y bajo responsabilidad del donante hasta el momento en que se
@@ -158,7 +158,7 @@ function volver() {
                     </p>
                     <p class="text-foreground">
                         La información proporcionada mediante la plataforma respecto de una unidad determinada es
-                        declarada por el usuario que realiza la publicación, sin perjuicio de los controles que Ecofarma
+                        declarada por el usuario que realiza la publicación, sin perjuicio de los controles que ecofarma
                         pueda implementar.
                     </p>
                     <p class="text-foreground">
@@ -170,14 +170,14 @@ function volver() {
                 </section>
 
                 <section class="flex flex-col gap-3">
-                    <h2 class="font-heading text-lg font-bold text-foreground">6. Catálogo de medicamentos de Ecofarma</h2>
+                    <h2 class="font-heading text-lg font-bold text-foreground">6. Catálogo de medicamentos de ecofarma</h2>
                     <p class="text-foreground">
-                        Ecofarma dispondrá de un catálogo de referencia denominado provisionalmente “Catálogo de
+                        ecofarma dispondrá de un catálogo de referencia denominado provisionalmente “Catálogo de
                         medicamentos habilitados”, compuesto por información utilizada para identificar medicamentos que
                         pueden iniciar el proceso de publicación dentro de la plataforma.
                     </p>
                     <p class="text-foreground">
-                        La inclusión de un producto en dicho catálogo permitirá a Ecofarma reconocer determinados datos
+                        La inclusión de un producto en dicho catálogo permitirá a ecofarma reconocer determinados datos
                         asociados al medicamento, tales como su denominación, principio activo o nombre genérico,
                         concentración, forma farmacéutica, presentación, laboratorio titular y número de certificado
                         cuando dicha información se encuentre disponible.
@@ -192,7 +192,7 @@ function volver() {
                     </p>
                     <p class="text-foreground">
                         El medicamento deberá cumplir, además, con las restantes condiciones, controles y declaraciones
-                        que Ecofarma establezca.
+                        que ecofarma establezca.
                     </p>
                 </section>
 
@@ -200,14 +200,14 @@ function volver() {
                     <h2 class="font-heading text-lg font-bold text-foreground">7. Medicamentos incluidos en el catálogo</h2>
                     <p class="text-foreground">
                         Cuando el medicamento seleccionado por el usuario se encuentre previamente reconocido dentro del
-                        catálogo de Ecofarma, la plataforma podrá permitir que el usuario continúe con el proceso de
+                        catálogo de ecofarma, la plataforma podrá permitir que el usuario continúe con el proceso de
                         publicación sin necesidad de una revisión manual previa destinada a identificar el producto.
                     </p>
                     <p class="text-foreground">
                         Esta admisión no libera al donante de proporcionar la información requerida respecto de la unidad
                         que posee ni de aceptar las declaraciones y condiciones correspondientes.
                     </p>
-                    <p class="text-foreground">Asimismo, la inclusión del medicamento en el catálogo no implica que Ecofarma:</p>
+                    <p class="text-foreground">Asimismo, la inclusión del medicamento en el catálogo no implica que ecofarma:</p>
                     <ul class="list-disc space-y-1 pl-5 text-foreground">
                         <li>haya inspeccionado físicamente la unidad;</li>
                         <li>pueda conocer de manera directa las condiciones en las que fue almacenada;</li>
@@ -233,14 +233,14 @@ function volver() {
                         el catálogo, su publicación no será autorizada automáticamente.
                     </p>
                     <p class="text-foreground">
-                        La solicitud deberá quedar sujeta a un proceso de revisión por parte de Ecofarma.
+                        La solicitud deberá quedar sujeta a un proceso de revisión por parte de ecofarma.
                     </p>
                     <p class="text-foreground">
-                        Durante dicho proceso, Ecofarma podrá solicitar al usuario información adicional que permita
+                        Durante dicho proceso, ecofarma podrá solicitar al usuario información adicional que permita
                         identificar correctamente el medicamento y determinar si puede continuar dentro del proceso de
                         publicación.
                     </p>
-                    <p class="text-foreground">Como resultado de la revisión, Ecofarma podrá:</p>
+                    <p class="text-foreground">Como resultado de la revisión, ecofarma podrá:</p>
                     <ul class="list-disc space-y-1 pl-5 text-foreground">
                         <li>
                             <strong>Admitir la solicitud:</strong>
@@ -253,7 +253,7 @@ function volver() {
                         </li>
                         <li>
                             <strong>Rechazar la solicitud:</strong>
-                            impidiendo la publicación del medicamento mediante Ecofarma.
+                            impidiendo la publicación del medicamento mediante ecofarma.
                         </li>
                     </ul>
                     <p class="text-foreground">
@@ -261,20 +261,20 @@ function volver() {
                         física que posea el usuario.
                     </p>
                     <p class="text-foreground">
-                        Los criterios sanitarios concretos mediante los cuales Ecofarma pueda determinar que una unidad es
+                        Los criterios sanitarios concretos mediante los cuales ecofarma pueda determinar que una unidad es
                         “apta para donación” deberán ser definidos y validados antes de la implementación definitiva del
                         servicio.
                     </p>
                 </section>
 
                 <section class="flex flex-col gap-3">
-                    <h2 class="font-heading text-lg font-bold text-foreground">9. Alcance de la revisión realizada por Ecofarma</h2>
+                    <h2 class="font-heading text-lg font-bold text-foreground">9. Alcance de la revisión realizada por ecofarma</h2>
                     <p class="text-foreground">
-                        El proceso de revisión de Ecofarma busca establecer controles adicionales sobre aquellos
+                        El proceso de revisión de ecofarma busca establecer controles adicionales sobre aquellos
                         medicamentos que no hayan sido previamente reconocidos en el catálogo.
                     </p>
                     <p class="text-foreground">
-                        Ecofarma podrá comprobar la identidad y características declaradas del medicamento utilizando las
+                        ecofarma podrá comprobar la identidad y características declaradas del medicamento utilizando las
                         fuentes y mecanismos de verificación que sean establecidos para tal finalidad.
                     </p>
                     <p class="text-foreground">
@@ -283,7 +283,7 @@ function volver() {
                     </p>
                     <p class="text-foreground">
                         En consecuencia, la aprobación de una publicación no deberá interpretarse como una garantía de
-                        Ecofarma respecto de la seguridad, autenticidad, calidad, conservación o aptitud terapéutica de
+                        ecofarma respecto de la seguridad, autenticidad, calidad, conservación o aptitud terapéutica de
                         la unidad concreta entregada entre los usuarios.
                     </p>
                     <p class="text-foreground">
@@ -293,9 +293,9 @@ function volver() {
                 </section>
 
                 <section class="flex flex-col gap-3">
-                    <h2 class="font-heading text-lg font-bold text-foreground">10. Facultad de control y moderación de Ecofarma</h2>
+                    <h2 class="font-heading text-lg font-bold text-foreground">10. Facultad de control y moderación de ecofarma</h2>
                     <p class="text-foreground">
-                        Ecofarma podrá rechazar, suspender o eliminar una publicación aunque el medicamento figure dentro
+                        ecofarma podrá rechazar, suspender o eliminar una publicación aunque el medicamento figure dentro
                         de su catálogo cuando existan motivos razonables para considerar que:
                     </p>
                     <ul class="list-disc space-y-1 pl-5 text-foreground">
@@ -315,16 +315,16 @@ function volver() {
                         irrevocable a mantenerlo publicado.
                     </p>
                     <p class="text-foreground">
-                        Ecofarma podrá actuar preventivamente cuando considere necesario revisar una publicación antes de
+                        ecofarma podrá actuar preventivamente cuando considere necesario revisar una publicación antes de
                         permitir que continúe el proceso de donación.
                     </p>
                 </section>
 
                 <section class="flex flex-col gap-3">
                     <h2 class="font-heading text-lg font-bold text-foreground">11. Actualización del catálogo</h2>
-                    <p class="text-foreground">El catálogo de Ecofarma tendrá carácter dinámico.</p>
+                    <p class="text-foreground">El catálogo de ecofarma tendrá carácter dinámico.</p>
                     <p class="text-foreground">
-                        Ecofarma podrá actualizar, ampliar, corregir, suspender o retirar medicamentos del catálogo cuando
+                        ecofarma podrá actualizar, ampliar, corregir, suspender o retirar medicamentos del catálogo cuando
                         resulte necesario debido a:
                     </p>
                     <ul class="list-disc space-y-1 pl-5 text-foreground">
@@ -340,7 +340,7 @@ function volver() {
                         dentro del catálogo.
                     </p>
                     <p class="text-foreground">
-                        Ecofarma procurará utilizar información actualizada para mantener el catálogo, sin perjuicio de
+                        ecofarma procurará utilizar información actualizada para mantener el catálogo, sin perjuicio de
                         las verificaciones adicionales que correspondan antes de autorizar publicaciones.
                     </p>
                 </section>
@@ -356,8 +356,8 @@ function volver() {
                         permanece en su poder.
                     </p>
                     <p class="text-foreground">
-                        La aceptación de una publicación por parte de Ecofarma no sustituye las obligaciones del donante
-                        ni implica que Ecofarma asuma como propia la información declarada por este.
+                        La aceptación de una publicación por parte de ecofarma no sustituye las obligaciones del donante
+                        ni implica que ecofarma asuma como propia la información declarada por este.
                     </p>
                     <p class="text-foreground">
                         El receptor deberá evaluar la información disponible, cumplir con las condiciones de uso y aceptar
@@ -366,14 +366,14 @@ function volver() {
                     <p class="text-foreground">
                         Las obligaciones específicas del donante y del receptor serán desarrolladas en las respectivas
                         Declaraciones Juradas de Donación y Recepción, que formarán parte del sistema documental de
-                        Ecofarma.
+                        ecofarma.
                     </p>
                 </section>
 
                 <section class="flex flex-col gap-3">
                     <h2 class="font-heading text-lg font-bold text-foreground">13. Condiciones de entrega</h2>
                     <p class="text-foreground">
-                        Ecofarma no realizará directamente el transporte, almacenamiento, custodia ni entrega física de
+                        ecofarma no realizará directamente el transporte, almacenamiento, custodia ni entrega física de
                         los medicamentos.
                     </p>
                     <p class="text-foreground">
@@ -381,7 +381,7 @@ function volver() {
                         acordarán entre sí las condiciones necesarias para concretarla.
                     </p>
                     <p class="text-foreground">
-                        Ecofarma actuará exclusivamente como plataforma intermediaria, facilitando el contacto y la
+                        ecofarma actuará exclusivamente como plataforma intermediaria, facilitando el contacto y la
                         gestión de la operación, sin intervenir físicamente en la entrega del medicamento.
                     </p>
                 </section>
@@ -389,7 +389,7 @@ function volver() {
                 <section class="flex flex-col gap-3">
                     <h2 class="font-heading text-lg font-bold text-foreground">14. Aceptación de las condiciones</h2>
                     <p class="text-foreground">
-                        La utilización de Ecofarma y la participación en operaciones de donación requerirán la aceptación
+                        La utilización de ecofarma y la participación en operaciones de donación requerirán la aceptación
                         de los presentes Términos y Condiciones y de las declaraciones o documentos adicionales aplicables
                         a cada operación.
                     </p>
@@ -398,7 +398,7 @@ function volver() {
                         Jurada que corresponda a cada medicamento publicado o solicitado.
                     </p>
                     <p class="text-foreground">
-                        Ecofarma podrá impedir la publicación o solicitud de un medicamento cuando el usuario no haya
+                        ecofarma podrá impedir la publicación o solicitud de un medicamento cuando el usuario no haya
                         aceptado los documentos requeridos.
                     </p>
                 </section>
