@@ -7,7 +7,7 @@ const pasosDonar = [
     {
         titulo: 'Elegí el medicamento',
         texto: 'Ingresá y buscalo en el vademécum.',
-        imagen: '/landing/tutorial/donar-1.webp',
+        imagen: '/landing/tutorial/recibir-1.webp',
     },
     {
         titulo: 'Subí la foto del envase',
@@ -25,7 +25,7 @@ const pasosRecibir = [
     {
         titulo: 'Mirá lo disponible',
         texto: 'El catálogo muestra medicamentos disponibles y no vencidos.',
-        imagen: '/landing/tutorial/recibir-1.webp',
+        imagen: '/landing/tutorial/donar-1.webp',
     },
     {
         titulo: 'Enviá la solicitud',
@@ -58,9 +58,6 @@ function elegirModo(valor) {
 <template>
     <section id="como-funciona" class="scroll-mt-8 overflow-hidden bg-surface" aria-labelledby="tutorial-titulo">
         <div class="relative mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-14 md:py-16">
-            <div class="pointer-events-none absolute -top-16 -left-20 size-48 rounded-[45%] bg-primary/10 sm:size-64" aria-hidden="true"></div>
-            <div class="pointer-events-none absolute -right-16 -bottom-20 size-56 rounded-[45%] bg-icon/10 sm:size-72" aria-hidden="true"></div>
-
             <div class="relative mx-auto max-w-2xl text-center">
                 <h2 id="tutorial-titulo" class="font-heading text-xl text-balance sm:text-2xl md:text-3xl">
                     Cómo funciona nuestra app
@@ -70,13 +67,13 @@ function elegirModo(valor) {
                 </p>
 
                 <div
-                    class="mt-6 inline-flex max-w-full items-center gap-1 rounded-full border border-line bg-background p-1 sm:mt-8"
+                    class="mt-6 inline-flex max-w-full items-center gap-2 sm:mt-8"
                     role="group"
                     aria-label="Elegir recorrido"
                 >
                     <BaseButton
                         size="md"
-                        :variant="modo === 'donar' ? 'primary' : 'outline'"
+                        :variant="modo === 'donar' ? 'primary' : 'ghost'"
                         class="!min-h-11 !rounded-full !px-5"
                         :aria-pressed="modo === 'donar'"
                         @click="elegirModo('donar')"
@@ -85,7 +82,7 @@ function elegirModo(valor) {
                     </BaseButton>
                     <BaseButton
                         size="md"
-                        :variant="modo === 'recibir' ? 'primary' : 'outline'"
+                        :variant="modo === 'recibir' ? 'primary' : 'ghost'"
                         class="!min-h-11 !rounded-full !px-5"
                         :aria-pressed="modo === 'recibir'"
                         @click="elegirModo('recibir')"

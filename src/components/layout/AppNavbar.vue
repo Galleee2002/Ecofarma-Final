@@ -38,6 +38,10 @@ const enlaces = computed(function () {
     ];
 });
 
+const navbarSticky = computed(function () {
+    return route.name !== 'inicio';
+});
+
 onMounted(async function () {
     await esperarSesionInicial();
     if (sesion.value !== null) {
@@ -103,7 +107,7 @@ async function confirmarCerrarSesion() {
 </script>
 
 <template>
-    <BaseNavbar>
+    <BaseNavbar :sticky="navbarSticky">
         <template #desktop-navigation>
             <template v-for="enlace in enlaces" :key="enlace.id">
                 <button
