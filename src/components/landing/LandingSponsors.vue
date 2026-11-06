@@ -7,7 +7,7 @@ const colaboradores = [
 </script>
 
 <template>
-    <section class="bg-background" aria-label="Colaboradores">
+    <section class="bg-surface" aria-label="Colaboradores">
         <div class="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:py-12">
             <ul class="mx-auto grid max-w-4xl list-none grid-cols-3 divide-x divide-line" aria-label="Colaboradores">
                 <li
