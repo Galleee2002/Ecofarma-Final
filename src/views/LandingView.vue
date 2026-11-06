@@ -1,4 +1,5 @@
 <script setup>
+import LandingDescarga from '../components/landing/LandingDescarga.vue';
 import LandingFaq from '../components/landing/LandingFaq.vue';
 import LandingFooter from '../components/landing/LandingFooter.vue';
 import LandingHero from '../components/landing/LandingHero.vue';
@@ -14,6 +15,7 @@ import LandingSponsors from '../components/landing/LandingSponsors.vue';
         <LandingTutorial />
         <LandingImpacto />
         <LandingFaq />
+        <LandingDescarga />
     </main>
     <LandingFooter />
 </template>

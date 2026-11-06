@@ -8,7 +8,7 @@ import { ArrowRight } from '@lucide/vue';
             <div class="flex max-w-xl flex-col items-start gap-5">
                 <h1 id="hero-titulo" class="text-3xl leading-tight text-foreground lg:text-[2.75rem]">
                     Dale una segunda vida <span class="lg:block lg:whitespace-nowrap">a tus medicamentos.</span><br class="lg:hidden">
-                    <span class="text-icon">Más oportunidades para las personas</span>
+                    <span class="text-icon">Más oportunidades <span class="block whitespace-nowrap">para las personas</span></span>
                 </h1>
                 <p class="max-w-md text-base text-pretty text-muted sm:text-lg">
                     Conectamos a quienes tienen medicamentos disponibles con quienes los necesitan. Una forma simple y responsable de compartir, cuidar y generar un impacto positivo.
