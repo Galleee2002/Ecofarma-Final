@@ -13,6 +13,10 @@ const { sesion, perfil, error, cargando, cerrarSesion, mostrarAviso, esperarSesi
 const authListo = ref(false);
 const confirmarCierre = ref(false);
 
+const urlLanding = typeof import.meta.env.VITE_LANDING_URL === 'string'
+    ? import.meta.env.VITE_LANDING_URL.replace(/\/$/, '')
+    : '';
+
 const esAdmin = computed(function () {
     return perfil.value !== null && perfil.value.rol === 'admin';
 });
@@ -32,14 +36,10 @@ const nombreUsuario = computed(function () {
 
 const enlaces = computed(function () {
     return [
-        { id: 'inicio', etiqueta: 'Inicio', destino: { name: 'inicio' }, deshabilitado: false },
-        { id: 'donar', etiqueta: 'Donar', destino: { name: 'donar' }, deshabilitado: false },
-        { id: 'recibir', etiqueta: 'Recibir', destino: { name: 'recibir' }, deshabilitado: false },
+        { id: 'inicio', etiqueta: 'Inicio', externo: true, href: urlLanding === '' ? '/' : urlLanding },
+        { id: 'donar', etiqueta: 'Donar', destino: { name: 'donar' } },
+        { id: 'recibir', etiqueta: 'Recibir', destino: { name: 'recibir' } },
     ];
-});
-
-const navbarSticky = computed(function () {
-    return route.name !== 'inicio';
 });
 
 onMounted(async function () {
@@ -52,7 +52,7 @@ onMounted(async function () {
 
 function enlaceActivo(enlace) {
     if (enlace.id === 'inicio') {
-        return route.name === 'inicio';
+        return false;
     }
     if (enlace.id === 'recibir') {
         return route.name === 'recibir' || route.name === 'catalogo' || route.name === 'medicamento-detalle';
@@ -69,14 +69,8 @@ function clasesEnlace(enlace, movil) {
         'inline-flex items-center rounded-md px-3 py-2 font-semibold text-surface',
         alto,
         'transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none',
+        'hover:bg-surface/10',
     ];
-
-    if (enlace.deshabilitado) {
-        clases.push('cursor-not-allowed border-0 bg-transparent opacity-70');
-        return clases.join(' ');
-    }
-
-    clases.push('hover:bg-surface/10');
     if (enlaceActivo(enlace)) {
         clases.push('bg-secondary/30');
     }
@@ -107,19 +101,16 @@ async function confirmarCerrarSesion() {
 </script>
 
 <template>
-    <BaseNavbar :sticky="navbarSticky">
+    <BaseNavbar sticky :logo-to="{ name: 'recibir' }">
         <template #desktop-navigation>
             <template v-for="enlace in enlaces" :key="enlace.id">
-                <button
-                    v-if="enlace.deshabilitado"
-                    type="button"
-                    disabled
+                <a
+                    v-if="enlace.externo"
+                    :href="enlace.href"
                     :class="clasesEnlace(enlace, false)"
-                    :aria-label="enlace.etiqueta + ', no disponible todavía'"
-                    title="La página de inicio estará disponible pronto"
                 >
                     {{ enlace.etiqueta }}
-                </button>
+                </a>
                 <RouterLink
                     v-else
                     :to="enlace.destino"
@@ -153,16 +144,13 @@ async function confirmarCerrarSesion() {
 
         <template #mobile-navigation>
             <template v-for="enlace in enlaces" :key="enlace.id">
-                <button
-                    v-if="enlace.deshabilitado"
-                    type="button"
-                    disabled
+                <a
+                    v-if="enlace.externo"
+                    :href="enlace.href"
                     :class="clasesEnlace(enlace, true)"
-                    :aria-label="enlace.etiqueta + ', no disponible todavía'"
-                    title="La página de inicio estará disponible pronto"
                 >
                     {{ enlace.etiqueta }}
-                </button>
+                </a>
                 <RouterLink
                     v-else
                     :to="enlace.destino"

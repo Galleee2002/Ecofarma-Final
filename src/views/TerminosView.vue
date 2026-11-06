@@ -8,7 +8,7 @@ function volver() {
         router.back();
         return;
     }
-    router.push({ name: 'inicio' });
+    router.push({ name: 'recibir' });
 }
 </script>
 

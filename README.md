@@ -171,6 +171,7 @@ Para desarrollo full-stack necesitas un **proyecto de Supabase** (local con `sup
    ```env
    VITE_SUPABASE_URL=https://<tu-proyecto>.supabase.co
    VITE_SUPABASE_ANON_KEY=<tu-clave-anon-o-publishable>
+   VITE_LANDING_URL=http://localhost:5174
    ```
 
    **No commitear** `.env.local` ni pegar claves en issues, PRs o capturas.
@@ -233,7 +234,7 @@ Usar siempre el prefijo `pnpm supabase`, no la CLI suelta ni `npx`, para alinear
 
 ## Estado del proyecto
 
-**MVP funcional (fases 1–9):** catálogo, auth, perfil, donaciones, solicitudes, chat, confirmación/cancelación, panel de administración y gestión de usuarios. La interfaz prioriza HTML semántico y Tailwind; el **pulido visual** pantalla a pantalla y la **landing pública** (fase 10) están planificados en `ROADMAP.md`.
+**MVP funcional (fases 1–9):** catálogo, auth, perfil, donaciones, solicitudes, chat, confirmación/cancelación, panel de administración y gestión de usuarios. La interfaz prioriza HTML semántico y Tailwind; el **pulido visual** pantalla a pantalla está en `ROADMAP.md` (sección 5). La **landing pública** vive en el repo hermano `Ecofarma-Landing`.
 
 Ramas habituales: `main` (producción), `dev` (integración), features desde `dev` como `featureNN/<nombre>`.
 

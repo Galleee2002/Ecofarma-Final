@@ -12,16 +12,16 @@ Reglas de trabajo. El estado, las decisiones y el esquema están en `ROADMAP.md`
 ## Alcance
 
 - Implementar solo lo que el usuario pide. Si hace falta un archivo o un cambio de más para que funcione, avisarlo y explicar por qué antes de hacerlo.
-- Primero datos, RLS, consultas y Edge Functions. Hasta la fidelidad visual y la landing (`ROADMAP.md`, sección 5 y fase 10), la interfaz lleva solo las clases de Tailwind mínimas para probarla. HTML nativo: `input`, `select`, `textarea`, `button`, `table`. Sin shadcn/vue ni librerías de UI.
+- Primero datos, RLS, consultas y Edge Functions. Hasta la fidelidad visual (`ROADMAP.md`, sección 5), la interfaz lleva solo las clases de Tailwind mínimas para probarla. HTML nativo: `input`, `select`, `textarea`, `button`, `table`. Sin shadcn/vue ni librerías de UI.
 
 ## Estructura
 
-Un solo proyecto: `src/` en la raíz y `supabase/` al lado. No separar en `/frontend` y `/backend`, ni mover archivos, `.env.local` o imports.
+Este repo es la **app** (plataforma). La landing de marketing vive en el repo hermano `Ecofarma-Landing` (fuera de esta carpeta). No separar la app en `/frontend` y `/backend`, ni mover archivos, `.env.local` o imports.
 
 - `src/lib/supabase.js`: único cliente de Supabase en el frontend.
 - `src/views/`: una página por ruta. Llama al composable y renderiza el formulario o la lista. Las vistas actuales no importan `src/components/`.
 - `src/composables/`: acceso a Supabase y validación de formularios.
-- `src/components/`: destino de la fidelidad visual. Carpetas previstas: `ui/`, `layout/`, `landing/`, `medicamentos/`. No reutilizar el rastro de shadcn/vue ni los componentes de dominio que siguen en disco (`auth/`, `chat/`, `perfil/`, `donaciones/` y el `ui/` antiguo). Detalle en `docs/convenciones-visuales.md`.
+- `src/components/`: destino de la fidelidad visual. Carpetas previstas: `ui/`, `layout/`, `medicamentos/`. No reutilizar el rastro de shadcn/vue ni los componentes de dominio que siguen en disco (`auth/`, `chat/`, `perfil/`, `donaciones/` y el `ui/` antiguo). Detalle en `docs/convenciones-visuales.md`.
 - `src/style.css`: Tailwind, tokens (`@theme`) y las utilidades `pagina`, `pagina-media` y `pagina-formulario`.
 - `docs/convenciones-visuales.md`: tokens, tipografía y uso de clases.
 - `supabase/migrations/`: una migración nueva por cambio de esquema. No editar migraciones ya aplicadas.
@@ -49,7 +49,7 @@ Un solo proyecto: `src/` en la raíz y `supabase/` al lado. No separar en `/fron
 ## Frontend
 
 - `KeepAlive` en `App.vue` conserva el borrador de `RegistroView`, `DonarView` y `MedicamentoDetalleView` al navegar a otra ruta (p. ej. legales) y volver. Esas vistas declaran `defineOptions({ name: '...' })`. Tras un alta exitosa, el formulario de registro se reinicia.
-- `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en `.env.local`. Nunca la `service_role` key ni otros secretos.
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` y `VITE_LANDING_URL` en `.env.local`. Nunca la `service_role` key ni otros secretos. `VITE_LANDING_URL` es la URL del sitio marketing (`Ecofarma-Landing`); el ítem Inicio del navbar apunta ahí.
 - Colores solo con tokens de `src/style.css` (`bg-primary`, `text-icon`, `text-danger`). Sin hex sueltos ni la paleta por defecto de Tailwind.
 - Títulos en `font-heading` (Lato 700). Cuerpo en `font-sans` (Source Sans Pro).
 - Mobile First es obligatorio: todos los componentes, layouts y pantallas se diseñan primero para dispositivos móviles y se adaptan progresivamente a tablet y desktop usando los breakpoints de Tailwind CSS (`sm`, `md`, `lg`, `xl`). Priorizar accesibilidad, usabilidad, consistencia visual y reutilización de componentes.

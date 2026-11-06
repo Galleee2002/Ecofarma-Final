@@ -6,7 +6,7 @@ Estado del proyecto, decisiones que siguen vigentes, esquema y lo que falta. Las
 
 ## 1. Estado
 
-Las fases 1 a 9 están cerradas en funcionalidad. La interfaz es HTML nativo con las clases de Tailwind mínimas para probarla. Se quitaron shadcn/vue y los componentes de dominio; el rastro sigue en disco y no se reutiliza. Los tokens, fuentes y carpetas de la etapa de fundamentos visuales están cerrados (sección 3 y `docs/convenciones-visuales.md`). Falta el pulido de cada pantalla (sección 5) y la landing (fase 10).
+Las fases 1 a 9 están cerradas en funcionalidad. La interfaz es HTML nativo con las clases de Tailwind mínimas para probarla. Se quitaron shadcn/vue y los componentes de dominio; el rastro sigue en disco y no se reutiliza. Los tokens, fuentes y carpetas de la etapa de fundamentos visuales están cerrados (sección 3 y `docs/convenciones-visuales.md`). Falta el pulido de cada pantalla (sección 5). La landing (fase 10) vive en el repo hermano `Ecofarma-Landing`.
 
 | Fase | Qué quedó |
 |---|---|
@@ -19,7 +19,7 @@ Las fases 1 a 9 están cerradas en funcionalidad. La interfaz es HTML nativo con
 | 7 | Chat, `confirmar-entrega` y `cancelar-solicitud`. |
 | 8 | Moderación y alta del vademécum (`moderar-donacion`, `alta-medicamento-habilitado`). |
 | 9 | Cuentas en `/admin/usuarios` (`gestionar-usuarios`). |
-| 10 | Landing. Pendiente. Empieza cuando cierre la sección 5. |
+| 10 | Landing en repo `Ecofarma-Landing` (fuera de esta app). |
 
 En el tablero, las tarjetas #27 y #24 tienen el título cruzado con el contenido. La fase 5 es publicar una donación. La fase 9 es la gestión de cuentas.
 
@@ -46,7 +46,7 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 - La sesión se escucha solo con `onAuthStateChange`. `INITIAL_SESSION` trae la sesión guardada. El perfil se carga con `setTimeout`, fuera del callback, y solo si cambió el usuario.
 - La escucha arranca en `router.beforeEach`, que espera `esperarSesionInicial()` antes de decidir. El guard de admin espera además `esperarPerfil()`.
 - `requiereSesion` manda a `/login?redirect=`. `soloInvitados` manda al catálogo. `requiereAdmin` manda al catálogo si el rol no es `admin`. El registro siempre va al catálogo. El ingreso vuelve al `redirect` si empieza con `/`.
-- El navbar de la plataforma tiene Inicio (`/`, landing de media fidelidad), Donar (`/donar`) y Recibir (`/recibir`). Recibir reutiliza `CatalogoView` y queda activo en `/recibir`, `/catalogo` y `/medicamento/:id`. `/catalogo` se mantiene como ruta compatible.
+- El navbar de la plataforma tiene Inicio (enlace externo a `VITE_LANDING_URL`), Donar (`/donar`) y Recibir (`/recibir`). `/` redirige a `/recibir`. Recibir reutiliza `CatalogoView` y queda activo en `/recibir`, `/catalogo` y `/medicamento/:id`. `/catalogo` se mantiene como ruta compatible.
 - Mi perfil sigue en `/perfil` con las pestañas Mis datos, Mis donaciones (`?tab=donaciones`) y Mis solicitudes (`?tab=solicitudes`). Administración solo se muestra si `rol = admin`.
 - El cierre de sesión se confirma con `BaseModal`. La autenticación sigue en `useAuth` (`signOut`).
 - `cargando` y `error` son de cada vista. `useAuth` comparte sesión, perfil y `errorPerfil`. El aviso de ingreso, registro y cierre de sesión lo muestra `mostrarAviso` con `useToast` (3 s).
@@ -92,7 +92,7 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 
 ## 3. Sistema de diseño
 
-Tokens en `@theme` de `src/style.css`. Fuentes desde Bunny Fonts en `index.html` (Lato 400/700 y Source Sans Pro 400/600). La interfaz usa HTML nativo y estos tokens (`bg-primary`, `text-danger`, `border-line`). Cómo usarlos: `docs/convenciones-visuales.md`. Esta etapa (fundamentos visuales) está cerrada. Siguen pendientes el pulido de cada pantalla (sección 5) y la landing (fase 10).
+Tokens en `@theme` de `src/style.css`. Fuentes desde Bunny Fonts en `index.html` (Lato 400/700 y Source Sans Pro 400/600). La interfaz usa HTML nativo y estos tokens (`bg-primary`, `text-danger`, `border-line`). Cómo usarlos: `docs/convenciones-visuales.md`. Esta etapa (fundamentos visuales) está cerrada. Sigue pendiente el pulido de cada pantalla (sección 5). La landing está en `Ecofarma-Landing`.
 
 | Token | Hex | Uso |
 |---|---|---|
@@ -118,7 +118,7 @@ Sombras (tinte `primary`): `sm` `0 1px 2px rgb(33 91 141 / 0.08)`, `md` `0 4px 1
 
 Cada vista usa `pagina` (64rem), `pagina-media` (48rem) o `pagina-formulario` (28rem).
 
-Carpetas previstas para la fidelidad visual: `src/components/ui/`, `layout/`, `landing/`, `medicamentos/`. Las vistas actuales no las importan. El sistema de toasts está cerrado: `BaseToast` define la presentación, `ToastViewport` se monta en `App.vue` y las vistas invocan `useToast`. Todavía no reemplaza los avisos actuales de cada pantalla. El modal reutilizable está cerrado: `BaseModal` cubre apertura con `v-model:open`, variantes default/danger/success y acciones por slot.
+Carpetas previstas para la fidelidad visual: `src/components/ui/`, `layout/`, `medicamentos/`. Las vistas actuales no las importan. El sistema de toasts está cerrado: `BaseToast` define la presentación, `ToastViewport` se monta en `App.vue` y las vistas invocan `useToast`. Todavía no reemplaza los avisos actuales de cada pantalla. El modal reutilizable está cerrado: `BaseModal` cubre apertura con `v-model:open`, variantes default/danger/success y acciones por slot.
 
 ---
 
@@ -191,7 +191,7 @@ Sin `updated_at`. Solo leen y escriben donante y receptor.
 
 Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. Cada vista llama al composable y usa HTML nativo. El pulido visual de cada pantalla está pendiente.
 
-- [x] Navegación (`App.vue`). Inicio en `/`; Donar `/donar`; Recibir `/recibir` (catálogo). Cierre de sesión con `BaseModal`.
+- [x] Navegación (`App.vue`). Inicio → `VITE_LANDING_URL`; Donar `/donar`; Recibir `/recibir` (catálogo). `/` redirige a `/recibir`. Cierre de sesión con `BaseModal`.
 - [x] Catálogo, `/recibir` y `/catalogo`.
 - [x] Detalle y solicitud, `/medicamento/:id`.
 - [x] Ingreso, `/login`.
@@ -224,15 +224,14 @@ Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 | Cuentas | `/admin/usuarios` | `AdminUsuariosView` | `useUsuariosAdmin` | `gestionar-usuarios` (`listar`, `suspender`, `rehabilitar`, `promover`, `revocar`) |
 | Guard | todas | `src/router/index.js` | `useAuth` | `requiereSesion`, `soloInvitados`, `requiereAdmin` |
 
-`AdminLayout` es el subnav de `/admin/*`. `/` es la landing. Recibir del navbar apunta a `/recibir`. La fase 10 no suma Edge Functions.
+`AdminLayout` es el subnav de `/admin/*`. `/` redirige a `/recibir`. Recibir del navbar apunta a `/recibir`. La fase 10 no suma Edge Functions en esta app.
 
 ---
 
 ## 6. Landing (fase 10)
 
-Última del tablero. `/` tiene implementada la landing responsive basada en la referencia: hero claro con dos acciones, sponsors, cómo funciona, impacto, preguntas, banner de descarga de la app y footer. Pendiente validar visualmente y ejecutar el build. Legales parcial: `/terminos` y `/declaracion-jurada` (contenido V1.0 del documento de contenidos; enlazados desde el checkbox de registro y solicitud). El footer de la landing enlaza la plataforma, los legales publicados y las redes. Siguen pendientes Información/Ayuda, Sobre nosotros y una página de contacto.
+La landing de marketing está en el repo hermano `Ecofarma-Landing` (fuera de esta carpeta). Navbar: Inicio, Sponsor, Nuestra App, Impacto, FAQ. Los CTA «Descargar app» apuntan a `{VITE_APP_URL}/donar` de esta app. En la app, Inicio del navbar apunta a `VITE_LANDING_URL`. Legales siguen en esta app: `/terminos` y `/declaracion-jurada` (contenido V1.0; enlazados desde registro, solicitud y el footer de la landing).
 
-- [ ] Rutas de esa arquitectura. Donar y Recibir ya están en el navbar de la plataforma. Inicio apunta a `/`.
-- [x] Composición de la home responsive implementada; cabecera clara solo en Inicio, carrusel «Cómo funciona nuestra app» (Donar/Recibir) y sponsors sin marcas no confirmadas.
-- [ ] Validación visual en mobile, tablet y desktop, build y prueba de navegación con y sin sesión.
-- [ ] Home con el propósito, cómo donar, cómo recibir, contacto y enlace al catálogo, con los tokens de la sección 3.
+- [x] Repo aparte con composición responsive (hero, sponsors, nuestra app, impacto, FAQ, descarga, footer).
+- [ ] Validación visual en mobile, tablet y desktop, build y prueba cruzada landing ↔ app.
+- [ ] Páginas Información/Ayuda, Sobre nosotros y contacto (si se confirman).

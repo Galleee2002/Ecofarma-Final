@@ -1,6 +1,6 @@
 # Convenciones visuales — ecofarma
 
-Guía para la etapa de fidelidad visual y la landing. Los fundamentos y la paleta canónica están en la sección 3 de `ROADMAP.md`; las reglas de implementación están en `AGENTS.md`.
+Guía para la etapa de fidelidad visual de la app. La landing de marketing está en el repo hermano `Ecofarma-Landing`. Los fundamentos y la paleta canónica están en la sección 3 de `ROADMAP.md`; las reglas de implementación están en `AGENTS.md`.
 
 ## Dirección visual
 
@@ -92,7 +92,6 @@ La fidelidad visual se construye con HTML nativo y Tailwind, sin librerías de U
 
 - `src/components/ui/`
 - `src/components/layout/`
-- `src/components/landing/`
 - `src/components/medicamentos/`
 
 Las vistas actuales de `src/views/` llaman a composables y renderizan formularios o listas; no importan `src/components/`. `App.vue` monta `ToastViewport` una sola vez para las notificaciones globales.
@@ -101,13 +100,13 @@ La implementación visual se trabaja de forma incremental por componente o panta
 
 ### Navegación
 
-La landing usa una variante clara del navbar (fondo surface y controles primary), según la referencia de la fase 10. El símbolo original se muestra en primary mediante una máscara del mismo recurso, sin cambiar sus proporciones. La plataforma conserva fondo `primary` (`#215b8d`) y textos e iconos `surface` (`#ffffff`). `BaseNavbar.vue` proporciona la estructura visual reutilizable; `AppNavbar.vue` define los enlaces y comportamientos de navegación, y activa la variante clara solo en Inicio. Ambos se implementan mobile-first, con menú hamburguesa accesible en móvil y composición horizontal en pantallas mayores. La transición del menú se hace con Vue `Transition` y debe respetar `prefers-reduced-motion`.
+La plataforma usa navbar con fondo `primary` (`#215b8d`) y textos e iconos `surface` (`#ffffff`). `BaseNavbar.vue` proporciona la estructura visual reutilizable; `AppNavbar.vue` define los enlaces: Inicio (externo a `VITE_LANDING_URL`), Donar y Recibir. Ambos se implementan mobile-first, con menú hamburguesa accesible en móvil y composición horizontal en pantallas mayores. La transición del menú se hace con Vue `Transition` y debe respetar `prefers-reduced-motion`.
 
 Usar el recurso original del proyecto (`public/logo.webp`) o el recurso oficial de Figma. No agregar el nombre ecofarma al lado del logo, reconstruir el logo con texto ni alterar sus proporciones. Sobre el fondo azul, los controles y enlaces deben conservar contraste y estados de foco visibles; los botones pueden adaptar su variante para seguir siendo legibles.
 
 ### Landing
 
-El hero usa un fondo suave `bg-muted/20` para separarlo de la sección siguiente, el título «Dale una segunda vida a tus medicamentos» en foreground con acento icon, el párrafo que conecta a quien tiene medicamentos con quien los necesita, y dos acciones: Descargar app y el enlace «Conocé nuestro propósito» hacia `#impacto`. Los celulares (`public/landing/tutorial/mockup-landing.webp`) quedan debajo del texto en mobile y a la derecha desde md, sobre un círculo en `icon`. Cómo funciona reúne ambos recorridos con un carrusel coverflow y capturas de la app (`public/landing/tutorial/`); el toggle Donar/Recibir usa `BaseButton` sin iconos. Las ondas usan formas CSS y los tokens existentes. Debajo de preguntas, el banner de descarga usa `bg-primary`, el título «Descargá nuestra app» en `surface`, los celulares de `public/landing/descarga-telefonos.png` y las insignias de Google Play y App Store. Esas insignias enlazan a Donar, igual que «Descargar app» del hero, hasta tener las URLs de las tiendas. Los sponsors permanecen como Próximamente hasta confirmar colaboradores. Motion for Vue se prevé para animaciones de la landing cuando aporten a la experiencia; las animaciones sencillas existentes usan `Transition` y `TransitionGroup` de Vue.
+La landing vive en `Ecofarma-Landing`. Navbar claro con anclas Inicio, Sponsor, Nuestra App, Impacto y FAQ. Los CTA «Descargar app» y las insignias de tienda apuntan a la app (`VITE_APP_URL` + `/donar`). Detalle de composición y assets: README de ese repo.
 
 ### Rastro antiguo que no se reutiliza
 
