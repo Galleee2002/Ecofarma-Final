@@ -19,7 +19,7 @@ const ejes = [
 </script>
 
 <template>
-    <section class="relative overflow-hidden bg-primary text-surface" aria-labelledby="impacto-titulo">
+    <section id="impacto" class="relative scroll-mt-8 overflow-hidden bg-primary text-surface" aria-labelledby="impacto-titulo">
         <div
             class="pointer-events-none absolute -top-[8%] -left-[18%] h-[32%] w-[48%] -rotate-[18deg] bg-[url('/patron-hojas.png')] bg-repeat bg-[length:180px_auto] opacity-[0.12] mix-blend-screen sm:bg-[length:220px_auto] md:-top-[6%] md:-left-[8%] md:h-[28%] md:w-[38%] md:bg-[length:260px_auto]"
             aria-hidden="true"

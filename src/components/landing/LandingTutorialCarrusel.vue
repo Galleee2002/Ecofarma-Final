@@ -108,7 +108,7 @@ function alTeclado(evento) {
                         <img
                             :src="paso.imagen"
                             :alt="paso.titulo"
-                            class="aspect-[9/19] w-full rounded-[1.75rem] object-cover object-top shadow-sm"
+                            class="aspect-[9/19] w-full object-contain"
                             width="176"
                             height="372"
                             decoding="async"
@@ -126,7 +126,7 @@ function alTeclado(evento) {
         <div class="mt-6 flex items-center justify-center gap-3 sm:gap-4">
             <button
                 type="button"
-                class="inline-flex size-11 items-center justify-center rounded-full border border-line bg-surface text-primary shadow-sm transition hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                class="inline-flex size-11 items-center justify-center rounded-full border border-line bg-surface text-primary shadow-sm transition hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label="Paso anterior"
                 @click="anterior"
             >
@@ -152,7 +152,7 @@ function alTeclado(evento) {
             </div>
             <button
                 type="button"
-                class="inline-flex size-11 items-center justify-center rounded-full border border-line bg-surface text-primary shadow-sm transition hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                class="inline-flex size-11 items-center justify-center rounded-full border border-line bg-surface text-primary shadow-sm transition hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label="Paso siguiente"
                 @click="siguiente"
             >

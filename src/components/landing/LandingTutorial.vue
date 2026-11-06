@@ -7,17 +7,17 @@ const pasosDonar = [
     {
         titulo: 'Elegí el medicamento',
         texto: 'Ingresá a Donar y buscá el medicamento en el vademécum. Completá los datos del envase, el lote y el vencimiento para que la publicación quede clara para quien lo necesite.',
-        imagen: '/landing/tutorial/donar-1.webp',
+        imagen: '/landing/tutorial/donar-1.webp?v=3',
     },
     {
         titulo: 'Subí la foto del envase',
         texto: 'Agregá fotos nítidas del envase. Ayudan a identificar el medicamento y acompañan la publicación para que quien solicita pueda revisarlo antes de pedir.',
-        imagen: '/landing/tutorial/donar-2.webp',
+        imagen: '/landing/tutorial/donar-2.webp?v=3',
     },
     {
         titulo: 'Publicá la donación',
         texto: 'Confirmá y publicá. Si coincide con el vademécum, queda disponible de inmediato. Si no, queda en revisión hasta que se apruebe y aparezca en el catálogo.',
-        imagen: '/landing/tutorial/donar-3.webp',
+        imagen: '/landing/tutorial/donar-3.webp?v=3',
     },
 ];
 
@@ -25,17 +25,17 @@ const pasosRecibir = [
     {
         titulo: 'Mirá lo disponible',
         texto: 'El catálogo muestra medicamentos disponibles y no vencidos. Podés filtrar por receta y abrir la ficha para ver el detalle antes de solicitarlo.',
-        imagen: '/landing/tutorial/recibir-1.webp',
+        imagen: '/landing/tutorial/recibir-1.webp?v=3',
     },
     {
         titulo: 'Enviá la solicitud',
         texto: 'Indicá para quién es el medicamento y, si requiere receta, adjuntá una foto clara. El donante la revisa con tu solicitud antes de aceptar el encuentro.',
-        imagen: '/landing/tutorial/recibir-2.webp',
+        imagen: '/landing/tutorial/recibir-2.webp?v=3',
     },
     {
         titulo: 'Coordiná el encuentro',
         texto: 'Acordá la entrega por el chat. Al recibir, compartí tu código de 6 dígitos para que el donante la confirme.',
-        imagen: '/landing/tutorial/recibir-3.webp',
+        imagen: '/landing/tutorial/recibir-3.webp?v=3',
     },
 ];
 
@@ -56,7 +56,7 @@ function elegirModo(valor) {
 </script>
 
 <template>
-    <section id="como-funciona" class="scroll-mt-8 overflow-hidden bg-surface" aria-labelledby="tutorial-titulo">
+    <section id="como-funciona" class="scroll-mt-8 overflow-hidden bg-background" aria-labelledby="tutorial-titulo">
         <div class="relative mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-14 md:py-16">
             <div class="relative mx-auto max-w-2xl text-center">
                 <h2 id="tutorial-titulo" class="font-heading text-xl text-balance text-foreground sm:text-2xl md:text-3xl">
@@ -67,7 +67,7 @@ function elegirModo(valor) {
                 </p>
 
                 <div
-                    class="mt-6 inline-flex max-w-full items-center gap-1 rounded-full border border-line bg-background p-1 sm:mt-8"
+                    class="mt-6 inline-flex max-w-full items-center gap-1 rounded-full border border-line bg-surface p-1 sm:mt-8"
                     role="group"
                     aria-label="Elegir recorrido"
                 >
