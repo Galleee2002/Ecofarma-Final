@@ -126,7 +126,7 @@ function alTeclado(evento) {
         <div class="mt-6 flex items-center justify-center gap-3 sm:gap-4">
             <button
                 type="button"
-                class="inline-flex size-11 items-center justify-center rounded-full border border-surface/40 bg-surface text-primary shadow-sm transition hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+                class="inline-flex size-11 items-center justify-center rounded-full border border-line bg-surface text-primary shadow-sm transition hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 aria-label="Paso anterior"
                 @click="anterior"
             >
@@ -137,7 +137,7 @@ function alTeclado(evento) {
                     v-for="(_, i) in pasos"
                     :key="'dot-' + i"
                     type="button"
-                    class="flex size-11 items-center justify-center rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface motion-reduce:transition-none"
+                    class="flex size-11 items-center justify-center rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary motion-reduce:transition-none"
                     role="tab"
                     :aria-selected="i === indice"
                     :aria-label="'Ir al paso ' + (i + 1)"
@@ -145,14 +145,14 @@ function alTeclado(evento) {
                 >
                     <span
                         class="block size-2.5 rounded-full"
-                        :class="i === indice ? 'scale-125 bg-surface' : 'bg-surface/70'"
+                        :class="i === indice ? 'scale-125 bg-primary' : 'bg-muted/50'"
                         aria-hidden="true"
                     />
                 </button>
             </div>
             <button
                 type="button"
-                class="inline-flex size-11 items-center justify-center rounded-full border border-surface/40 bg-surface text-primary shadow-sm transition hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-surface focus-visible:ring-offset-2 focus-visible:ring-offset-primary"
+                class="inline-flex size-11 items-center justify-center rounded-full border border-line bg-surface text-primary shadow-sm transition hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
                 aria-label="Paso siguiente"
                 @click="siguiente"
             >

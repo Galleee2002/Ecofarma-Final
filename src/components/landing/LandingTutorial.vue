@@ -6,17 +6,17 @@ import LandingTutorialCarrusel from './LandingTutorialCarrusel.vue';
 const pasosDonar = [
     {
         titulo: 'Elegí el medicamento',
-        texto: 'Ingresá y buscalo en el vademécum.',
-        imagen: '/landing/tutorial/recibir-1.webp',
+        texto: 'Ingresá a Donar y buscá el medicamento en el vademécum. Completá los datos del envase, el lote y el vencimiento para que la publicación quede clara para quien lo necesite.',
+        imagen: '/landing/tutorial/donar-1.webp',
     },
     {
         titulo: 'Subí la foto del envase',
-        texto: 'La foto acompaña la publicación.',
+        texto: 'Agregá fotos nítidas del envase. Ayudan a identificar el medicamento y acompañan la publicación para que quien solicita pueda revisarlo antes de pedir.',
         imagen: '/landing/tutorial/donar-2.webp',
     },
     {
         titulo: 'Publicá la donación',
-        texto: 'Si hace falta revisión, queda pendiente hasta que se apruebe.',
+        texto: 'Confirmá y publicá. Si coincide con el vademécum, queda disponible de inmediato. Si no, queda en revisión hasta que se apruebe y aparezca en el catálogo.',
         imagen: '/landing/tutorial/donar-3.webp',
     },
 ];
@@ -25,7 +25,7 @@ const pasosRecibir = [
     {
         titulo: 'Mirá lo disponible',
         texto: 'El catálogo muestra medicamentos disponibles y no vencidos. Podés filtrar por receta y abrir la ficha para ver el detalle antes de solicitarlo.',
-        imagen: '/landing/tutorial/donar-1.webp',
+        imagen: '/landing/tutorial/recibir-1.webp',
     },
     {
         titulo: 'Enviá la solicitud',
@@ -56,24 +56,24 @@ function elegirModo(valor) {
 </script>
 
 <template>
-    <section id="como-funciona" class="scroll-mt-8 overflow-hidden bg-primary text-surface" aria-labelledby="tutorial-titulo">
+    <section id="como-funciona" class="scroll-mt-8 overflow-hidden bg-surface" aria-labelledby="tutorial-titulo">
         <div class="relative mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-14 md:py-16">
             <div class="relative mx-auto max-w-2xl text-center">
-                <h2 id="tutorial-titulo" class="font-heading text-xl text-balance text-surface sm:text-2xl md:text-3xl">
+                <h2 id="tutorial-titulo" class="font-heading text-xl text-balance text-foreground sm:text-2xl md:text-3xl">
                     Cómo funciona nuestra app
                 </h2>
-                <p class="mx-auto mt-2 max-w-xl text-sm text-pretty text-primary-soft sm:text-base">
+                <p class="mx-auto mt-2 max-w-xl text-sm text-pretty text-muted sm:text-base">
                     De la publicación a la entrega, en pocos pasos.
                 </p>
 
                 <div
-                    class="mt-6 inline-flex max-w-full items-center gap-1 rounded-full bg-surface/15 p-1 sm:mt-8"
+                    class="mt-6 inline-flex max-w-full items-center gap-1 rounded-full border border-line bg-background p-1 sm:mt-8"
                     role="group"
                     aria-label="Elegir recorrido"
                 >
                     <BaseButton
                         size="md"
-                        :variant="modo === 'donar' ? 'secondary' : 'on-primary'"
+                        :variant="modo === 'donar' ? 'primary' : 'ghost'"
                         class="!min-h-11 !rounded-full !px-5"
                         :aria-pressed="modo === 'donar'"
                         @click="elegirModo('donar')"
@@ -82,7 +82,7 @@ function elegirModo(valor) {
                     </BaseButton>
                     <BaseButton
                         size="md"
-                        :variant="modo === 'recibir' ? 'secondary' : 'on-primary'"
+                        :variant="modo === 'recibir' ? 'primary' : 'ghost'"
                         class="!min-h-11 !rounded-full !px-5"
                         :aria-pressed="modo === 'recibir'"
                         @click="elegirModo('recibir')"

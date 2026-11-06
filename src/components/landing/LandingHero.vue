@@ -17,22 +17,12 @@
                 <p class="max-w-sm text-lg text-muted">
                     Doná tus medicamentos en buen estado y ayudá a quien los necesita.
                 </p>
-                <div
-                    class="mt-2 flex w-full flex-col gap-3 sm:w-auto sm:flex-row md:w-full md:flex-col lg:w-auto lg:flex-row"
-                    role="group"
-                    aria-label="Acciones principales"
-                >
+                <div class="mt-2">
                     <RouterLink
                         :to="{ name: 'donar' }"
-                        class="inline-flex min-h-12 items-center justify-center rounded-md bg-primary px-6 font-semibold text-surface hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                        class="inline-flex min-h-12 w-full items-center justify-center rounded-md bg-primary px-6 font-semibold text-surface hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:w-auto"
                     >
-                        Donar ahora
-                    </RouterLink>
-                    <RouterLink
-                        :to="{ name: 'recibir' }"
-                        class="inline-flex min-h-12 items-center justify-center rounded-md border border-primary bg-surface/80 px-6 font-semibold text-primary backdrop-blur-sm hover:bg-primary-soft focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-                    >
-                        Recibir medicamentos
+                        Descargar app
                     </RouterLink>
                 </div>
             </div>

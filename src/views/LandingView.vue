@@ -2,7 +2,7 @@
 import LandingFaq from '../components/landing/LandingFaq.vue';
 import LandingFooter from '../components/landing/LandingFooter.vue';
 import LandingHero from '../components/landing/LandingHero.vue';
-import LandingMetricas from '../components/landing/LandingMetricas.vue';
+import LandingImpacto from '../components/landing/LandingImpacto.vue';
 import LandingTutorial from '../components/landing/LandingTutorial.vue';
 import LandingSponsors from '../components/landing/LandingSponsors.vue';
 </script>
@@ -12,7 +12,7 @@ import LandingSponsors from '../components/landing/LandingSponsors.vue';
         <LandingHero />
         <LandingSponsors />
         <LandingTutorial />
-        <LandingMetricas />
+        <LandingImpacto />
         <LandingFaq />
     </main>
     <LandingFooter />
