@@ -230,7 +230,7 @@ Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 
 ## 6. Landing (fase 10)
 
-La landing de marketing está en el repo hermano `Ecofarma-Landing` (fuera de esta carpeta). Navbar: Inicio, Sponsor, Nuestra App, Impacto, FAQ. Los CTA «Descargar app» apuntan a `{VITE_APP_URL}/donar` de esta app. En la app, Inicio del navbar apunta a `VITE_LANDING_URL`. Legales siguen en esta app: `/terminos` y `/declaracion-jurada` (contenido V1.0; enlazados desde registro, solicitud y el footer de la landing).
+La landing de marketing está en el repo hermano `Ecofarma-Landing` (fuera de esta carpeta). Navbar: Inicio, Sponsor, Nuestra App, Impacto, FAQ. Los CTA «Descargar app» apuntan a `{VITE_APP_URL}/recibir` de esta app. En la app, Inicio del navbar apunta a `VITE_LANDING_URL`. Legales siguen en esta app: `/terminos` y `/declaracion-jurada` (contenido V1.0; enlazados desde registro, solicitud y el footer de la landing).
 
 - [x] Repo aparte con composición responsive (hero, sponsors, nuestra app, impacto, FAQ, descarga, footer).
 - [ ] Validación visual en mobile, tablet y desktop, build y prueba cruzada landing ↔ app.

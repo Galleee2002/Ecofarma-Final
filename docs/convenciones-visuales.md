@@ -106,7 +106,7 @@ Usar el recurso original del proyecto (`public/logo.webp`) o el recurso oficial 
 
 ### Landing
 
-La landing vive en `Ecofarma-Landing`. Navbar claro con anclas Inicio, Sponsor, Nuestra App, Impacto y FAQ. Los CTA «Descargar app» y las insignias de tienda apuntan a la app (`VITE_APP_URL` + `/donar`). Detalle de composición y assets: README de ese repo.
+La landing vive en `Ecofarma-Landing`. Navbar claro con anclas Inicio, Sponsor, Nuestra App, Impacto y FAQ. Los CTA «Descargar app» y las insignias de tienda apuntan a la app (`VITE_APP_URL` + `/recibir`). Detalle de composición y assets: README de ese repo.
 
 ### Rastro antiguo que no se reutiliza
 
