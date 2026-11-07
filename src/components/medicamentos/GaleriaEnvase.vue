@@ -84,16 +84,20 @@ function textoFoto(indice) {
                 <div
                     v-for="(foto, indice) in fotos"
                     :key="indice"
-                    class="w-full shrink-0 snap-start snap-always"
+                    class="flex w-full shrink-0 snap-start snap-always"
                 >
-                    <img
-                        :src="foto"
-                        :alt="textoFoto(indice)"
-                        class="aspect-[4/3] w-full rounded-lg object-cover"
-                        sizes="(min-width: 1024px) 36rem, 100vw"
-                        :fetchpriority="indice === 0 ? 'high' : 'auto'"
-                        :loading="indice === 0 ? 'eager' : 'lazy'"
-                    />
+                    <div
+                        class="flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg bg-surface"
+                    >
+                        <img
+                            :src="foto"
+                            :alt="textoFoto(indice)"
+                            class="max-h-full max-w-full object-contain"
+                            sizes="(min-width: 1024px) 36rem, 100vw"
+                            :fetchpriority="indice === 0 ? 'high' : 'auto'"
+                            :loading="indice === 0 ? 'eager' : 'lazy'"
+                        />
+                    </div>
                 </div>
             </div>
             <div v-if="hayVarias" class="flex items-center justify-center gap-2" role="tablist" aria-label="Seleccionar foto">
