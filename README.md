@@ -204,6 +204,29 @@ El archivo `supabase/seed.sql` está pensado para **entornos de desarrollo**. Tr
 
 ---
 
+## Despliegue en Vercel
+
+La app es una SPA con `createWebHistory`. El archivo `vercel.json` reescribe las rutas hacia `index.html` para que `/donar`, `/login`, `/recibir`, etc. funcionen al entrar directo o recargar.
+
+1. Crear un proyecto en Vercel apuntando a este repositorio (Framework Preset: Vite, Build: `pnpm build`, Output: `dist`).
+2. Cargar estas variables de entorno en el proyecto (Production; Preview si aplica):
+
+   | Variable | Uso |
+   |----------|-----|
+   | `VITE_SUPABASE_URL` | URL del proyecto Supabase |
+   | `VITE_SUPABASE_ANON_KEY` | Clave anon / publishable |
+   | `VITE_LANDING_URL` | URL pública de la landing (repo hermano) |
+
+   Vite embebe estas variables en el **build**. Tras cambiarlas, hay que redeployar.
+
+3. **No** cargar `SUPABASE_SERVICE_ROLE_KEY` ni ninguna `service_role` en Vercel: solo viven como secretos de las Edge Functions en Supabase.
+4. En el dashboard de Supabase → Authentication → URL Configuration: Site URL y Redirect URLs deben incluir el dominio de esta app en Vercel.
+5. Coordinar con la landing: allí `VITE_APP_URL` debe ser la URL pública de esta app.
+
+Si falta alguna `VITE_*` requerida, el build de producción falla a propósito para evitar enlaces o un cliente de Supabase incorrectos.
+
+---
+
 ## Comandos habituales
 
 | Acción | Comando |

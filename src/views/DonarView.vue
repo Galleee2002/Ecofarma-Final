@@ -289,7 +289,7 @@ onBeforeUnmount(limpiarFotos);
 </script>
 
 <template>
-    <main class="min-h-[calc(100dvh-5.5rem)] bg-background bg-[url('/trama-web2.webp')] bg-cover bg-center bg-no-repeat">
+    <main class="fondo-trama min-h-[calc(100dvh-5.5rem)]">
         <div class="pagina-media">
             <header class="flex flex-col gap-1">
                 <h1 class="text-balance text-primary">Donar un medicamento</h1>

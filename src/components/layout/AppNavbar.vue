@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '../../composables/useAuth';
+import { landingUrl } from '../../lib/env.js';
 import BaseButton from '../ui/BaseButton.vue';
 import BaseModal from '../ui/BaseModal.vue';
 import BaseNavbar from './BaseNavbar.vue';
@@ -13,9 +14,7 @@ const { sesion, perfil, error, cargando, cerrarSesion, mostrarAviso, esperarSesi
 const authListo = ref(false);
 const confirmarCierre = ref(false);
 
-const urlLanding = typeof import.meta.env.VITE_LANDING_URL === 'string'
-    ? import.meta.env.VITE_LANDING_URL.replace(/\/$/, '')
-    : '';
+const urlLanding = landingUrl;
 
 const esAdmin = computed(function () {
     return perfil.value !== null && perfil.value.rol === 'admin';
