@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue';
+import { coincidePorInicio } from '../../lib/filtroTexto';
 import { mensajeDeValidez } from '../../lib/mensajesValidacion.js';
 import BaseFieldError from './BaseFieldError.vue';
 
@@ -102,7 +103,7 @@ const coincidencias = computed(function () {
         if (typeof opcion !== 'string') {
             continue;
         }
-        if (!props.filtrarOpciones || texto === '' || opcion.toLowerCase().startsWith(texto)) {
+        if (!props.filtrarOpciones || coincidePorInicio(opcion, texto)) {
             filtradas.push(opcion);
         }
     }

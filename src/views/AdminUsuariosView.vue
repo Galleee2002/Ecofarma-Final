@@ -9,6 +9,7 @@ import BaseSelect from '../components/ui/BaseSelect.vue';
 import { useAuth } from '../composables/useAuth';
 import { usePaginacion } from '../composables/usePaginacion';
 import { useUsuariosAdmin } from '../composables/useUsuariosAdmin';
+import { coincidePorInicio } from '../lib/filtroTexto';
 
 const { perfil } = useAuth();
 const { usuarios, cargando, error, guardando, errorAccion, tipoErrorAccion, mensajeAccion, cargarUsuarios, aplicarAccion } = useUsuariosAdmin();
@@ -47,20 +48,6 @@ const modalAbierto = computed({
         }
     },
 });
-
-function textoOVacio(valor) {
-    if (valor === null || valor === undefined) {
-        return '';
-    }
-    return String(valor);
-}
-
-function coincidePorInicio(campo, texto) {
-    const partes = textoOVacio(campo).toLowerCase().split(/\s+/).filter(Boolean);
-    return partes.some(function (parte) {
-        return parte.startsWith(texto);
-    });
-}
 
 const usuariosFiltrados = computed(function () {
     const texto = busqueda.value.trim().toLowerCase();

@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue';
+import { coincidePorInicio } from '../lib/filtroTexto';
 import { supabase } from '../lib/supabase';
 
 function obtenerFechaDeHoy() {
@@ -21,10 +22,11 @@ export function useMedicamentos() {
     const medicamentosFiltrados = computed(function () {
         const texto = busqueda.value.trim().toLowerCase();
         const filtrados = medicamentos.value.filter(function (item) {
-            const nombre = item.nombre_comercial.toLowerCase();
-            const principioActivo = item.principio_activo.toLowerCase();
             const requiereReceta = item.medicamentos_habilitados?.requiere_receta === true;
-            const coincideBusqueda = texto === '' || nombre.includes(texto) || principioActivo.includes(texto);
+            const coincideBusqueda =
+                texto === '' ||
+                coincidePorInicio(item.nombre_comercial, texto) ||
+                coincidePorInicio(item.principio_activo, texto);
             const coincideFiltro = filtroReceta.value === 'todos'
                 || (filtroReceta.value === 'con_receta' && requiereReceta)
                 || (filtroReceta.value === 'sin_receta' && !requiereReceta);
