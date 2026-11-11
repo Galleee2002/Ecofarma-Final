@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Check, Info, TriangleAlert, X } from '@lucide/vue';
+import BaseFieldError from './BaseFieldError.vue';
 
 const props = defineProps({
     variant: {
@@ -35,7 +36,7 @@ const variantes = {
         etiqueta: 'Éxito',
     },
     error: {
-        icono: 'bg-danger text-surface',
+        icono: 'text-danger',
         figura: X,
         rol: 'alert',
         etiqueta: 'Error',
@@ -66,6 +67,10 @@ const varianteActual = computed(function () {
     return variantes[props.variant] ?? variantes.info;
 });
 
+const esError = computed(function () {
+    return props.variant === 'error';
+});
+
 const clasesIcono = computed(function () {
     return [clasesIconoBase, varianteActual.value.icono].join(' ');
 });
@@ -89,13 +94,30 @@ const clasesMensaje = computed(function () {
     return 'font-sans text-sm whitespace-pre-line text-foreground';
 });
 
+const mensajeError = computed(function () {
+    if (props.message !== '') {
+        return props.message;
+    }
+    return props.title;
+});
+
 function cerrar() {
     emit('close');
 }
 </script>
 
 <template>
-    <div :class="clasesBase">
+    <BaseFieldError
+        v-if="esError && !$slots.default && mensajeError !== ''"
+        :message="mensajeError"
+    />
+    <div v-else-if="esError" class="flex w-full flex-col gap-1" :role="rol">
+        <BaseFieldError v-if="mensajeError !== ''" :message="mensajeError" />
+        <div v-if="$slots.default" class="font-sans text-xs text-danger">
+            <slot />
+        </div>
+    </div>
+    <div v-else :class="clasesBase">
         <div class="flex min-w-0 flex-1 items-start gap-3" :role="rol">
             <span v-if="!tieneTitulo" class="sr-only">{{ varianteActual.etiqueta }}</span>
             <span v-if="showIcon" :class="clasesIcono" aria-hidden="true">

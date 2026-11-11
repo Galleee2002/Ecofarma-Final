@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue';
 import { Calendar, ChevronLeft, ChevronRight } from '@lucide/vue';
+import BaseFieldError from './BaseFieldError.vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -81,8 +82,12 @@ const idHint = computed(function () {
     return idInput.value + '-hint';
 });
 
+const mensajeError = computed(function () {
+    return props.error;
+});
+
 const tieneError = computed(function () {
-    return props.error !== '';
+    return mensajeError.value !== '';
 });
 
 const descripcion = computed(function () {
@@ -411,9 +416,7 @@ onBeforeUnmount(function () {
                 </div>
             </div>
         </div>
-        <p v-if="tieneError" :id="idError" class="text-xs text-danger" role="alert">
-            {{ error }}
-        </p>
+        <BaseFieldError v-if="tieneError" :id="idError" :message="mensajeError" />
         <p v-if="hint !== ''" :id="idHint" class="text-xs text-muted">
             {{ hint }}
         </p>

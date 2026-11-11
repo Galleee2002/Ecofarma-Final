@@ -64,23 +64,8 @@ const nombreTransicion = computed(function () {
 
 function mensajeNativo(evento) {
     const campo = evento.target;
-    if (campo.validity.customError) {
-        return;
-    }
-    if (campo.validity.valueMissing) {
-        campo.setCustomValidity('Completá este campo.');
-        return;
-    }
-    if (campo.validity.typeMismatch) {
-        campo.setCustomValidity('Ingresá un email válido.');
-        return;
-    }
-    if (campo.validity.patternMismatch) {
+    if (campo.id === 'registro-dni' && campo.validity.patternMismatch) {
         campo.setCustomValidity('El DNI debe tener 7 u 8 números.');
-        return;
-    }
-    if (campo.validity.tooShort) {
-        campo.setCustomValidity('La contraseña debe tener al menos 6 caracteres.');
     }
 }
 
@@ -242,6 +227,7 @@ async function enviar() {
                                         v-model="datos.name"
                                         label="Nombre y apellido"
                                         type="text"
+                                        placeholder="Juan Pérez"
                                         autocomplete="name"
                                         required
                                     />
@@ -250,6 +236,7 @@ async function enviar() {
                                         :model-value="datos.dni"
                                         label="DNI"
                                         type="text"
+                                        placeholder="12345678"
                                         inputmode="numeric"
                                         autocomplete="off"
                                         maxlength="8"
@@ -262,6 +249,7 @@ async function enviar() {
                                         v-model="datos.telefono"
                                         label="Teléfono"
                                         type="tel"
+                                        placeholder="11 1234-5678"
                                         autocomplete="tel"
                                         required
                                     />
@@ -294,6 +282,7 @@ async function enviar() {
                                         v-model="datos.direccion"
                                         label="Calle"
                                         type="text"
+                                        placeholder="Av. Corrientes 1234"
                                         autocomplete="street-address"
                                         required
                                     />
@@ -310,6 +299,7 @@ async function enviar() {
                                         v-model="datos.email"
                                         label="Email"
                                         type="email"
+                                        placeholder="tuemail@gmail.com"
                                         autocomplete="email"
                                         required
                                     />
@@ -318,6 +308,7 @@ async function enviar() {
                                         v-model="datos.password"
                                         label="Contraseña"
                                         type="password"
+                                        placeholder="Mínimo 6 caracteres"
                                         autocomplete="new-password"
                                         minlength="6"
                                         required
@@ -327,6 +318,7 @@ async function enviar() {
                                         v-model="passwordConfirmacion"
                                         label="Confirmar contraseña"
                                         type="password"
+                                        placeholder="Repetí tu contraseña"
                                         autocomplete="new-password"
                                         required
                                     />

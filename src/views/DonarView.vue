@@ -375,6 +375,7 @@ onBeforeUnmount(limpiarFotos);
                                 v-model="datos.cantidad_disponible"
                                 label="Cantidad"
                                 type="number"
+                                placeholder="1"
                                 min="1"
                                 step="1"
                             />
@@ -385,6 +386,7 @@ onBeforeUnmount(limpiarFotos);
                                         v-model="datos.lote"
                                         label="Lote"
                                         type="text"
+                                        placeholder="ABC123"
                                     />
                                 </div>
                                 <BaseInfoTip
@@ -404,6 +406,7 @@ onBeforeUnmount(limpiarFotos);
                             id="donacion-descripcion"
                             v-model="datos.descripcion"
                             label="Descripción (opcional)"
+                            placeholder="Estado del envase, observaciones..."
                             :rows="3"
                         />
                         <div class="flex flex-col gap-3">

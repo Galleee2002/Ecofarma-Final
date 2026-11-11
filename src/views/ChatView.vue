@@ -227,6 +227,7 @@ async function alCancelar() {
                         v-model="lugar"
                         label="Lugar"
                         type="text"
+                        placeholder="Plaza, farmacia, domicilio..."
                         :disabled="!puedeEscribir || enviando"
                     />
                 </form>
@@ -255,14 +256,15 @@ async function alCancelar() {
                 <form class="flex flex-col gap-3 border-t border-line p-3" @submit.prevent="alEnviar">
                     <BaseAlert v-if="errorEnvio !== ''" variant="error" :message="errorEnvio" />
                     <div class="flex items-end gap-2">
-                        <BaseInput
-                            id="chat-mensaje"
-                            v-model="texto"
-                            class="min-w-0 flex-1"
-                            label="Mensaje"
-                            type="text"
-                            :disabled="!puedeEscribir || enviando"
-                        />
+                    <BaseInput
+                        id="chat-mensaje"
+                        v-model="texto"
+                        class="min-w-0 flex-1"
+                        label="Mensaje"
+                        type="text"
+                        placeholder="Escribí un mensaje"
+                        :disabled="!puedeEscribir || enviando"
+                    />
                         <button
                             type="submit"
                             class="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md bg-transparent text-primary transition duration-150 ease-out hover:bg-primary-soft focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
@@ -304,6 +306,7 @@ async function alCancelar() {
                         v-model="codigo"
                         label="Código de retiro"
                         type="text"
+                        placeholder="123456"
                         inputmode="numeric"
                         maxlength="6"
                         autocomplete="one-time-code"

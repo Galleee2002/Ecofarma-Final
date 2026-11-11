@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref, useId } from 'vue';
 import { Eye, EyeOff } from '@lucide/vue';
+import { mensajeDeValidez } from '../../lib/mensajesValidacion.js';
+import BaseFieldError from './BaseFieldError.vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -53,6 +55,7 @@ const emit = defineEmits(['update:modelValue']);
 
 const idAutomatico = useId();
 const mostrarTexto = ref(false);
+const errorInterno = ref('');
 
 const idInput = computed(function () {
     if (props.id !== '') {
@@ -69,8 +72,15 @@ const idHint = computed(function () {
     return idInput.value + '-hint';
 });
 
+const mensajeError = computed(function () {
+    if (props.error !== '') {
+        return props.error;
+    }
+    return errorInterno.value;
+});
+
 const tieneError = computed(function () {
-    return props.error !== '';
+    return mensajeError.value !== '';
 });
 
 const esPassword = computed(function () {
@@ -129,7 +139,21 @@ const clases = computed(function () {
 
 function actualizarValor(evento) {
     evento.target.setCustomValidity('');
+    errorInterno.value = '';
     emit('update:modelValue', evento.target.value);
+}
+
+function alInvalid(evento) {
+    evento.preventDefault();
+    const campo = evento.target;
+    if (!campo.validity.customError) {
+        let mensaje = mensajeDeValidez(campo);
+        if (campo.validity.tooShort && esPassword.value) {
+            mensaje = 'La contraseña debe tener al menos ' + campo.minLength + ' caracteres.';
+        }
+        campo.setCustomValidity(mensaje);
+    }
+    errorInterno.value = campo.validationMessage || mensajeDeValidez(campo);
 }
 
 function alternarVisibilidad() {
@@ -155,6 +179,7 @@ function alternarVisibilidad() {
                 :aria-invalid="tieneError ? true : undefined"
                 :aria-describedby="descripcion"
                 @input="actualizarValor"
+                @invalid="alInvalid"
             />
             <button
                 v-if="esPassword"
@@ -168,9 +193,7 @@ function alternarVisibilidad() {
                 <EyeOff v-else :size="16" aria-hidden="true" />
             </button>
         </div>
-        <p v-if="tieneError" :id="idError" class="text-xs text-danger" role="alert">
-            {{ error }}
-        </p>
+        <BaseFieldError v-if="tieneError" :id="idError" :message="mensajeError" />
         <p v-if="hint !== ''" :id="idHint" class="text-xs text-muted">
             {{ hint }}
         </p>

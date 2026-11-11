@@ -14,17 +14,6 @@ const { cargando, error, iniciarSesion, mostrarAviso } = useAuth();
 const email = ref('');
 const password = ref('');
 
-function mensajeNativo(evento) {
-    const campo = evento.target;
-    if (campo.validity.valueMissing) {
-        campo.setCustomValidity('Completá este campo.');
-        return;
-    }
-    if (campo.validity.typeMismatch) {
-        campo.setCustomValidity('Ingresá un email válido.');
-    }
-}
-
 async function ingresar() {
     const ingreso = await iniciarSesion(email.value, password.value);
     if (!ingreso) {
@@ -51,12 +40,13 @@ async function ingresar() {
                     <h1 class="text-primary">Iniciá sesión</h1>
                     <p class="text-muted">Accedé a tu cuenta para donar o solicitar medicamentos.</p>
 
-                    <form class="flex flex-col gap-4" @submit.prevent="ingresar" @invalid.capture="mensajeNativo">
+                    <form class="flex flex-col gap-4" @submit.prevent="ingresar">
                         <BaseInput
                             id="login-email"
                             v-model="email"
                             label="Correo electrónico"
                             type="email"
+                            placeholder="tuemail@gmail.com"
                             autocomplete="email"
                             required
                         />
@@ -65,6 +55,7 @@ async function ingresar() {
                             v-model="password"
                             label="Contraseña"
                             type="password"
+                            placeholder="Tu contraseña"
                             autocomplete="current-password"
                             required
                         />

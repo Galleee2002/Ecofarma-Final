@@ -1,5 +1,7 @@
 <script setup>
-import { computed, useId } from 'vue';
+import { computed, ref, useId } from 'vue';
+import { mensajeDeValidez } from '../../lib/mensajesValidacion.js';
+import BaseFieldError from './BaseFieldError.vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -79,8 +81,17 @@ const idHint = computed(function () {
     return idTextarea.value + '-hint';
 });
 
+const errorInterno = ref('');
+
+const mensajeError = computed(function () {
+    if (props.error !== '') {
+        return props.error;
+    }
+    return errorInterno.value;
+});
+
 const tieneError = computed(function () {
-    return props.error !== '';
+    return mensajeError.value !== '';
 });
 
 const tieneLimite = computed(function () {
@@ -130,7 +141,18 @@ const clases = computed(function () {
 });
 
 function actualizarValor(evento) {
+    evento.target.setCustomValidity('');
+    errorInterno.value = '';
     emit('update:modelValue', evento.target.value);
+}
+
+function alInvalid(evento) {
+    evento.preventDefault();
+    const campo = evento.target;
+    if (!campo.validity.customError) {
+        campo.setCustomValidity(mensajeDeValidez(campo));
+    }
+    errorInterno.value = campo.validationMessage || mensajeDeValidez(campo);
 }
 </script>
 
@@ -153,10 +175,9 @@ function actualizarValor(evento) {
             :aria-invalid="tieneError ? true : undefined"
             :aria-describedby="descripcion"
             @input="actualizarValor"
+            @invalid="alInvalid"
         />
-        <p v-if="tieneError" :id="idError" class="text-xs text-danger" role="alert">
-            {{ error }}
-        </p>
+        <BaseFieldError v-if="tieneError" :id="idError" :message="mensajeError" />
         <div v-if="hint !== '' || mostrarContador" class="flex items-start justify-between gap-2">
             <p v-if="hint !== ''" :id="idHint" class="text-xs text-muted">
                 {{ hint }}

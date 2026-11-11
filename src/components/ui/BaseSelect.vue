@@ -1,6 +1,8 @@
 <script setup>
-import { computed, useId } from 'vue';
+import { computed, ref, useId } from 'vue';
 import { ChevronDown } from '@lucide/vue';
+import { mensajeDeValidez } from '../../lib/mensajesValidacion.js';
+import BaseFieldError from './BaseFieldError.vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -57,12 +59,14 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue']);
 
 const idAutomatico = useId();
+const errorInterno = ref('');
 
 const valor = computed({
     get: function () {
         return props.modelValue;
     },
     set: function (valorNuevo) {
+        errorInterno.value = '';
         emit('update:modelValue', valorNuevo);
     },
 });
@@ -82,9 +86,30 @@ const idHint = computed(function () {
     return idSelect.value + '-hint';
 });
 
-const tieneError = computed(function () {
-    return props.error !== '';
+const mensajeError = computed(function () {
+    if (props.error !== '') {
+        return props.error;
+    }
+    return errorInterno.value;
 });
+
+const tieneError = computed(function () {
+    return mensajeError.value !== '';
+});
+
+function alInvalid(evento) {
+    evento.preventDefault();
+    const campo = evento.target;
+    if (!campo.validity.customError) {
+        campo.setCustomValidity(mensajeDeValidez(campo));
+    }
+    errorInterno.value = campo.validationMessage || mensajeDeValidez(campo);
+}
+
+function alCambiar(evento) {
+    evento.target.setCustomValidity('');
+    errorInterno.value = '';
+}
 
 const descripcion = computed(function () {
     const ids = [];
@@ -155,6 +180,8 @@ const clases = computed(function () {
                 :class="clases"
                 :aria-invalid="tieneError ? true : undefined"
                 :aria-describedby="descripcion"
+                @change="alCambiar"
+                @invalid="alInvalid"
             >
                 <option v-if="placeholder !== ''" value="" disabled>
                     {{ placeholder }}
@@ -174,9 +201,7 @@ const clases = computed(function () {
                 aria-hidden="true"
             />
         </div>
-        <p v-if="tieneError" :id="idError" class="text-xs text-danger" role="alert">
-            {{ error }}
-        </p>
+        <BaseFieldError v-if="tieneError" :id="idError" :message="mensajeError" />
         <p v-if="hint !== ''" :id="idHint" class="text-xs text-muted">
             {{ hint }}
         </p>

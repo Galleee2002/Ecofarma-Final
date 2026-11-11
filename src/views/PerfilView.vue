@@ -363,6 +363,7 @@ function claseEnlaceChat() {
                                             v-model="datos.name"
                                             label="Nombre"
                                             type="text"
+                                            placeholder="Juan Pérez"
                                             autocomplete="name"
                                         />
                                         <BaseInput
@@ -370,6 +371,7 @@ function claseEnlaceChat() {
                                             v-model="datos.email"
                                             label="Email"
                                             type="email"
+                                            placeholder="tuemail@gmail.com"
                                             autocomplete="email"
                                         />
                                         <BaseInput
@@ -377,6 +379,7 @@ function claseEnlaceChat() {
                                             v-model="datos.dni"
                                             label="DNI"
                                             type="text"
+                                            placeholder="12345678"
                                             inputmode="numeric"
                                         />
                                         <BaseInput
@@ -384,6 +387,7 @@ function claseEnlaceChat() {
                                             v-model="datos.telefono"
                                             label="Teléfono"
                                             type="tel"
+                                            placeholder="11 1234-5678"
                                             autocomplete="tel"
                                         />
                                     </div>
@@ -411,6 +415,7 @@ function claseEnlaceChat() {
                                         v-model="datos.direccion"
                                         label="Calle"
                                         type="text"
+                                        placeholder="Av. Corrientes 1234"
                                         autocomplete="street-address"
                                     />
                                 </div>

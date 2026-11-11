@@ -1,6 +1,7 @@
 <script setup>
 import { useAuth } from './composables/useAuth';
 import AppNavbar from './components/layout/AppNavbar.vue';
+import BaseFieldError from './components/ui/BaseFieldError.vue';
 import ToastViewport from './components/ui/ToastViewport.vue';
 
 const { errorPerfil, error } = useAuth();
@@ -11,8 +12,16 @@ const vistasConBorrador = ['RegistroView', 'DonarView', 'MedicamentoDetalleView'
 <template>
     <AppNavbar />
 
-    <p v-if="errorPerfil !== ''" class="mx-auto mt-4 max-w-5xl border border-danger bg-danger/10 px-6 py-3 text-danger">{{ errorPerfil }}</p>
-    <p v-if="error !== ''" class="mx-auto mt-4 max-w-5xl border border-danger bg-danger/10 px-6 py-3 text-danger">{{ error }}</p>
+    <BaseFieldError
+        v-if="errorPerfil !== ''"
+        class="mx-auto mt-4 max-w-5xl px-6"
+        :message="errorPerfil"
+    />
+    <BaseFieldError
+        v-if="error !== ''"
+        class="mx-auto mt-4 max-w-5xl px-6"
+        :message="error"
+    />
 
     <RouterView v-slot="{ Component }">
         <KeepAlive :include="vistasConBorrador">

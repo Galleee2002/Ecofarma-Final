@@ -136,6 +136,7 @@ function enviar() {
                                 :model-value="nombreDestinatario"
                                 label="Nombre del destinatario"
                                 type="text"
+                                placeholder="Juan Pérez"
                                 :disabled="creando"
                                 @update:model-value="cambiarDestinatario"
                             />

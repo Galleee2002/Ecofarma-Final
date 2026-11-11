@@ -1,6 +1,8 @@
 <script setup>
-import { computed, useId } from 'vue';
+import { computed, ref, useId } from 'vue';
 import { Check } from '@lucide/vue';
+import { mensajeDeValidez } from '../../lib/mensajesValidacion.js';
+import BaseFieldError from './BaseFieldError.vue';
 
 defineOptions({
     inheritAttrs: false,
@@ -48,11 +50,22 @@ const marcado = computed({
     },
 });
 
+const errorInterno = ref('');
+const idAutomatico = useId();
+
 function limpiarValidez(evento) {
     evento.target.setCustomValidity('');
+    errorInterno.value = '';
 }
 
-const idAutomatico = useId();
+function alInvalid(evento) {
+    evento.preventDefault();
+    const campo = evento.target;
+    if (!campo.validity.customError) {
+        campo.setCustomValidity(mensajeDeValidez(campo));
+    }
+    errorInterno.value = campo.validationMessage || mensajeDeValidez(campo);
+}
 
 const idInput = computed(function () {
     if (props.id !== '') {
@@ -69,8 +82,15 @@ const idHint = computed(function () {
     return idInput.value + '-hint';
 });
 
+const mensajeError = computed(function () {
+    if (props.error !== '') {
+        return props.error;
+    }
+    return errorInterno.value;
+});
+
 const tieneError = computed(function () {
-    return props.error !== '';
+    return mensajeError.value !== '';
 });
 
 const descripcion = computed(function () {
@@ -119,6 +139,7 @@ const clasesInput = computed(function () {
                     v-model="marcado"
                     :disabled="disabled"
                     @change="limpiarValidez"
+                    @invalid="alInvalid"
                     :required="required"
                     :aria-invalid="tieneError ? true : undefined"
                     :aria-describedby="descripcion"
@@ -138,9 +159,7 @@ const clasesInput = computed(function () {
                 </slot>
             </span>
         </label>
-        <p v-if="tieneError" :id="idError" class="text-xs text-danger" role="alert">
-            {{ error }}
-        </p>
+        <BaseFieldError v-if="tieneError" :id="idError" :message="mensajeError" />
         <p v-if="hint !== ''" :id="idHint" class="pl-8 text-xs text-muted">
             {{ hint }}
         </p>
