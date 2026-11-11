@@ -55,6 +55,13 @@ function textoOVacio(valor) {
     return String(valor);
 }
 
+function coincidePorInicio(campo, texto) {
+    const partes = textoOVacio(campo).toLowerCase().split(/\s+/).filter(Boolean);
+    return partes.some(function (parte) {
+        return parte.startsWith(texto);
+    });
+}
+
 const usuariosFiltrados = computed(function () {
     const texto = busqueda.value.trim().toLowerCase();
 
@@ -72,10 +79,11 @@ const usuariosFiltrados = computed(function () {
             return true;
         }
 
-        const name = textoOVacio(usuario.name).toLowerCase();
-        const email = textoOVacio(usuario.email).toLowerCase();
-        const dni = textoOVacio(usuario.dni).toLowerCase();
-        return name.includes(texto) || email.includes(texto) || dni.includes(texto);
+        return (
+            coincidePorInicio(usuario.name, texto) ||
+            coincidePorInicio(usuario.email, texto) ||
+            coincidePorInicio(usuario.dni, texto)
+        );
     });
 });
 

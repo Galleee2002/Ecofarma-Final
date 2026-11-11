@@ -48,27 +48,32 @@ onMounted(cargarSugerencias);
                 id="vademecum-principio"
                 v-model="datos.principio_activo"
                 label="Principio activo"
+                placeholder="Ej. Amoxicilina"
             />
             <div class="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
                 <BaseInput
                     id="vademecum-nombre"
                     v-model="datos.nombre_comercial"
                     label="Nombre comercial (opcional)"
+                    placeholder="Ej. Amoxidal"
                 />
                 <BaseInput
                     id="vademecum-concentracion"
                     v-model="datos.concentracion"
                     label="Concentración (opcional)"
+                    placeholder="Ej. 500 mg"
                 />
                 <BaseInput
                     id="vademecum-forma"
                     v-model="datos.forma_farmaceutica"
                     label="Forma farmacéutica (opcional)"
+                    placeholder="Ej. Comprimido"
                 />
                 <BaseInput
                     id="vademecum-presentacion"
                     v-model="datos.presentacion"
                     label="Presentación (opcional)"
+                    placeholder="Ej. Caja x 21 comprimidos"
                 />
             </div>
             <BaseCheckbox
