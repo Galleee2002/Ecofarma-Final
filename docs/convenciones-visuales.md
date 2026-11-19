@@ -100,13 +100,13 @@ La implementación visual se trabaja de forma incremental por componente o panta
 
 ### Navegación
 
-La plataforma usa navbar con fondo `primary` (`#215b8d`) y textos e iconos `surface` (`#ffffff`). `BaseNavbar.vue` proporciona la estructura visual reutilizable; `AppNavbar.vue` define los enlaces: Inicio (externo a `VITE_LANDING_URL`), Donar y Recibir. Ambos se implementan mobile-first, con menú hamburguesa accesible en móvil y composición horizontal en pantallas mayores. La transición del menú se hace con Vue `Transition` y debe respetar `prefers-reduced-motion`.
+La plataforma usa navbar con fondo `primary` (`#215b8d`) y textos e iconos `surface` (`#ffffff`). `BaseNavbar.vue` proporciona la estructura visual reutilizable; `AppNavbar.vue` define los enlaces: Catálogo (`/recibir`), Donar y Mi Perfil. Ambos se implementan mobile-first, con menú hamburguesa accesible en móvil y composición horizontal en pantallas mayores. La transición del menú se hace con Vue `Transition` y debe respetar `prefers-reduced-motion`.
 
 Usar el recurso original del proyecto (`public/logo.webp`) o el recurso oficial de Figma. No agregar el nombre ecofarma al lado del logo, reconstruir el logo con texto ni alterar sus proporciones. Sobre el fondo azul, los controles y enlaces deben conservar contraste y estados de foco visibles; los botones pueden adaptar su variante para seguir siendo legibles.
 
 ### Landing
 
-La landing vive en `Ecofarma-Landing`. Navbar claro con anclas Inicio, Sponsor, Nuestra App, Impacto y FAQ. Los CTA «Descargar app» y las insignias de tienda apuntan a la app (`VITE_APP_URL` + `/recibir`). Detalle de composición y assets: README de ese repo.
+La landing vive en `Ecofarma-Landing`. Navbar de marketing con anclas Inicio, Sponsor, Nuestra App, Impacto y FAQ. Los links hacia la plataforma usan Catálogo (`VITE_APP_URL` + `/recibir`), Donar y Mi Perfil. Detalle de composición y assets: README de ese repo.
 
 ### Rastro antiguo que no se reutiliza
 

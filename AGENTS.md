@@ -49,7 +49,7 @@ Este repo es la **app** (plataforma). La landing de marketing vive en el repo he
 ## Frontend
 
 - `KeepAlive` en `App.vue` conserva el borrador de `RegistroView`, `DonarView` y `MedicamentoDetalleView` al navegar a otra ruta (p. ej. legales) y volver. Esas vistas declaran `defineOptions({ name: '...' })`. Tras un alta exitosa, el formulario de registro se reinicia.
-- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` y `VITE_LANDING_URL` en `.env.local`. Nunca la `service_role` key ni otros secretos. `VITE_LANDING_URL` es la URL del sitio marketing (`Ecofarma-Landing`); el ítem Inicio del navbar apunta ahí.
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` y `VITE_LANDING_URL` en `.env.local`. Nunca la `service_role` key ni otros secretos. `VITE_LANDING_URL` es la URL del sitio marketing (`Ecofarma-Landing`). El navbar de la app es Catálogo, Donar y Mi Perfil.
 - Colores solo con tokens de `src/style.css` (`bg-primary`, `text-icon`, `text-danger`). Sin hex sueltos ni la paleta por defecto de Tailwind.
 - Títulos en `font-heading` (Lato 700). Cuerpo en `font-sans` (Source Sans Pro).
 - Mobile First es obligatorio: todos los componentes, layouts y pantallas se diseñan primero para dispositivos móviles y se adaptan progresivamente a tablet y desktop usando los breakpoints de Tailwind CSS (`sm`, `md`, `lg`, `xl`). Priorizar accesibilidad, usabilidad, consistencia visual y reutilización de componentes.

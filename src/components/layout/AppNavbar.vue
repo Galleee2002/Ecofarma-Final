@@ -2,7 +2,6 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '../../composables/useAuth';
-import { landingUrl } from '../../lib/env.js';
 import BaseButton from '../ui/BaseButton.vue';
 import BaseModal from '../ui/BaseModal.vue';
 import BaseNavbar from './BaseNavbar.vue';
@@ -13,8 +12,6 @@ const router = useRouter();
 const { sesion, perfil, error, cargando, cerrarSesion, mostrarAviso, esperarSesionInicial, esperarPerfil } = useAuth();
 const authListo = ref(false);
 const confirmarCierre = ref(false);
-
-const urlLanding = landingUrl;
 
 const esAdmin = computed(function () {
     return perfil.value !== null && perfil.value.rol === 'admin';
@@ -35,9 +32,9 @@ const nombreUsuario = computed(function () {
 
 const enlaces = computed(function () {
     return [
-        { id: 'inicio', etiqueta: 'Inicio', externo: true, href: urlLanding === '' ? '/' : urlLanding },
+        { id: 'catalogo', etiqueta: 'Catálogo', destino: { name: 'recibir' } },
         { id: 'donar', etiqueta: 'Donar', destino: { name: 'donar' } },
-        { id: 'recibir', etiqueta: 'Recibir', destino: { name: 'recibir' } },
+        { id: 'perfil', etiqueta: 'Mi Perfil', destino: { name: 'perfil' } },
     ];
 });
 
@@ -50,14 +47,14 @@ onMounted(async function () {
 });
 
 function enlaceActivo(enlace) {
-    if (enlace.id === 'inicio') {
-        return false;
-    }
-    if (enlace.id === 'recibir') {
+    if (enlace.id === 'catalogo') {
         return route.name === 'recibir' || route.name === 'catalogo' || route.name === 'medicamento-detalle';
     }
     if (enlace.id === 'donar') {
         return route.name === 'donar';
+    }
+    if (enlace.id === 'perfil') {
+        return route.name === 'perfil';
     }
     return false;
 }
@@ -102,23 +99,15 @@ async function confirmarCerrarSesion() {
 <template>
     <BaseNavbar sticky :logo-to="{ name: 'recibir' }">
         <template #desktop-navigation>
-            <template v-for="enlace in enlaces" :key="enlace.id">
-                <a
-                    v-if="enlace.externo"
-                    :href="enlace.href"
-                    :class="clasesEnlace(enlace, false)"
-                >
-                    {{ enlace.etiqueta }}
-                </a>
-                <RouterLink
-                    v-else
-                    :to="enlace.destino"
-                    :class="clasesEnlace(enlace, false)"
-                    :aria-current="enlaceActivo(enlace) ? 'page' : undefined"
-                >
-                    {{ enlace.etiqueta }}
-                </RouterLink>
-            </template>
+            <RouterLink
+                v-for="enlace in enlaces"
+                :key="enlace.id"
+                :to="enlace.destino"
+                :class="clasesEnlace(enlace, false)"
+                :aria-current="enlaceActivo(enlace) ? 'page' : undefined"
+            >
+                {{ enlace.etiqueta }}
+            </RouterLink>
         </template>
 
         <template #actions>
@@ -142,23 +131,15 @@ async function confirmarCerrarSesion() {
         </template>
 
         <template #mobile-navigation>
-            <template v-for="enlace in enlaces" :key="enlace.id">
-                <a
-                    v-if="enlace.externo"
-                    :href="enlace.href"
-                    :class="clasesEnlace(enlace, true)"
-                >
-                    {{ enlace.etiqueta }}
-                </a>
-                <RouterLink
-                    v-else
-                    :to="enlace.destino"
-                    :class="clasesEnlace(enlace, true)"
-                    :aria-current="enlaceActivo(enlace) ? 'page' : undefined"
-                >
-                    {{ enlace.etiqueta }}
-                </RouterLink>
-            </template>
+            <RouterLink
+                v-for="enlace in enlaces"
+                :key="enlace.id"
+                :to="enlace.destino"
+                :class="clasesEnlace(enlace, true)"
+                :aria-current="enlaceActivo(enlace) ? 'page' : undefined"
+            >
+                {{ enlace.etiqueta }}
+            </RouterLink>
         </template>
 
         <template #mobile-actions>

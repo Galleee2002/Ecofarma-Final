@@ -46,8 +46,8 @@ Confirmar la entrega, cancelar, dar de alta el vademécum y avisar por mail no t
 - La sesión se escucha solo con `onAuthStateChange`. `INITIAL_SESSION` trae la sesión guardada. El perfil se carga con `setTimeout`, fuera del callback, y solo si cambió el usuario.
 - La escucha arranca en `router.beforeEach`, que espera `esperarSesionInicial()` antes de decidir. El guard de admin espera además `esperarPerfil()`.
 - `requiereSesion` manda a `/login?redirect=`. `soloInvitados` manda al catálogo. `requiereAdmin` manda al catálogo si el rol no es `admin`. El registro siempre va al catálogo. El ingreso vuelve al `redirect` si empieza con `/`.
-- El navbar de la plataforma tiene Inicio (enlace externo a `VITE_LANDING_URL`), Donar (`/donar`) y Recibir (`/recibir`). `/` redirige a `/recibir`. Recibir reutiliza `CatalogoView` y queda activo en `/recibir`, `/catalogo` y `/medicamento/:id`. `/catalogo` se mantiene como ruta compatible.
-- Mi perfil sigue en `/perfil` con las pestañas Mis datos, Mis donaciones (`?tab=donaciones`) y Mis solicitudes (`?tab=solicitudes`). Administración solo se muestra si `rol = admin`.
+- El navbar de la plataforma tiene Catálogo (`/recibir`), Donar (`/donar`) y Mi Perfil (`/perfil`). `/` redirige a `/recibir`. Catálogo reutiliza `CatalogoView` y queda activo en `/recibir`, `/catalogo` y `/medicamento/:id`. `/catalogo` se mantiene como ruta compatible.
+- Mi Perfil está en el navbar y en `/perfil` con las pestañas Mis datos, Mis donaciones (`?tab=donaciones`) y Mis solicitudes (`?tab=solicitudes`). Administración solo se muestra en el menú de usuario si `rol = admin`.
 - El cierre de sesión se confirma con `BaseModal`. La autenticación sigue en `useAuth` (`signOut`).
 - `cargando` y `error` son de cada vista. `useAuth` comparte sesión, perfil y `errorPerfil`. El aviso de ingreso, registro y cierre de sesión lo muestra `mostrarAviso` con `useToast` (3 s).
 
@@ -191,7 +191,7 @@ Sin `updated_at`. Solo leen y escriben donante y receptor.
 
 Trabajo actual. La funcionalidad de las fases 1 a 9 se queda como está. Cada vista llama al composable y usa HTML nativo. El pulido visual de cada pantalla está pendiente.
 
-- [x] Navegación (`App.vue`). Inicio → `VITE_LANDING_URL`; Donar `/donar`; Recibir `/recibir` (catálogo). `/` redirige a `/recibir`. Cierre de sesión con `BaseModal`.
+- [x] Navegación (`App.vue`). Catálogo `/recibir`; Donar `/donar`; Mi Perfil `/perfil`. `/` redirige a `/recibir`. Cierre de sesión con `BaseModal`.
 - [x] Catálogo, `/recibir` y `/catalogo`.
 - [x] Detalle y solicitud, `/medicamento/:id`.
 - [x] Ingreso, `/login`.
@@ -224,13 +224,13 @@ Todo usa el cliente de `src/lib/supabase.js` y la `anon` key.
 | Cuentas | `/admin/usuarios` | `AdminUsuariosView` | `useUsuariosAdmin` | `gestionar-usuarios` (`listar`, `suspender`, `rehabilitar`, `promover`, `revocar`) |
 | Guard | todas | `src/router/index.js` | `useAuth` | `requiereSesion`, `soloInvitados`, `requiereAdmin` |
 
-`AdminLayout` es el subnav de `/admin/*`. `/` redirige a `/recibir`. Recibir del navbar apunta a `/recibir`. La fase 10 no suma Edge Functions en esta app.
+`AdminLayout` es el subnav de `/admin/*`. `/` redirige a `/recibir`. Catálogo del navbar apunta a `/recibir`. La fase 10 no suma Edge Functions en esta app.
 
 ---
 
 ## 6. Landing (fase 10)
 
-La landing de marketing está en el repo hermano `Ecofarma-Landing` (fuera de esta carpeta). Navbar: Inicio, Sponsor, Nuestra App, Impacto, FAQ. Los CTA «Descargar app» apuntan a `{VITE_APP_URL}/recibir` de esta app. En la app, Inicio del navbar apunta a `VITE_LANDING_URL`. Legales siguen en esta app: `/terminos` y `/declaracion-jurada` (contenido V1.0; enlazados desde registro, solicitud y el footer de la landing).
+La landing de marketing está en el repo hermano `Ecofarma-Landing` (fuera de esta carpeta). Navbar de marketing: Inicio, Sponsor, Nuestra App, Impacto, FAQ. Los links hacia la app usan Catálogo (`{VITE_APP_URL}/recibir`), Donar (`/donar`) y Mi Perfil (`/perfil`). Legales siguen en esta app: `/terminos` y `/declaracion-jurada` (contenido V1.0; enlazados desde registro, solicitud y el footer de la landing).
 
 - [x] Repo aparte con composición responsive (hero, sponsors, nuestra app, impacto, FAQ, descarga, footer).
 - [ ] Validación visual en mobile, tablet y desktop, build y prueba cruzada landing ↔ app.

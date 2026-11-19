@@ -105,11 +105,6 @@ function moverFoco(evento) {
     }
 }
 
-function irAlPerfil() {
-    cerrarMenu(false);
-    router.push({ name: 'perfil', query: { tab: 'datos' } });
-}
-
 function irAAdministracion() {
     cerrarMenu(false);
     router.push({ name: 'admin-donaciones' });
@@ -163,17 +158,6 @@ function cerrarSesion() {
             :class="modo === 'mobile' ? 'mt-2 w-full min-w-0' : 'absolute right-0 top-full mt-2 min-w-56'"
         >
             <button
-                type="button"
-                role="menuitem"
-                tabindex="-1"
-                class="flex min-h-10 items-center rounded-sm px-3 py-2 text-left hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                :class="route.name === 'perfil' ? 'bg-primary-soft' : ''"
-                :aria-current="route.name === 'perfil' ? 'page' : undefined"
-                @click="irAlPerfil"
-            >
-                Mi perfil
-            </button>
-            <button
                 v-if="props.esAdmin"
                 type="button"
                 role="menuitem"
@@ -183,9 +167,9 @@ function cerrarSesion() {
                 :aria-current="String(route.name).startsWith('admin-') ? 'page' : undefined"
                 @click="irAAdministracion"
             >
-                Administración
+                Panel de administración
             </button>
-            <div class="my-1 border-t border-line" role="separator" />
+            <div v-if="props.esAdmin" class="my-1 border-t border-line" role="separator" />
             <button
                 type="button"
                 role="menuitem"
