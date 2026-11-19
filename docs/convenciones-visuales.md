@@ -46,7 +46,7 @@ Usar las clases `bg-*`, `text-*` y `border-*` de los tokens. Para avisos y super
 |---|---|---|
 | `primary` | `bg-primary`, `text-primary`, `border-primary` | Acciones principales y enlaces |
 | `secondary` | `bg-secondary`, `text-secondary`, `border-secondary` | Acento azul secundario |
-| `icon` | `text-icon` | Iconos y acentos verdes |
+| `icon` | `text-icon` | Iconos y acentos |
 | `success` | `text-success`, `border-success`, `bg-success/10` | Éxito |
 | `danger` | `text-danger`, `border-danger`, `bg-danger/10` | Errores y acciones destructivas |
 | `warning` | `text-warning`, `border-warning`, `bg-warning/10` | Advertencias |

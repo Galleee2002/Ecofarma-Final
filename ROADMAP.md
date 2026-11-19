@@ -98,8 +98,8 @@ Tokens en `@theme` de `src/style.css`. Fuentes desde Bunny Fonts en `index.html`
 |---|---|---|
 | `primary` | `#215B8D` | Azul Océano |
 | `secondary` | `#309AE6` | Azul Dodger |
-| `icon` | `#52806C` | Verde Mar |
-| `success` | `#43B75D` | Éxito |
+| `icon` | `#309AE6` | Azul Dodger, iconografía |
+| `success` | `#4A9A72` | Éxito |
 | `danger` | `#FF3C3C` | Error y acciones destructivas |
 | `warning` | `#FFAA00` | Advertencia |
 | `background` | `#EEF4F6` | Fondo de página |
