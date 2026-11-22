@@ -67,7 +67,7 @@ onBeforeUnmount(function () {
                 <img
                     src="/logo-ecofarma-inicio.png"
                     alt=""
-                    class="w-56 max-w-[70vw] sm:w-64"
+                    class="w-36 max-w-[50vw] sm:w-40"
                 />
             </div>
             <div class="h-0.5 w-32 overflow-hidden rounded-full bg-primary/30" aria-hidden="true">

@@ -17,9 +17,7 @@ function cerrarInicio() {
 </script>
 
 <template>
-    <div :inert="inicioVisible ? true : undefined">
-        <AppNavbar />
-
+    <div class="pb-[calc(5.5rem+env(safe-area-inset-bottom))]" :inert="inicioVisible ? true : undefined">
         <BaseFieldError
             v-if="errorPerfil !== ''"
             class="mx-auto mt-4 max-w-5xl px-6"
@@ -37,6 +35,7 @@ function cerrarInicio() {
             </KeepAlive>
         </RouterView>
         <ToastViewport />
+        <AppNavbar />
     </div>
     <PantallaCarga v-if="inicioVisible" @listo="cerrarInicio" />
 </template>
