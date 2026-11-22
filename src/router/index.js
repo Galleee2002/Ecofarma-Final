@@ -22,6 +22,12 @@ const routes = [
         component: () => import('../views/MedicamentoDetalleView.vue'),
     },
     {
+        path: '/medicamento/:id/solicitar',
+        name: 'medicamento-solicitar',
+        component: () => import('../views/SolicitarMedicamentoView.vue'),
+        meta: { requiereSesion: true },
+    },
+    {
         path: '/login',
         name: 'login',
         component: () => import('../views/LoginView.vue'),

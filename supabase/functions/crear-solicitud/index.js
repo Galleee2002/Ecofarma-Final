@@ -93,6 +93,11 @@ Deno.serve(async function (req) {
     return responder({ error: 'Tenés que aceptar la Declaración Jurada para solicitar el medicamento.' }, 400);
   }
 
+  const motivo = limpiarTexto(datos.motivo);
+  if (motivo === '') {
+    return responder({ error: 'Indicá el motivo de la solicitud.' }, 400);
+  }
+
   const esParaTercero = datos.es_para_tercero === true;
   const nombreDestinatario = limpiarTexto(datos.nombre_destinatario_final);
   if (esParaTercero && nombreDestinatario === '') {
@@ -165,6 +170,7 @@ Deno.serve(async function (req) {
       receptor_id: usuario.id,
       es_para_tercero: esParaTercero,
       nombre_destinatario_final: esParaTercero ? nombreDestinatario : null,
+      motivo: motivo,
       receta_medica_url: recetaUrl === '' ? null : recetaUrl,
       codigo_confirmacion: codigoConfirmacion,
       acepto_ddjj_receptor: true,

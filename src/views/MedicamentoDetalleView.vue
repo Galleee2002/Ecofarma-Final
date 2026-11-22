@@ -1,29 +1,18 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { watch, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { ChevronLeft } from '@lucide/vue';
 import BaseAlert from '../components/ui/BaseAlert.vue';
 import BaseButton from '../components/ui/BaseButton.vue';
 import FichaMedicamento from '../components/medicamentos/FichaMedicamento.vue';
-import PanelSolicitud from '../components/medicamentos/PanelSolicitud.vue';
-import { useAuth } from '../composables/useAuth';
 import { useMedicamentos } from '../composables/useMedicamentos';
-import { useSolicitudes } from '../composables/useSolicitudes';
 
 defineOptions({
     name: 'MedicamentoDetalleView',
 });
 
 const route = useRoute();
-const router = useRouter();
-const { sesion, perfil, errorPerfil } = useAuth();
 const { medicamento, cargando, error, cargarMedicamentoPorId } = useMedicamentos();
-const { creando, errorCrear, mensajeCrear, crearSolicitud } = useSolicitudes();
-
-const aceptoDdjj = ref(false);
-const esParaTercero = ref(false);
-const nombreDestinatario = ref('');
-const archivoReceta = ref(null);
 
 const requiereReceta = computed(function () {
     if (medicamento.value === null) {
@@ -36,31 +25,6 @@ const requiereReceta = computed(function () {
     return vademecum !== null && vademecum.requiere_receta === true;
 });
 
-const cuentaSuspendida = computed(function () {
-    return perfil.value !== null && perfil.value.is_validado === false;
-});
-
-const puedeSolicitar = computed(function () {
-    if (sesion.value === null || perfil.value === null || cuentaSuspendida.value || aceptoDdjj.value !== true || creando.value) {
-        return false;
-    }
-    if (esParaTercero.value && nombreDestinatario.value.trim() === '') {
-        return false;
-    }
-    if (requiereReceta.value && archivoReceta.value === null) {
-        return false;
-    }
-    return true;
-});
-
-function irALogin() {
-    router.push({ name: 'login', query: { redirect: route.fullPath } });
-}
-
-function elegirReceta(archivo) {
-    archivoReceta.value = archivo;
-}
-
 function reintentar() {
     cargarMedicamentoPorId(route.params.id);
 }
@@ -69,43 +33,11 @@ watch(
     function () {
         return route.params.id;
     },
-    function (id, idAnterior) {
-        if (idAnterior !== undefined && id !== idAnterior) {
-            aceptoDdjj.value = false;
-            esParaTercero.value = false;
-            nombreDestinatario.value = '';
-            archivoReceta.value = null;
-        }
+    function (id) {
         cargarMedicamentoPorId(id);
     },
     { immediate: true },
 );
-
-async function solicitar() {
-    if (sesion.value === null) {
-        irALogin();
-        return;
-    }
-
-    const creada = await crearSolicitud(
-        sesion.value.user.id,
-        {
-            medicamentoId: medicamento.value.id,
-            aceptoDdjj: aceptoDdjj.value,
-            esParaTercero: esParaTercero.value,
-            nombreDestinatario: nombreDestinatario.value,
-            requiereReceta: requiereReceta.value,
-        },
-        archivoReceta.value,
-    );
-
-    if (creada) {
-        aceptoDdjj.value = false;
-        esParaTercero.value = false;
-        nombreDestinatario.value = '';
-        archivoReceta.value = null;
-    }
-}
 </script>
 
 <template>
@@ -124,30 +56,17 @@ async function solicitar() {
             <BaseButton variant="outline" @click="reintentar">Reintentar</BaseButton>
         </div>
 
-        <div
-            v-else-if="medicamento !== null"
-            class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-8"
-        >
+        <div v-else-if="medicamento !== null" class="flex flex-col gap-6">
             <FichaMedicamento class="min-w-0" :medicamento="medicamento" :requiere-receta="requiereReceta" />
-            <PanelSolicitud
-                class="min-w-0 lg:sticky lg:top-4"
-                v-model:acepto-ddjj="aceptoDdjj"
-                v-model:es-para-tercero="esParaTercero"
-                v-model:nombre-destinatario="nombreDestinatario"
-                :archivo-receta="archivoReceta"
-                :sesion="sesion"
-                :perfil="perfil"
-                :requiere-receta="requiereReceta"
-                :cuenta-suspendida="cuentaSuspendida"
-                :puede-solicitar="puedeSolicitar"
-                :creando="creando"
-                :error-perfil="errorPerfil"
-                :error-crear="errorCrear"
-                :mensaje-crear="mensajeCrear"
-                @elegir-receta="elegirReceta"
-                @login="irALogin"
-                @enviar="solicitar"
-            />
+            <RouterLink
+                :to="{ name: 'medicamento-solicitar', params: { id: medicamento.id } }"
+                custom
+                v-slot="{ navigate }"
+            >
+                <BaseButton type="button" variant="primary" size="lg" class="w-full sm:w-auto" @click="navigate">
+                    Solicitar
+                </BaseButton>
+            </RouterLink>
         </div>
     </main>
 </template>

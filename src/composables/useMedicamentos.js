@@ -51,7 +51,7 @@ export function useMedicamentos() {
 
         const { data, error: errorConsulta } = await supabase
             .from('medicamentos')
-            .select('id, nombre_comercial, principio_activo, concentracion, forma_farmaceutica, cantidad_disponible, fecha_vencimiento, fotos_envase, created_at, medicamentos_habilitados(requiere_receta)')
+            .select('id, nombre_comercial, principio_activo, concentracion, forma_farmaceutica, cantidad_disponible, fecha_vencimiento, fotos_envase, created_at, estado, medicamentos_habilitados(requiere_receta)')
             .eq('estado', 'disponible')
             .gte('fecha_vencimiento', obtenerFechaDeHoy());
 

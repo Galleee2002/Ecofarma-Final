@@ -23,14 +23,19 @@ function validarSolicitud(datos, archivoReceta) {
         return 'Tenés que aceptar la Declaración Jurada para solicitar el medicamento.';
     }
 
+    if (typeof datos.motivo !== 'string' || datos.motivo.trim() === '') {
+        return 'Indicá el motivo de la solicitud.';
+    }
+
     if (datos.esParaTercero === true && datos.nombreDestinatario.trim() === '') {
         return 'Indicá el nombre de la persona para quien pedís el medicamento.';
     }
 
-    if (datos.requiereReceta === true) {
-        if (archivoReceta === null) {
-            return 'Este medicamento requiere la foto de una receta médica.';
-        }
+    if (datos.requiereReceta === true && archivoReceta === null) {
+        return 'Este medicamento requiere la foto de una receta médica.';
+    }
+
+    if (archivoReceta !== null) {
         if (!TIPOS_DE_RECETA.includes(archivoReceta.type)) {
             return 'La receta tiene que ser una imagen JPG, PNG o WEBP.';
         }
@@ -165,6 +170,7 @@ export function useSolicitudes() {
                 acepto_ddjj_receptor: true,
                 es_para_tercero: datos.esParaTercero === true,
                 nombre_destinatario_final: datos.esParaTercero === true ? datos.nombreDestinatario.trim() : '',
+                motivo: datos.motivo.trim(),
                 receta_medica_url: urlReceta,
             },
         });

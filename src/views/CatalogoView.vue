@@ -3,10 +3,10 @@ import { onMounted } from 'vue';
 import { useMedicamentos } from '../composables/useMedicamentos';
 import { usePaginacion } from '../composables/usePaginacion';
 import HeaderInicio from '../components/layout/HeaderInicio.vue';
+import LugaresAdheridos from '../components/layout/LugaresAdheridos.vue';
+import MedicamentoCard from '../components/medicamentos/MedicamentoCard.vue';
 import BaseAlert from '../components/ui/BaseAlert.vue';
-import BaseBadge from '../components/ui/BaseBadge.vue';
 import BaseButton from '../components/ui/BaseButton.vue';
-import BaseCard from '../components/ui/BaseCard.vue';
 
 const { cargando, error, busqueda, filtroReceta, orden, medicamentosFiltrados, cargarMedicamentos } = useMedicamentos();
 
@@ -19,10 +19,6 @@ const filtrosReceta = [
     { valor: 'con_receta', etiqueta: 'Con receta' },
     { valor: 'sin_receta', etiqueta: 'Sin receta' },
 ];
-
-function requiereReceta(medicamento) {
-    return medicamento.medicamentos_habilitados?.requiere_receta === true;
-}
 
 onMounted(cargarMedicamentos);
 </script>
@@ -54,21 +50,7 @@ onMounted(cargarMedicamentos);
         <template v-else>
             <ul class="flex list-none flex-col gap-4">
                 <li v-for="medicamento in visibles" :key="medicamento.id">
-                    <BaseCard variant="surface" padding="md" bordered class="rounded-lg shadow-sm">
-                        <template #header>
-                            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                                <h2 class="text-balance text-primary">{{ medicamento.nombre_comercial }}</h2>
-                                <BaseBadge class="self-start" size="sm" :variant="requiereReceta(medicamento) ? 'warning' : 'success'">
-                                    {{ requiereReceta(medicamento) ? 'Con receta' : 'Sin receta' }}
-                                </BaseBadge>
-                            </div>
-                        </template>
-                        <p>{{ medicamento.principio_activo }} {{ medicamento.concentracion }}</p>
-                        <p class="text-sm text-muted">{{ medicamento.forma_farmaceutica }} · cantidad {{ medicamento.cantidad_disponible }}</p>
-                        <template #footer>
-                            <RouterLink :to="'/medicamento/' + medicamento.id" class="font-semibold text-primary">Ver detalle</RouterLink>
-                        </template>
-                    </BaseCard>
+                    <MedicamentoCard :medicamento="medicamento" />
                 </li>
             </ul>
             <div v-if="total > 15" class="flex flex-wrap items-center gap-3">
@@ -81,5 +63,7 @@ onMounted(cargarMedicamentos);
                 </BaseButton>
             </div>
         </template>
+
+        <LugaresAdheridos />
     </main>
 </template>
