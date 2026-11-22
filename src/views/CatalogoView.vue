@@ -2,23 +2,17 @@
 import { onMounted } from 'vue';
 import { useMedicamentos } from '../composables/useMedicamentos';
 import { usePaginacion } from '../composables/usePaginacion';
+import HeaderInicio from '../components/layout/HeaderInicio.vue';
 import BaseAlert from '../components/ui/BaseAlert.vue';
 import BaseBadge from '../components/ui/BaseBadge.vue';
 import BaseButton from '../components/ui/BaseButton.vue';
 import BaseCard from '../components/ui/BaseCard.vue';
-import BaseInput from '../components/ui/BaseInput.vue';
-import BaseSelect from '../components/ui/BaseSelect.vue';
 
 const { cargando, error, busqueda, filtroReceta, orden, medicamentosFiltrados, cargarMedicamentos } = useMedicamentos();
 
 const { pagina, total, visibles } = usePaginacion(medicamentosFiltrados, function () {
     return busqueda.value + '|' + filtroReceta.value + '|' + orden.value;
 });
-
-const opcionesOrden = [
-    { value: 'recientes', label: 'Más recientes' },
-    { value: 'vencimiento', label: 'Próximos a vencer' },
-];
 
 const filtrosReceta = [
     { valor: 'todos', etiqueta: 'Todos' },
@@ -35,26 +29,7 @@ onMounted(cargarMedicamentos);
 
 <template>
     <main class="pagina">
-        <header class="flex flex-col gap-1">
-            <h1 class="text-balance text-primary">Catálogo de medicamentos</h1>
-            <p class="text-pretty text-muted">Explorá los medicamentos donados disponibles para solicitar.</p>
-        </header>
-
-        <div class="grid gap-4 sm:grid-cols-2">
-            <BaseInput
-                id="catalogo-busqueda"
-                v-model="busqueda"
-                label="Buscar"
-                type="search"
-                placeholder="Nombre o principio activo"
-            />
-            <BaseSelect
-                id="catalogo-orden"
-                v-model="orden"
-                label="Ordenar"
-                :options="opcionesOrden"
-            />
-        </div>
+        <HeaderInicio v-model="busqueda" />
 
         <div class="flex flex-wrap gap-2" aria-label="Filtrar medicamentos por receta">
             <BaseButton
