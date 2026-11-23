@@ -50,12 +50,12 @@ onMounted(cargarMedicamentos);
         </div>
         <BaseAlert v-else-if="total === 0" variant="info" message="No hay medicamentos para mostrar." />
         <template v-else>
-            <ul class="flex list-none flex-col gap-4">
+            <ul class="flex list-none flex-col gap-3 md:grid md:grid-cols-2">
                 <li v-for="medicamento in visibles" :key="medicamento.id">
                     <MedicamentoCard :medicamento="medicamento" />
                 </li>
             </ul>
-            <div v-if="total > medicamentosPorPagina" class="flex flex-wrap items-center gap-3">
+            <div v-if="total > medicamentosPorPagina" class="flex flex-wrap items-center justify-center gap-3">
                 <BaseButton variant="outline" :disabled="pagina === 1" @click="pagina = pagina - 1">
                     Anterior
                 </BaseButton>

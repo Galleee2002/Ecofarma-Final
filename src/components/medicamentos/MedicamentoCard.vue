@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import BaseBadge from '../ui/BaseBadge.vue';
 import BaseButton from '../ui/BaseButton.vue';
 import BaseCard from '../ui/BaseCard.vue';
+import BaseStatus from '../ui/BaseStatus.vue';
 
 const props = defineProps({
     medicamento: {
@@ -55,18 +55,15 @@ function solicitar() {
 </script>
 
 <template>
-    <BaseCard variant="surface" padding="md" bordered class="rounded-lg shadow-sm">
+    <BaseCard variant="surface" padding="none" bordered class="rounded-lg p-5 shadow-sm">
         <div class="flex flex-col gap-3">
-            <h2 class="text-balance text-primary">{{ medicamento.nombre_comercial }}</h2>
-            <p class="text-foreground">
-                {{ medicamento.concentracion }} · cantidad {{ medicamento.cantidad_disponible }}
+            <h2 class="text-lg text-balance text-primary">{{ medicamento.nombre_comercial }}</h2>
+            <p class="text-sm text-muted">
+                {{ medicamento.concentracion }} · cantidad {{ medicamento.cantidad_disponible }}<template v-if="fechaPublicacion !== ''"> · {{ fechaPublicacion }}</template>
             </p>
-            <p v-if="fechaPublicacion !== ''" class="text-sm text-muted">
-                Publicado el {{ fechaPublicacion }}
-            </p>
-            <BaseBadge class="self-start" size="sm" :variant="varianteEstado">
+            <BaseStatus :variant="varianteEstado">
                 {{ etiquetaEstado }}
-            </BaseBadge>
+            </BaseStatus>
             <div class="flex flex-wrap items-center justify-start gap-3">
                 <BaseButton
                     type="button"
