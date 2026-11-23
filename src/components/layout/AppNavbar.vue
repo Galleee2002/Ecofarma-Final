@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute } from 'vue-router';
-import { Building2, HandHeart, House, User } from '@lucide/vue';
+import { Building2, Heart, House, User } from '@lucide/vue';
 
 const route = useRoute();
 
@@ -15,7 +15,7 @@ const pestañas = [
         id: 'donar',
         etiqueta: 'Donar',
         destino: { name: 'donar' },
-        icono: HandHeart,
+        icono: Heart,
     },
     {
         id: 'adheridos',

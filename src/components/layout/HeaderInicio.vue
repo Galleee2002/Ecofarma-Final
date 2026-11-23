@@ -1,7 +1,9 @@
 <script setup>
-import { computed } from 'vue';
-import { Bell, Search, User } from '@lucide/vue';
+import { computed, ref } from 'vue';
+import { Search, Shield, User } from '@lucide/vue';
 import { useAuth } from '../../composables/useAuth';
+import BaseButton from '../ui/BaseButton.vue';
+import ModalExito from '../ui/ModalExito.vue';
 
 const props = defineProps({
     modelValue: {
@@ -12,7 +14,18 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
-const { perfil } = useAuth();
+const { perfil, sesion, cerrarSesion, mostrarAviso } = useAuth();
+
+const modalCerrarSesion = ref(false);
+const cerrandoSesion = ref(false);
+
+const tieneSesion = computed(function () {
+    return sesion.value !== null;
+});
+
+const esAdmin = computed(function () {
+    return perfil.value !== null && perfil.value.rol === 'admin';
+});
 
 const nombre = computed(function () {
     if (perfil.value === null || typeof perfil.value.name !== 'string') {
@@ -35,16 +48,69 @@ const inicial = computed(function () {
     return nombre.value.charAt(0).toUpperCase();
 });
 
+const clasesAvatar = [
+    'flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-icon bg-surface',
+].join(' ');
+
+const clasesAvatarBoton = [
+    clasesAvatar,
+    'cursor-pointer transition duration-150 ease-out',
+    'hover:bg-primary-soft/50',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-icon',
+    'motion-reduce:transition-none',
+].join(' ');
+
 function actualizarBusqueda(evento) {
     emit('update:modelValue', evento.target.value);
+}
+
+function abrirModalCerrarSesion() {
+    if (!tieneSesion.value) {
+        return;
+    }
+    modalCerrarSesion.value = true;
+}
+
+async function confirmarCerrarSesion() {
+    if (cerrandoSesion.value) {
+        return;
+    }
+
+    cerrandoSesion.value = true;
+    const ok = await cerrarSesion();
+    cerrandoSesion.value = false;
+
+    if (!ok) {
+        return;
+    }
+
+    modalCerrarSesion.value = false;
+    mostrarAviso('Cerraste sesión.', 'exito');
 }
 </script>
 
 <template>
     <header class="flex flex-col gap-4">
         <div class="flex items-center gap-3">
+            <button
+                v-if="tieneSesion"
+                type="button"
+                :class="clasesAvatarBoton"
+                aria-label="Cerrar sesión"
+                @click="abrirModalCerrarSesion"
+            >
+                <span
+                    v-if="inicial !== ''"
+                    class="font-heading text-lg font-bold text-primary"
+                    aria-hidden="true"
+                >
+                    {{ inicial }}
+                </span>
+                <User v-else :size="22" class="text-icon" stroke-width="1.75" aria-hidden="true" />
+            </button>
             <div
-                class="flex size-12 shrink-0 items-center justify-center rounded-full border-2 border-icon bg-surface"
+                v-else
+                :class="clasesAvatar"
                 aria-hidden="true"
             >
                 <span
@@ -63,13 +129,14 @@ function actualizarBusqueda(evento) {
                 <p class="text-sm text-muted">Bienvenido/a</p>
             </div>
 
-            <button
-                type="button"
+            <RouterLink
+                v-if="esAdmin"
+                :to="{ name: 'admin-donaciones' }"
                 class="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-icon shadow-sm transition duration-150 ease-out hover:bg-primary-soft/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-icon motion-reduce:transition-none"
-                aria-label="Notificaciones"
+                aria-label="Panel de administración"
             >
-                <Bell :size="20" stroke-width="1.75" aria-hidden="true" />
-            </button>
+                <Shield :size="20" stroke-width="1.75" aria-hidden="true" />
+            </RouterLink>
         </div>
 
         <div class="relative">
@@ -89,5 +156,35 @@ function actualizarBusqueda(evento) {
                 @input="actualizarBusqueda"
             />
         </div>
+
+        <ModalExito
+            v-model:open="modalCerrarSesion"
+            titulo="¿Desea cerrar sesión?"
+            :mostrar-icono="false"
+        >
+            <template #acciones="{ cerrar }">
+                <div class="mt-2 flex w-full flex-col gap-3">
+                    <BaseButton
+                        variant="danger"
+                        size="lg"
+                        class="w-full"
+                        :loading="cerrandoSesion"
+                        @click="confirmarCerrarSesion"
+                    >
+                        Cerrar sesión
+                    </BaseButton>
+                    <BaseButton
+                        variant="outline"
+                        size="lg"
+                        class="w-full bg-surface"
+                        data-modal-exito-volver
+                        :disabled="cerrandoSesion"
+                        @click="cerrar"
+                    >
+                        Volver
+                    </BaseButton>
+                </div>
+            </template>
+        </ModalExito>
     </header>
 </template>

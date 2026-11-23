@@ -13,7 +13,7 @@ import BaseTextarea from '../components/ui/BaseTextarea.vue';
 import { useAuth } from '../composables/useAuth';
 import { useVademecum } from '../composables/useVademecum';
 import { useDonaciones } from '../composables/useDonaciones';
-import { useToast } from '../composables/useToast';
+import { useModalExito } from '../composables/useModalExito';
 
 defineOptions({
     name: 'DonarView',
@@ -21,17 +21,16 @@ defineOptions({
 
 const MAXIMO_FOTOS = 3;
 const DURACION_PREPARACION = 700;
-const { sesion, perfil, errorPerfil, mostrarAviso } = useAuth();
+const { sesion, perfil, errorPerfil } = useAuth();
 const { filas: sugerencias, error: errorSugerencias, cargarSugerencias } = useVademecum();
 const {
     publicando,
     errorPublicar,
-    mensajePublicar,
     tipoMensajePublicar,
     validarPublicacion,
     publicarDonacion,
 } = useDonaciones();
-const { info: mostrarInfo } = useToast();
+const { mostrar: mostrarModalExito } = useModalExito();
 
 const datos = ref({
     nombre_comercial: '',
@@ -295,15 +294,24 @@ function limpiarFotos() {
     fotos.value = [];
 }
 
+function mostrarExitoDonacion() {
+    if (tipoMensajePublicar.value === 'exito') {
+        mostrarModalExito(
+            'Medicamento publicado',
+            'Pronto visualizarás el medicamento en el catálogo.',
+        );
+        return;
+    }
+    mostrarModalExito(
+        'Donación recibida',
+        'Un administrador la va a revisar antes de publicarla en el catálogo.',
+    );
+}
+
 async function publicar() {
     const publicada = await publicarDonacion(sesion.value.user.id, datos.value, archivosDeFotos());
     if (publicada) {
-        if (tipoMensajePublicar.value === 'exito') {
-            mostrarAviso(mensajePublicar.value, 'exito');
-        } else {
-            mostrarInfo(mensajePublicar.value, { duration: 3000 });
-        }
-        mensajePublicar.value = '';
+        mostrarExitoDonacion();
         datos.value = {
             nombre_comercial: '',
             principio_activo: '',

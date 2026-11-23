@@ -1,12 +1,15 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuth } from './composables/useAuth';
+import { useModalExito } from './composables/useModalExito';
 import AppNavbar from './components/layout/AppNavbar.vue';
 import PantallaCarga from './components/layout/PantallaCarga.vue';
 import BaseFieldError from './components/ui/BaseFieldError.vue';
+import ModalExito from './components/ui/ModalExito.vue';
 import ToastViewport from './components/ui/ToastViewport.vue';
 
 const { errorPerfil, error } = useAuth();
+const { abierto: modalExitoAbierto, titulo: tituloExito, detalle: detalleExito } = useModalExito();
 const inicioVisible = ref(true);
 
 const vistasConBorrador = ['RegistroView', 'DonarView', 'MedicamentoDetalleView'];
@@ -37,5 +40,10 @@ function cerrarInicio() {
         <ToastViewport />
         <AppNavbar />
     </div>
+    <ModalExito
+        v-model:open="modalExitoAbierto"
+        :titulo="tituloExito"
+        :detalle="detalleExito"
+    />
     <PantallaCarga v-if="inicioVisible" @listo="cerrarInicio" />
 </template>

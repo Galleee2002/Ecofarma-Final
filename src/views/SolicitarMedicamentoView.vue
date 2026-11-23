@@ -11,6 +11,7 @@ import BaseTextarea from '../components/ui/BaseTextarea.vue';
 import { useAuth } from '../composables/useAuth';
 import { useMedicamentos } from '../composables/useMedicamentos';
 import { useSolicitudes } from '../composables/useSolicitudes';
+import { useModalExito } from '../composables/useModalExito';
 
 defineOptions({
     name: 'SolicitarMedicamentoView',
@@ -20,7 +21,8 @@ const route = useRoute();
 const router = useRouter();
 const { sesion, perfil, errorPerfil } = useAuth();
 const { medicamento, cargando, error, cargarMedicamentoPorId } = useMedicamentos();
-const { creando, errorCrear, mensajeCrear, crearSolicitud } = useSolicitudes();
+const { creando, errorCrear, crearSolicitud } = useSolicitudes();
+const { mostrar: mostrarModalExito } = useModalExito();
 
 const aceptoDdjj = ref(false);
 const esParaTercero = ref(false);
@@ -120,6 +122,10 @@ async function enviar() {
 
     if (creada) {
         reiniciarFormulario();
+        mostrarModalExito(
+            'Solicitud enviada',
+            'El código de retiro lo vas a ver en Mis solicitudes, dentro de tu perfil.',
+        );
     }
 }
 </script>
@@ -257,7 +263,6 @@ async function enviar() {
             </template>
 
             <BaseAlert v-if="errorCrear !== ''" variant="error" :message="errorCrear" />
-            <BaseAlert v-if="mensajeCrear !== ''" variant="success" :message="mensajeCrear" />
 
             <BaseButton
                 type="submit"

@@ -10,9 +10,11 @@ import BaseButton from '../components/ui/BaseButton.vue';
 
 const { cargando, error, busqueda, filtroReceta, orden, medicamentosFiltrados, cargarMedicamentos } = useMedicamentos();
 
+const medicamentosPorPagina = 4;
+
 const { pagina, total, visibles } = usePaginacion(medicamentosFiltrados, function () {
     return busqueda.value + '|' + filtroReceta.value + '|' + orden.value;
-});
+}, medicamentosPorPagina);
 
 const filtrosReceta = [
     { valor: 'todos', etiqueta: 'Todos' },
@@ -53,12 +55,12 @@ onMounted(cargarMedicamentos);
                     <MedicamentoCard :medicamento="medicamento" />
                 </li>
             </ul>
-            <div v-if="total > 15" class="flex flex-wrap items-center gap-3">
+            <div v-if="total > medicamentosPorPagina" class="flex flex-wrap items-center gap-3">
                 <BaseButton variant="outline" :disabled="pagina === 1" @click="pagina = pagina - 1">
                     Anterior
                 </BaseButton>
                 <span class="font-sans text-sm text-muted tabular-nums">Página {{ pagina }}</span>
-                <BaseButton variant="outline" :disabled="pagina * 15 >= total" @click="pagina = pagina + 1">
+                <BaseButton variant="outline" :disabled="pagina * medicamentosPorPagina >= total" @click="pagina = pagina + 1">
                     Siguiente
                 </BaseButton>
             </div>
