@@ -67,12 +67,11 @@ function solicitar() {
             <BaseBadge class="self-start" size="sm" :variant="varianteEstado">
                 {{ etiquetaEstado }}
             </BaseBadge>
-            <div class="flex flex-col gap-3 sm:flex-row">
+            <div class="flex flex-wrap items-center justify-start gap-3">
                 <BaseButton
                     type="button"
                     variant="outline"
-                    size="md"
-                    class="w-full bg-surface sm:flex-1"
+                    size="sm"
                     @click="verDetalle"
                 >
                     Ver detalle
@@ -80,8 +79,7 @@ function solicitar() {
                 <BaseButton
                     type="button"
                     variant="primary"
-                    size="md"
-                    class="w-full sm:flex-1"
+                    size="sm"
                     @click="solicitar"
                 >
                     Solicitar
